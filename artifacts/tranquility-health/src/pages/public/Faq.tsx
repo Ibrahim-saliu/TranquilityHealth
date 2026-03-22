@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     question: "What conditions do you treat?",
-    answer: "We specialize in anxiety disorders (generalized anxiety, panic disorder, social anxiety), depression and mood disorders, ADHD in adults and adolescents, OCD and related conditions, and life transition challenges. If you're unsure whether your situation is a good fit, just request an appointment and mark 'Not sure' — we'll help figure that out together.",
+    answer: "We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. If you're unsure whether your situation is a good fit, just request an appointment and select 'Not sure yet' — our care coordinator will help determine the best starting point during your intake call.",
   },
   {
     question: "How do I request an appointment?",

@@ -41,19 +41,19 @@ export default function AboutPage() {
               Tranquility Health was founded on a simple belief: mental health support should be accessible, compassionate, and convenient. We remove barriers to care by delivering licensed therapy and psychiatric services directly to you — wherever you are.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              We specialize in anxiety, depression, ADHD, and related conditions. Our telehealth model means you can meet with a licensed provider from your home, your car, or anywhere private — no commute, no waiting room.
+              We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. Our telehealth model means you can meet with a licensed provider from your home, your car, or anywhere private — no commute, no waiting room.
             </p>
           </div>
           <div className="bg-teal-50 rounded-2xl p-8 border border-teal-100">
             <p className="text-4xl mb-4">🌱</p>
             <p className="text-teal-800 font-semibold text-lg mb-2">What we treat</p>
             <ul className="space-y-1 text-teal-700 text-sm">
-              <li>• Anxiety disorders (GAD, panic, social anxiety)</li>
-              <li>• Depression and mood disorders</li>
-              <li>• ADHD (adult and adolescent)</li>
-              <li>• OCD and related conditions</li>
-              <li>• Life transitions and stress</li>
-              <li>• Medication management</li>
+              <li>• Depression</li>
+              <li>• Anxiety</li>
+              <li>• Mood Disorders</li>
+              <li>• Sleep Disorders</li>
+              <li>• Personality Disorders</li>
+              <li>• Schizophrenia</li>
             </ul>
           </div>
         </div>

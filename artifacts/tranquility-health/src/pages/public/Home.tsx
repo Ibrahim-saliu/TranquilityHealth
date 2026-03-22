@@ -8,16 +8,16 @@ const features = [
     description: "Secure, HIPAA-conscious video sessions with licensed clinicians from the comfort of your home.",
   },
   {
-    title: "Anxiety & Depression",
-    description: "Evidence-based therapy for anxiety, depression, and mood disorders tailored to your needs.",
-  },
-  {
-    title: "ADHD Treatment",
-    description: "Comprehensive evaluation and management for ADHD — therapy, coaching, and medication when appropriate.",
-  },
-  {
     title: "Medication Management",
-    description: "Psychiatric medication services with careful monitoring and thoughtful prescribing practices.",
+    description: "Expert psychiatric medication evaluation and ongoing management for depression, anxiety, mood disorders, and more.",
+  },
+  {
+    title: "Psychotherapy",
+    description: "Individual counseling sessions using evidence-based approaches tailored to your needs and goals.",
+  },
+  {
+    title: "Sleep & Mood Disorders",
+    description: "Specialized care for sleep disorders, mood disorders, personality disorders, and schizophrenia.",
   },
   {
     title: "New Patient Friendly",
@@ -43,7 +43,7 @@ export default function HomePage() {
               Mental health care you can access <span className="text-teal-600">anywhere</span>
             </h1>
             <p className="mt-6 text-xl text-gray-500 leading-relaxed">
-              Tranquility Health provides compassionate, evidence-based treatment for anxiety, depression, and ADHD — via secure video appointments that fit your life.
+              Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more — via secure video appointments that fit your life.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link

@@ -4,28 +4,25 @@ import { CtaBlock } from "@/components/public/CtaBlock";
 
 const services = [
   {
-    icon: "💬",
-    title: "Individual Therapy",
-    description: "One-on-one sessions with a licensed therapist via secure video. We use evidence-based approaches including CBT and DBT to address anxiety, depression, life stressors, and relationship challenges.",
-    who: "Adults 18+ dealing with anxiety, depression, OCD, life transitions, or relationship challenges.",
-  },
-  {
-    icon: "🧠",
-    title: "Psychiatric Evaluation",
-    description: "A thorough initial evaluation with a psychiatric nurse practitioner to understand your symptoms, history, and goals. This typically takes 60 minutes and results in a personalized care plan.",
-    who: "Anyone seeking a professional mental health diagnosis or exploring whether medication may help.",
-  },
-  {
     icon: "💊",
     title: "Medication Management",
-    description: "Ongoing psychiatric care for patients already on or starting psychiatric medication. Includes regular follow-up appointments to monitor effectiveness and adjust as needed.",
-    who: "Existing patients or those referred from a prior evaluation who need ongoing medication oversight.",
+    description: "Our primary service — psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.",
+    conditions: [
+      "Depression",
+      "Anxiety",
+      "Mood Disorders",
+      "Sleep Disorders",
+      "Personality Disorders",
+      "Schizophrenia",
+    ],
+    who: "Adults seeking psychiatric medication support for any of the conditions listed above.",
   },
   {
-    icon: "🎯",
-    title: "ADHD Assessment & Treatment",
-    description: "Comprehensive ADHD evaluation for adults and adolescents, followed by a personalized treatment plan that may include therapy, behavioral strategies, and medication management.",
-    who: "Adults and adolescents (16+) with suspected or previously diagnosed ADHD seeking support.",
+    icon: "💬",
+    title: "Psychotherapy",
+    description: "Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.",
+    conditions: null,
+    who: "Adults seeking individual counseling and therapeutic support.",
   },
 ];
 
@@ -49,9 +46,21 @@ export default function ServicesPage() {
             <div key={service.title} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start gap-5">
                 <span className="text-4xl">{service.icon}</span>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-xl font-bold text-gray-900">{service.title}</h2>
                   <p className="mt-3 text-gray-600 leading-relaxed text-sm">{service.description}</p>
+                  {service.conditions && (
+                    <div className="mt-4">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Conditions treated</p>
+                      <div className="flex flex-wrap gap-2">
+                        {service.conditions.map((c) => (
+                          <span key={c} className="inline-block bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full border border-teal-100">
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="mt-4 p-3 bg-teal-50 rounded-lg">
                     <p className="text-xs text-teal-700">
                       <span className="font-semibold">Good for:</span> {service.who}
