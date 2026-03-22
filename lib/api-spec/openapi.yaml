@@ -57,17 +57,34 @@ paths:
     get:
       operationId: adminListRequests
       tags: [admin]
-      summary: List appointment requests
-      description: Returns all appointment requests ordered by newest first. Optionally filter by status.
+      summary: List appointment requests (paginated)
+      description: Returns appointment requests ordered by newest first. Supports status filtering and cursor-less page/pageSize pagination.
       parameters:
         - name: status
           in: query
           required: false
           schema:
             $ref: "#/components/schemas/RequestStatus"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number (1-indexed)
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of records per page (max 100)
       responses:
         "200":
-          description: List of requests
+          description: Paginated list of requests
           content:
             application/json:
               schema:
@@ -77,7 +94,19 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/AppointmentRequest"
-                required: [requests]
+                  total:
+                    type: integer
+                    description: Total records matching the filter
+                  page:
+                    type: integer
+                    description: Current page number
+                  pageSize:
+                    type: integer
+                    description: Records per page
+                  totalPages:
+                    type: integer
+                    description: Total number of pages
+                required: [requests, total, page, pageSize, totalPages]
   /admin/requests/counts:
     get:
       operationId: adminGetRequestCounts

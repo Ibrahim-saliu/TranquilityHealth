@@ -1,12 +1,12 @@
 /**
  * AdminRequests — /admin/requests
- * Filterable table of appointment requests with an inline detail panel.
+ * Filterable, paginated table of appointment requests with an inline detail panel.
  * TODO (Phase 3): Add admin role guard.
  */
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearch } from "wouter";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   listRequests,
   updateRequestStatus,
@@ -14,10 +14,12 @@ import {
   SERVICE_LABELS,
   type AppointmentRequest,
   type RequestStatus,
+  type RequestsPage,
 } from "@/lib/admin-api";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 
 const ALL_STATUSES: RequestStatus[] = ["new", "under_review", "approved", "rejected", "invited"];
+const PAGE_SIZE = 20;
 
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString("en-US", {
@@ -160,28 +162,72 @@ function DetailPanel({ request, onClose, onStatusUpdated }: DetailPanelProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Pagination controls
+// ---------------------------------------------------------------------------
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  total: number;
+  pageSize: number;
+  onPage: (p: number) => void;
+}
+
+function Pagination({ page, totalPages, total, pageSize, onPage }: PaginationProps) {
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+  return (
+    <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+      <span>{total === 0 ? "No requests" : `${start}–${end} of ${total} request${total !== 1 ? "s" : ""}`}</span>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onPage(page - 1)}
+          disabled={page <= 1}
+          className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="px-2 font-medium text-gray-700">
+          {page} / {totalPages}
+        </span>
+        <button
+          onClick={() => onPage(page + 1)}
+          disabled={page >= totalPages}
+          className="p-1 rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label="Next page"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function AdminRequestsPage() {
   const search = useSearch();
   const initialStatus = new URLSearchParams(search).get("status") as RequestStatus | null;
 
-  const [requests, setRequests] = useState<AppointmentRequest[]>([]);
+  const [pageData, setPageData] = useState<RequestsPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">(
     initialStatus && ALL_STATUSES.includes(initialStatus) ? initialStatus : "all",
   );
+  const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const requests = pageData?.requests ?? [];
   const selectedRequest = requests.find((r) => r.id === selectedId) ?? null;
 
-  const loadRequests = useCallback(async (filter: RequestStatus | "all") => {
+  const loadRequests = useCallback(async (filter: RequestStatus | "all", pageNum: number) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await listRequests(filter === "all" ? undefined : filter);
-      setRequests(data);
+      const data = await listRequests(filter === "all" ? undefined : filter, pageNum, PAGE_SIZE);
+      setPageData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load requests");
     } finally {
@@ -190,12 +236,19 @@ export default function AdminRequestsPage() {
   }, []);
 
   useEffect(() => {
-    loadRequests(statusFilter);
-  }, [statusFilter, loadRequests]);
+    setPage(1);
+    setSelectedId(null);
+  }, [statusFilter]);
+
+  useEffect(() => {
+    loadRequests(statusFilter, page);
+  }, [statusFilter, page, loadRequests]);
 
   function handleStatusUpdated(id: string, newStatus: RequestStatus) {
-    setRequests((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)),
+    setPageData((prev) =>
+      prev
+        ? { ...prev, requests: prev.requests.map((r) => (r.id === id ? { ...r, status: newStatus } : r)) }
+        : prev,
     );
   }
 
@@ -287,9 +340,16 @@ export default function AdminRequestsPage() {
         </table>
       </div>
 
-      <p className="mt-3 text-xs text-gray-400 text-right">
-        {!loading && `${requests.length} request${requests.length !== 1 ? "s" : ""}`}
-      </p>
+      {/* Pagination */}
+      {pageData && (
+        <Pagination
+          page={pageData.page}
+          totalPages={pageData.totalPages}
+          total={pageData.total}
+          pageSize={pageData.pageSize}
+          onPage={setPage}
+        />
+      )}
 
       {/* Detail panel */}
       {selectedRequest && (

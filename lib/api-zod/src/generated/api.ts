@@ -3,9 +3,24 @@
  * Do not edit manually.
  * Api
  * API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from "zod";
+
+/**
+ * Accepts a new patient intake form submission and stores it for staff review. No authentication required.
+ * @summary Submit a public appointment request
+ */
+export const CreateAppointmentRequestBody = zod.object({
+  fullName: zod.string(),
+  email: zod.string().email(),
+  phone: zod.string(),
+  serviceInterest: zod.enum(["therapy", "medication", "not_sure"]),
+  preferredTime: zod.string(),
+  preferredContactMethod: zod.enum(["phone", "email"]).optional(),
+  isNewPatient: zod.boolean().optional(),
+  contactConsent: zod.boolean(),
+});
 
 /**
  * Returns server health status
@@ -13,4 +28,170 @@ import * as zod from "zod";
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+});
+
+/**
+ * Returns appointment requests ordered by newest first. Supports status filtering and cursor-less page/pageSize pagination.
+ * @summary List appointment requests (paginated)
+ */
+export const adminListRequestsQueryPageDefault = 1;
+
+export const adminListRequestsQueryPageSizeDefault = 20;
+export const adminListRequestsQueryPageSizeMax = 100;
+
+export const AdminListRequestsQueryParams = zod.object({
+  status: zod
+    .enum(["new", "under_review", "approved", "rejected", "invited"])
+    .optional(),
+  page: zod.coerce
+    .number()
+    .min(1)
+    .default(adminListRequestsQueryPageDefault)
+    .describe("Page number (1-indexed)"),
+  pageSize: zod.coerce
+    .number()
+    .min(1)
+    .max(adminListRequestsQueryPageSizeMax)
+    .default(adminListRequestsQueryPageSizeDefault)
+    .describe("Number of records per page (max 100)"),
+});
+
+export const AdminListRequestsResponse = zod.object({
+  requests: zod.array(
+    zod.object({
+      id: zod.string(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+      fullName: zod.string(),
+      email: zod.string(),
+      phone: zod.string(),
+      preferredTime: zod.string(),
+      serviceInterest: zod.string(),
+      preferredContactMethod: zod.string().nullish(),
+      isNewPatient: zod.boolean().nullish(),
+      contactConsent: zod.boolean(),
+      status: zod.enum([
+        "new",
+        "under_review",
+        "approved",
+        "rejected",
+        "invited",
+      ]),
+      reviewedAt: zod.date().nullish(),
+      reviewedByAdminId: zod.string().nullish(),
+    }),
+  ),
+  total: zod.number().describe("Total records matching the filter"),
+  page: zod.number().describe("Current page number"),
+  pageSize: zod.number().describe("Records per page"),
+  totalPages: zod.number().describe("Total number of pages"),
+});
+
+/**
+ * @summary Get request counts by status
+ */
+export const AdminGetRequestCountsResponse = zod.object({
+  counts: zod.record(zod.string(), zod.number()),
+});
+
+/**
+ * @summary Get a single appointment request
+ */
+export const AdminGetRequestParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AdminGetRequestResponse = zod.object({
+  request: zod.object({
+    id: zod.string(),
+    createdAt: zod.date(),
+    updatedAt: zod.date(),
+    fullName: zod.string(),
+    email: zod.string(),
+    phone: zod.string(),
+    preferredTime: zod.string(),
+    serviceInterest: zod.string(),
+    preferredContactMethod: zod.string().nullish(),
+    isNewPatient: zod.boolean().nullish(),
+    contactConsent: zod.boolean(),
+    status: zod.enum([
+      "new",
+      "under_review",
+      "approved",
+      "rejected",
+      "invited",
+    ]),
+    reviewedAt: zod.date().nullish(),
+    reviewedByAdminId: zod.string().nullish(),
+  }),
+});
+
+/**
+ * @summary Update appointment request status
+ */
+export const AdminUpdateRequestStatusParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AdminUpdateRequestStatusBody = zod.object({
+  status: zod.enum(["new", "under_review", "approved", "rejected", "invited"]),
+});
+
+export const AdminUpdateRequestStatusResponse = zod.object({
+  request: zod.object({
+    id: zod.string(),
+    status: zod.enum([
+      "new",
+      "under_review",
+      "approved",
+      "rejected",
+      "invited",
+    ]),
+  }),
+});
+
+/**
+ * @summary Get the active provider profile
+ */
+export const AdminGetActiveProviderResponse = zod.object({
+  provider: zod.union([
+    zod.object({
+      id: zod.string(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+      fullName: zod.string(),
+      credentials: zod.string(),
+      licenseState: zod.string(),
+      bio: zod.string(),
+      profileImageUrl: zod.string().nullish(),
+      isActive: zod.boolean(),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Create or update the active provider profile
+ */
+export const AdminUpsertProviderBody = zod.object({
+  fullName: zod.string(),
+  credentials: zod.string().optional(),
+  licenseState: zod.string().optional(),
+  bio: zod.string().optional(),
+  profileImageUrl: zod.string().nullish(),
+  isActive: zod.boolean().optional(),
+});
+
+export const AdminUpsertProviderResponse = zod.object({
+  provider: zod.object({
+    id: zod.string(),
+    createdAt: zod.date(),
+    updatedAt: zod.date(),
+    fullName: zod.string(),
+    credentials: zod.string(),
+    licenseState: zod.string(),
+    bio: zod.string(),
+    profileImageUrl: zod.string().nullish(),
+    isActive: zod.boolean(),
+  }),
 });

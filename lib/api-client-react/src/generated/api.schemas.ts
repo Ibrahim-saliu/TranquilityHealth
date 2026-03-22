@@ -3,8 +3,156 @@
  * Do not edit manually.
  * Api
  * API specification
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
+export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus];
+
+export const RequestStatus = {
+  new: "new",
+  under_review: "under_review",
+  approved: "approved",
+  rejected: "rejected",
+  invited: "invited",
+} as const;
+
+export type AppointmentRequestInputServiceInterest =
+  (typeof AppointmentRequestInputServiceInterest)[keyof typeof AppointmentRequestInputServiceInterest];
+
+export const AppointmentRequestInputServiceInterest = {
+  therapy: "therapy",
+  medication: "medication",
+  not_sure: "not_sure",
+} as const;
+
+export type AppointmentRequestInputPreferredContactMethod =
+  (typeof AppointmentRequestInputPreferredContactMethod)[keyof typeof AppointmentRequestInputPreferredContactMethod];
+
+export const AppointmentRequestInputPreferredContactMethod = {
+  phone: "phone",
+  email: "email",
+} as const;
+
+export interface AppointmentRequestInput {
+  fullName: string;
+  email: string;
+  phone: string;
+  serviceInterest: AppointmentRequestInputServiceInterest;
+  preferredTime: string;
+  preferredContactMethod?: AppointmentRequestInputPreferredContactMethod;
+  isNewPatient?: boolean;
+  contactConsent: boolean;
+}
+
+export interface AppointmentRequestCreated {
+  id: string;
+  status: string;
+}
+
+export interface AppointmentRequest {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  preferredTime: string;
+  serviceInterest: string;
+  preferredContactMethod?: string | null;
+  isNewPatient?: boolean | null;
+  contactConsent: boolean;
+  status: RequestStatus;
+  reviewedAt?: string | null;
+  reviewedByAdminId?: string | null;
+}
+
+export interface ProviderInput {
+  fullName: string;
+  credentials?: string;
+  licenseState?: string;
+  bio?: string;
+  profileImageUrl?: string | null;
+  isActive?: boolean;
+}
+
+export interface Provider {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  fullName: string;
+  credentials: string;
+  licenseState: string;
+  bio: string;
+  profileImageUrl?: string | null;
+  isActive: boolean;
+}
+
+export type ValidationErrorIssuesItem = {
+  field: string;
+  message: string;
+};
+
+export interface ValidationError {
+  issues: ValidationErrorIssuesItem[];
+}
+
 export interface HealthStatus {
   status: string;
 }
+
+export type AdminListRequestsParams = {
+  status?: RequestStatus;
+  /**
+   * Page number (1-indexed)
+   * @minimum 1
+   */
+  page?: number;
+  /**
+   * Number of records per page (max 100)
+   * @minimum 1
+   * @maximum 100
+   */
+  pageSize?: number;
+};
+
+export type AdminListRequests200 = {
+  requests: AppointmentRequest[];
+  /** Total records matching the filter */
+  total: number;
+  /** Current page number */
+  page: number;
+  /** Records per page */
+  pageSize: number;
+  /** Total number of pages */
+  totalPages: number;
+};
+
+export type AdminGetRequestCounts200Counts = { [key: string]: number };
+
+export type AdminGetRequestCounts200 = {
+  counts: AdminGetRequestCounts200Counts;
+};
+
+export type AdminGetRequest200 = {
+  request: AppointmentRequest;
+};
+
+export type AdminUpdateRequestStatusBody = {
+  status: RequestStatus;
+};
+
+export type AdminUpdateRequestStatus200Request = {
+  id: string;
+  status: RequestStatus;
+};
+
+export type AdminUpdateRequestStatus200 = {
+  request: AdminUpdateRequestStatus200Request;
+};
+
+export type AdminGetActiveProvider200 = {
+  provider: Provider | null;
+};
+
+export type AdminUpsertProvider200 = {
+  provider: Provider;
+};

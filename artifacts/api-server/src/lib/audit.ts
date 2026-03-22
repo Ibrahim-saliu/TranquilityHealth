@@ -2,7 +2,8 @@ import { db, auditLogsTable } from "@workspace/db";
 
 export type AuditAction =
   | "REQUEST_STATUS_UPDATED"
-  | "PROVIDER_PROFILE_UPDATED";
+  | "PROVIDER_PROFILE_UPDATED"
+  | "PROVIDER_PLACEHOLDER_SEEDED";
 
 interface AuditParams {
   action: AuditAction;

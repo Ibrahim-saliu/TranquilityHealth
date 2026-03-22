@@ -5,7 +5,8 @@
  * API specification
  * OpenAPI spec version: 0.2.0
  */
+import type { Provider } from "./provider";
 
-export interface HealthStatus {
-  status: string;
-}
+export type AdminGetActiveProvider200 = {
+  provider: Provider | null;
+};

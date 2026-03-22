@@ -1,7 +1,7 @@
 // TODO (Phase 3): Add RBAC middleware — require admin role on all routes below
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc, sql, count } from "drizzle-orm";
 import { db, appointmentRequestsTable, providersTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
 
@@ -17,7 +17,8 @@ const statusSchema = z.enum(ALLOWED_STATUSES);
 
 // ---------------------------------------------------------------------------
 // GET /admin/requests
-// List all appointment requests, optionally filtered by ?status=
+// List appointment requests with optional ?status= filter and pagination
+// Query params: status?, page (default 1), pageSize (default 20, max 100)
 // ---------------------------------------------------------------------------
 router.get("/admin/requests", async (req, res) => {
   const statusFilter = req.query.status as string | undefined;
@@ -27,19 +28,30 @@ router.get("/admin/requests", async (req, res) => {
     return;
   }
 
-  try {
-    const rows = statusFilter
-      ? await db
-          .select()
-          .from(appointmentRequestsTable)
-          .where(eq(appointmentRequestsTable.status, statusFilter))
-          .orderBy(desc(appointmentRequestsTable.createdAt))
-      : await db
-          .select()
-          .from(appointmentRequestsTable)
-          .orderBy(desc(appointmentRequestsTable.createdAt));
+  const pageRaw = parseInt(String(req.query.page ?? "1"), 10);
+  const pageSizeRaw = parseInt(String(req.query.pageSize ?? "20"), 10);
+  const page = isNaN(pageRaw) || pageRaw < 1 ? 1 : pageRaw;
+  const pageSize = isNaN(pageSizeRaw) || pageSizeRaw < 1 ? 20 : Math.min(pageSizeRaw, 100);
+  const offset = (page - 1) * pageSize;
 
-    res.json({ requests: rows });
+  try {
+    const baseQuery = statusFilter
+      ? db.select().from(appointmentRequestsTable).where(eq(appointmentRequestsTable.status, statusFilter))
+      : db.select().from(appointmentRequestsTable);
+
+    const countQuery = statusFilter
+      ? db.select({ total: count() }).from(appointmentRequestsTable).where(eq(appointmentRequestsTable.status, statusFilter))
+      : db.select({ total: count() }).from(appointmentRequestsTable);
+
+    const [rows, countRows] = await Promise.all([
+      baseQuery.orderBy(desc(appointmentRequestsTable.createdAt)).limit(pageSize).offset(offset),
+      countQuery,
+    ]);
+
+    const total = countRows[0]?.total ?? 0;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    res.json({ requests: rows, total, page, pageSize, totalPages });
   } catch (_err) {
     res.status(500).json({ error: "Failed to load requests" });
   }
@@ -148,19 +160,46 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Placeholder provider seeded on first GET if the table is empty
+// ---------------------------------------------------------------------------
+const PLACEHOLDER_PROVIDER = {
+  fullName: "Provider Name",
+  credentials: "MD",
+  licenseState: "TX",
+  bio: "Board-certified provider serving the Tranquility Health clinic.",
+  profileImageUrl: "",
+  isActive: true,
+} as const;
+
+// ---------------------------------------------------------------------------
 // GET /admin/providers/active
-// Return the single active provider, or null if none exists yet
+// Return the single active provider. Seeds a safe placeholder if none exists.
 // ---------------------------------------------------------------------------
 router.get("/admin/providers/active", async (_req, res) => {
   try {
-    const [provider] = await db
+    let [provider] = await db
       .select()
       .from(providersTable)
       .where(eq(providersTable.isActive, true))
       .orderBy(desc(providersTable.createdAt))
       .limit(1);
 
-    res.json({ provider: provider ?? null });
+    // First-run seeding: insert placeholder so the form is never blank
+    if (!provider) {
+      [provider] = await db
+        .insert(providersTable)
+        .values(PLACEHOLDER_PROVIDER)
+        .returning();
+
+      await writeAuditLog({
+        action: "PROVIDER_PLACEHOLDER_SEEDED",
+        entityType: "provider",
+        entityId: provider.id,
+        metadata: { reason: "first_run" },
+      });
+    }
+
+    res.json({ provider });
   } catch (_err) {
     res.status(500).json({ error: "Failed to load provider" });
   }

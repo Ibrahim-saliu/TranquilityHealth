@@ -47,9 +47,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [c, all] = await Promise.all([getRequestCounts(), listRequests()]);
+        const [c, page] = await Promise.all([getRequestCounts(), listRequests(undefined, 1, 10)]);
         setCounts(c);
-        setRecent(all.slice(0, 10));
+        setRecent(page.requests);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load dashboard data");
       } finally {

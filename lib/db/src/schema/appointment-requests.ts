@@ -16,8 +16,8 @@ export const appointmentRequestsTable = pgTable("appointment_requests", {
   isNewPatient: boolean("is_new_patient"),
   contactConsent: boolean("contact_consent").notNull().default(false),
 
-  // Admin tracking
-  status: text("status").notNull().default("new"), // new | reviewed | converted | declined
+  // Admin tracking — Phase 2 statuses: new | under_review | approved | rejected | invited
+  status: text("status").notNull().default("new"),
   reviewedAt: timestamp("reviewed_at"),
   reviewedByAdminId: text("reviewed_by_admin_id"),
 

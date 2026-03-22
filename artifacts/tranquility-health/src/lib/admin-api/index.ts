@@ -88,10 +88,25 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 // Appointment requests
 // ---------------------------------------------------------------------------
 
-export async function listRequests(status?: RequestStatus): Promise<AppointmentRequest[]> {
-  const qs = status ? `?status=${status}` : "";
-  const data = await apiFetch<{ requests: AppointmentRequest[] }>(`/admin/requests${qs}`);
-  return data.requests;
+export interface RequestsPage {
+  requests: AppointmentRequest[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function listRequests(
+  status?: RequestStatus,
+  page = 1,
+  pageSize = 20,
+): Promise<RequestsPage> {
+  const params = new URLSearchParams();
+  if (status) params.set("status", status);
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  const data = await apiFetch<RequestsPage>(`/admin/requests?${params.toString()}`);
+  return data;
 }
 
 export async function getRequestCounts(): Promise<Record<string, number>> {
