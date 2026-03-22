@@ -1,17 +1,4 @@
-/**
- * AppLayout — authenticated patient application shell.
- *
- * This is a placeholder layout for the secure patient-facing app.
- * Renders a simple top bar indicating the authenticated area and
- * wraps the page content.
- *
- * TODO (Phase 3): Replace this placeholder with:
- *  - Session validation / redirect to login if unauthenticated
- *  - Patient sidebar navigation
- *  - User profile/avatar in top bar
- *  - Notification badge for pending items
- */
-
+// TODO (Phase 3): Add session guard, sidebar nav, profile controls.
 import { ReactNode } from "react";
 import { Link } from "wouter";
 
@@ -22,7 +9,6 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* App shell top bar — TODO (Phase 3): Replace with authenticated header */}
       <header className="bg-teal-700 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -52,10 +38,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
               Session
             </Link>
-            {/* TODO (Phase 3): Add logout / profile controls */}
-            <span className="text-teal-300 text-xs italic">
-              [Auth placeholder]
-            </span>
+            <span className="text-teal-300 text-xs italic">[Auth — Phase 3]</span>
           </nav>
         </div>
       </header>

@@ -1,17 +1,6 @@
-// schema.prisma — Prisma database schema for Tranquility Health.
-//
-// This schema defines the core data models for Phase 0.
-// All models include basic fields only — no advanced validation yet.
-//
-// PHI (Protected Health Information) fields are marked with:
-//   // PHI: <description>
-// These fields require special handling under HIPAA:
-//   - Encrypted at rest
-//   - Included in audit logging on access or modification
-//   - Never exposed in logs or error messages
-//
-// TODO (Phase 3): Add Prisma relations, indexes, and constraints.
-// TODO (Phase compliance): Review all PHI fields for encryption and audit compliance.
+// Tranquility Health — Prisma schema (Phase 0).
+// PHI fields are marked with // PHI: for HIPAA compliance tracking.
+// Connection URL is in prisma.config.ts (Prisma 7+). See .env.example.
 
 generator client {
   provider = "prisma-client-js"
@@ -19,51 +8,35 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // In Prisma 7+, the connection URL is configured in prisma.config.ts
-  // (not here) to support the new adapter API.
-  // See prisma.config.ts and .env.example for setup details.
 }
 
-// ==============================================================================
-// ENUMS
-// ==============================================================================
+// ── Enums ──────────────────────────────────────────────────────────────────
 
-/// UserRole — the three core roles in the platform.
-/// See src/types/roles.ts for TypeScript equivalents.
 enum UserRole {
   patient
   provider
   admin
 }
 
-/// AppointmentStatus — lifecycle states for an appointment.
 enum AppointmentStatus {
-  requested  // Initial state after patient submits intake form
-  scheduled  // Confirmed by admin, provider assigned
-  completed  // Session has taken place
-  cancelled  // Cancelled by patient, provider, or admin
-  noShow     // Patient did not attend
+  requested  // Patient submitted intake
+  scheduled  // Admin confirmed, provider assigned
+  completed
+  cancelled
+  noShow
 }
 
-// ==============================================================================
-// MODELS
-// ==============================================================================
+// ── Models ─────────────────────────────────────────────────────────────────
 
-/// User — the base identity record for all platform users.
-/// Represents anyone who can authenticate: patients, providers, and admins.
-///
-/// TODO (Phase 3): Connect to authentication provider (email/password, Replit Auth, etc.)
-/// TODO (Phase 3): Add password hash field or OAuth provider linkage.
+// TODO (Phase 3): Add password hash or OAuth provider fields.
 model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // PHI: Email address — used for login and communications.
-  email     String   @unique
+  email     String   @unique // PHI: used for login and communications
   role      UserRole @default(patient)
 
-  // Relations
   patient   Patient?
   provider  Provider?
   auditLogs AuditLog[] @relation("AuditLogUser")
@@ -71,12 +44,7 @@ model User {
   @@map("users")
 }
 
-/// Patient — extended profile for users with role=patient.
-/// Contains PHI fields that require HIPAA protections.
-///
-/// TODO (Phase 3): Add insurance information fields.
-/// TODO (Phase 3): Add emergency contact fields.
-/// TODO (Phase compliance): Ensure all PHI fields are encrypted at rest.
+// TODO (Phase 3): Add insurance, emergency contact fields. Encrypt PHI at rest.
 model Patient {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -85,20 +53,14 @@ model Patient {
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // PHI: Legal first name.
-  firstName String
-  // PHI: Legal last name.
-  lastName  String
-  // PHI: Date of birth — used for identity verification.
-  dateOfBirth DateTime?
-  // PHI: Primary phone number.
-  phone     String?
-  // PHI: Mailing address — used for records and billing.
-  address   String?
+  firstName   String    // PHI
+  lastName    String    // PHI
+  dateOfBirth DateTime? // PHI
+  phone       String?   // PHI
+  address     String?   // PHI
 
   onboardingComplete Boolean @default(false)
 
-  // Relations
   appointmentRequests AppointmentRequest[]
   appointments        Appointment[]
   consentRecords      ConsentRecord[]
@@ -106,11 +68,7 @@ model Patient {
   @@map("patients")
 }
 
-/// Provider — extended profile for users with role=provider.
-/// Represents licensed clinical staff: therapists, NPs, psychiatrists.
-///
-/// TODO (Phase 3): Add availability/schedule model.
-/// TODO (Phase 3): Add state licensure verification flow.
+// TODO (Phase 3): Add availability/schedule model, licensure verification.
 model Provider {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -119,57 +77,39 @@ model Provider {
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // PHI: Provider full legal name (for credentials display).
-  firstName  String
-  lastName   String
-  // Provider's clinical specialty or license type.
-  specialty  String?
-  // License number — NOT PHI but sensitive. Never log raw.
-  licenseNumber String?
-  isActive   Boolean @default(true)
+  firstName     String  // PHI
+  lastName      String  // PHI
+  specialty     String?
+  licenseNumber String? // Sensitive — never log raw
+  isActive      Boolean @default(true)
 
-  // Relations
   appointments Appointment[]
 
   @@map("providers")
 }
 
-/// AppointmentRequest — submitted by patients via the intake form.
-/// Represents an unconfirmed request that admin must review and schedule.
-///
-/// TODO (Phase 3): Trigger admin notification on creation.
-/// TODO (Phase 3): Log creation as AuditLog event.
+// TODO (Phase 3): Trigger admin notification on creation.
 model AppointmentRequest {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  // PHI: Reason for requesting care — may include sensitive health disclosures.
-  reasonForVisit String?
-  // PHI: Insurance provider name.
-  insuranceName  String?
-  // PHI: Insurance member ID.
-  insuranceMemberId String?
+  reasonForVisit    String? // PHI
+  insuranceName     String? // PHI
+  insuranceMemberId String? // PHI
 
   status    String   @default("pending") // pending | reviewed | converted | declined
   reviewedAt DateTime?
-  reviewedByAdminId String? // TODO (Phase 3): FK to User with admin role
-
-  // TODO (Phase 3): Add providerId FK when admin assigns a provider
-  convertedToAppointmentId String? // Set when converted to a real Appointment
+  reviewedByAdminId String?
+  convertedToAppointmentId String?
 
   @@map("appointment_requests")
 }
 
-/// Appointment — a confirmed, scheduled telehealth session.
-/// Created by admin after reviewing an AppointmentRequest.
-///
-/// TODO (Phase 3): Generate secure video room token on creation.
-/// TODO (Phase 3): Send confirmation email to patient and provider.
-/// TODO (Phase compliance): Log all status changes to AuditLog.
+// TODO (Phase 3): Generate video room token on creation, send confirmation email.
 model Appointment {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -180,74 +120,45 @@ model Appointment {
   providerId String
   provider   Provider @relation(fields: [providerId], references: [id])
 
-  scheduledAt DateTime
-  durationMinutes Int @default(50)
-  status AppointmentStatus @default(requested)
+  scheduledAt     DateTime
+  durationMinutes Int               @default(50)
+  status          AppointmentStatus @default(requested)
 
-  // TODO (Phase future): Store encrypted video session token
-  videoRoomToken String?
-
-  // PHI: Session notes — written by provider after session.
-  // IMPORTANT: Never return this field in public API responses.
-  sessionNotes String?
+  videoRoomToken String? // Phase TBD
+  sessionNotes   String? // PHI — never return in public API responses
 
   @@map("appointments")
 }
 
-/// ConsentRecord — tracks patient consent for specific forms and agreements.
-/// Required for HIPAA compliance (e.g., Notice of Privacy Practices, BAA, telehealth consent).
-///
-/// TODO (Phase compliance): Store consent version and the exact document text hash.
-/// TODO (Phase compliance): Log ConsentRecord creation as AuditLog event.
+// TODO (Phase compliance): Store consent document version and hash.
 model ConsentRecord {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
   patientId String
-  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  // The specific form or agreement consented to.
-  consentType String  // e.g., "HIPAA_NOTICE", "TELEHEALTH_CONSENT", "TREATMENT_CONSENT"
-  // PHI: The method by which the patient signed (e.g., "electronic_checkbox").
-  signatureMethod String @default("electronic_checkbox")
-  // IP address of the client at time of signing — retained for legal purposes.
-  // PHI: Network identifier — handle carefully.
-  ipAddress String?
-  signedAt DateTime @default(now())
-
-  // TODO (Phase compliance): Store document version number
+  consentType     String // e.g. HIPAA_NOTICE, TELEHEALTH_CONSENT
+  signatureMethod String @default("electronic_checkbox") // PHI: signing method
+  ipAddress       String? // PHI: retained for legal purposes
+  signedAt        DateTime @default(now())
   documentVersion String?
 
   @@map("consent_records")
 }
 
-/// AuditLog — immutable log of security and compliance events.
-/// Never delete or update records in this table.
-///
-/// This table records all PHI access events, authentication events,
-/// and administrative actions per HIPAA audit trail requirements.
-///
-/// TODO (Phase 3): Wire logAuditEvent() in src/lib/audit/index.ts to write here.
-/// TODO (Phase compliance): Implement log retention policy (HIPAA requires 6 years).
+// Immutable audit log. Never update or delete records. HIPAA requires 6-year retention.
+// TODO (Phase 3): Wire logAuditEvent() to write here.
 model AuditLog {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 
-  // The user performing the action. May be null for system-initiated events.
   userId    String?
-  user      User?    @relation("AuditLogUser", fields: [userId], references: [id])
+  user      User?   @relation("AuditLogUser", fields: [userId], references: [id])
 
-  // The type of action performed. Use AuditAction type from src/lib/audit/index.ts.
   action    String
-
-  // Arbitrary JSON metadata about the event (e.g., { resourceId, changes, ipAddress }).
-  // PHI: This field MAY contain PHI if included in metadata — handle accordingly.
-  metadata  Json?
-
-  // Source IP address of the request — retained for security investigations.
+  metadata  Json?   // PHI: may contain PHI if included in context
   ipAddress String?
-
-  // Request correlation ID for tracing across services.
   requestId String?
 
   @@map("audit_logs")

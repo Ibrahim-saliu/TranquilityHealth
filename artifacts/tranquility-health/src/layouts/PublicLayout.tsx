@@ -1,12 +1,3 @@
-/**
- * PublicLayout — wraps all public-facing marketing pages.
- *
- * Renders the public Navbar at the top and Footer at the bottom.
- * Content is rendered between these two elements.
- *
- * Future phases may add announcement banners, cookie consent, etc.
- */
-
 import { ReactNode } from "react";
 import { Navbar } from "@/components/public/Navbar";
 import { Footer } from "@/components/public/Footer";
