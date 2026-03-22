@@ -1,4 +1,5 @@
-import { pgTable, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, timestamp, check } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const appointmentRequestsTable = pgTable("appointment_requests", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -16,7 +17,7 @@ export const appointmentRequestsTable = pgTable("appointment_requests", {
   isNewPatient: boolean("is_new_patient"),
   contactConsent: boolean("contact_consent").notNull().default(false),
 
-  // Admin tracking — Phase 2 statuses: new | under_review | approved | rejected | invited
+  // Admin tracking — Phase 2 statuses enforced by DB check constraint below
   status: text("status").notNull().default("new"),
   reviewedAt: timestamp("reviewed_at"),
   reviewedByAdminId: text("reviewed_by_admin_id"),
@@ -24,7 +25,12 @@ export const appointmentRequestsTable = pgTable("appointment_requests", {
   // Phase 3: optional FK after account creation
   patientId: text("patient_id"),
   convertedToAppointmentId: text("converted_to_appointment_id"),
-});
+}, (t) => [
+  check(
+    "appointment_requests_status_check",
+    sql`${t.status} IN ('new', 'under_review', 'approved', 'rejected', 'invited')`,
+  ),
+]);
 
 export type InsertAppointmentRequest = typeof appointmentRequestsTable.$inferInsert;
 export type AppointmentRequest = typeof appointmentRequestsTable.$inferSelect;
