@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     question: "What states do you serve?",
-    answer: "Our clinicians are licensed in multiple states. Coverage varies by clinician and specialty. Request an appointment and include your state of residence — our care coordinator will confirm whether we can see you during the intake call.",
+    answer: "We currently serve patients in Texas. All of our clinicians hold active Texas licensure. If you live outside Texas, we are not able to see you at this time — telehealth regulations require clinicians to be licensed in the state where the patient is located.",
   },
   {
     question: "Can I use Tranquility Health if I've never been to therapy before?",

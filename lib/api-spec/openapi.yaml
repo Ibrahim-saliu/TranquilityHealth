@@ -10,7 +10,34 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: appointments
+    description: Appointment request operations
 paths:
+  /appointment-requests:
+    post:
+      operationId: createAppointmentRequest
+      tags: [appointments]
+      summary: Submit a public appointment request
+      description: Accepts a new patient intake form submission and stores it for staff review. No authentication required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentRequestInput"
+      responses:
+        "201":
+          description: Request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentRequestCreated"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
   /healthz:
     get:
       operationId: healthCheck
@@ -26,6 +53,62 @@ paths:
                 $ref: "#/components/schemas/HealthStatus"
 components:
   schemas:
+    AppointmentRequestInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        serviceInterest:
+          type: string
+          enum: [therapy, medication, not_sure]
+        preferredTime:
+          type: string
+        preferredContactMethod:
+          type: string
+          enum: [phone, email]
+        isNewPatient:
+          type: boolean
+        contactConsent:
+          type: boolean
+      required:
+        - fullName
+        - email
+        - phone
+        - serviceInterest
+        - preferredTime
+        - contactConsent
+    AppointmentRequestCreated:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - status
+    ValidationError:
+      type: object
+      properties:
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+            required:
+              - field
+              - message
+      required:
+        - issues
     HealthStatus:
       type: object
       properties:
