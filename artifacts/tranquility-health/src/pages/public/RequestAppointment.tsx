@@ -1,6 +1,8 @@
 import { useState, FormEvent } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/config/env";
+import { PageHeader } from "@/components/public/PageHeader";
+import { SectionWrapper } from "@/components/public/SectionWrapper";
 
 type ServiceInterest = "therapy" | "medication" | "not_sure";
 type ContactMethod = "phone" | "email";
@@ -105,7 +107,10 @@ export default function RequestAppointmentPage() {
   if (status === "success") {
     return (
       <div className="max-w-2xl mx-auto py-20 px-4 text-center">
-        <div className="w-18 h-18 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg" style={{ width: 72, height: 72 }}>
+        <div
+          className="bg-gradient-to-br from-teal-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+          style={{ width: 72, height: 72 }}
+        >
           <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={1.5} />
         </div>
         <h1 className="text-3xl font-bold text-slate-900">Request received!</h1>
@@ -126,22 +131,13 @@ export default function RequestAppointmentPage() {
 
   return (
     <div>
-      {/* Header */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
-        </div>
-        <div className="relative max-w-2xl mx-auto">
-          <h1 className="text-4xl font-bold text-white">Request an Appointment</h1>
-          <p className="mt-3 text-lg text-slate-300">
-            Takes about 3 minutes. No account required. We'll contact you within one business day.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Request an Appointment"
+        subtitle="Takes about 3 minutes. No account required. We'll contact you within one business day."
+      />
 
-      <section className="py-10 px-4 pb-20 bg-slate-50">
-        <div className="max-w-2xl mx-auto">
+      <SectionWrapper variant="slate">
+        <div className="max-w-2xl mx-auto px-4">
           <form onSubmit={handleSubmit} noValidate>
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm divide-y divide-slate-100">
 
@@ -329,7 +325,7 @@ export default function RequestAppointmentPage() {
             </div>
           </form>
         </div>
-      </section>
+      </SectionWrapper>
     </div>
   );
 }

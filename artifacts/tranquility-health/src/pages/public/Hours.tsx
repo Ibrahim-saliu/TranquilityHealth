@@ -1,4 +1,6 @@
 import { CtaBlock } from "@/components/public/CtaBlock";
+import { PageHeader } from "@/components/public/PageHeader";
+import { SectionWrapper } from "@/components/public/SectionWrapper";
 
 const schedule = [
   { day: "Monday", hours: "5:00 PM – 9:00 PM" },
@@ -13,26 +15,14 @@ const schedule = [
 export default function HoursPage() {
   return (
     <div>
-      {/* Header */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
-        </div>
-        <div className="relative max-w-3xl mx-auto">
-          <span className="inline-block bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide mb-5">
-            Central Time (CST)
-          </span>
-          <h1 className="text-4xl font-bold text-white">Office Hours</h1>
-          <p className="mt-4 text-xl text-slate-300 leading-relaxed">
-            Our schedule is designed around working adults — evenings, Fridays, and Saturdays available.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Office Hours"
+        subtitle="Our schedule is designed around working adults — evenings, Fridays, and Saturdays available."
+        badge="Central Time (CST)"
+      />
 
-      {/* Schedule table */}
-      <section className="py-12 px-4 bg-slate-50">
-        <div className="max-w-3xl mx-auto">
+      <SectionWrapper variant="slate">
+        <div className="max-w-3xl mx-auto px-4">
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
             <table className="w-full text-sm">
               <thead className="bg-gradient-to-r from-teal-600 to-indigo-700 text-white">
@@ -71,11 +61,10 @@ export default function HoursPage() {
             All times are Central Time (CST). Hours may vary on federal holidays.
           </p>
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* Notes */}
-      <section className="py-10 px-4">
-        <div className="max-w-3xl mx-auto space-y-4">
+      <SectionWrapper variant="white" tight>
+        <div className="max-w-3xl mx-auto px-4 space-y-4">
           <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
             <p className="text-amber-800 text-sm font-semibold mb-1">Holiday Schedule</p>
             <p className="text-amber-700 text-sm leading-relaxed">
@@ -95,17 +84,16 @@ export default function HoursPage() {
             </p>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* CTA */}
-      <section className="py-12 px-4 bg-slate-50">
-        <div className="max-w-3xl mx-auto">
+      <SectionWrapper variant="slate" tight>
+        <div className="max-w-3xl mx-auto px-4">
           <CtaBlock
             heading="Book during our available hours"
             subtext="Our care coordinator will reach out to confirm your preferred time within one business day."
           />
         </div>
-      </section>
+      </SectionWrapper>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { Heart, Shield, FlaskConical, Users } from "lucide-react";
 import { CtaBlock } from "@/components/public/CtaBlock";
+import { PageHeader } from "@/components/public/PageHeader";
+import { SectionWrapper } from "@/components/public/SectionWrapper";
 
 const values = [
   {
@@ -31,26 +33,14 @@ const values = [
 export default function AboutPage() {
   return (
     <div>
-      {/* Header */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
-        </div>
-        <div className="relative max-w-4xl mx-auto">
-          <span className="inline-block bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide mb-5">
-            Our Story
-          </span>
-          <h1 className="text-4xl font-bold text-white">About Tranquility Health</h1>
-          <p className="mt-4 text-xl text-slate-300 leading-relaxed max-w-2xl">
-            We believe everyone deserves access to compassionate, high-quality mental health care — without the barriers that have kept so many from getting the help they need.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="About Tranquility Health"
+        subtitle="We believe everyone deserves access to compassionate, high-quality mental health care — without the barriers that have kept so many from getting the help they need."
+        badge="Our Story"
+      />
 
-      {/* Mission */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-start">
+      <SectionWrapper variant="white">
+        <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-start">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Our Mission</h2>
             <p className="text-slate-600 leading-relaxed">
@@ -75,11 +65,10 @@ export default function AboutPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* Our Team */}
-      <section className="py-16 px-4 bg-slate-50">
-        <div className="max-w-4xl mx-auto">
+      <SectionWrapper variant="slate">
+        <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
           <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
             Our network of licensed mental health professionals includes therapists, counselors, and psychiatric nurse practitioners — all rigorously vetted and committed to evidence-based care. Every clinician on our platform holds an active state license and maintains continuing education in their area of specialty.
@@ -98,11 +87,10 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* Values */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
+      <SectionWrapper variant="white">
+        <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-slate-900 mb-10 text-center">What guides us</h2>
           <div className="grid sm:grid-cols-2 gap-6">
             {values.map((v) => (
@@ -116,17 +104,16 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* CTA */}
-      <section className="py-16 px-4 bg-slate-50">
-        <div className="max-w-4xl mx-auto">
+      <SectionWrapper variant="slate" tight>
+        <div className="max-w-4xl mx-auto px-4">
           <CtaBlock
             heading="Let's take this step together"
             subtext="Our care team is here to make your first appointment as easy and comfortable as possible."
           />
         </div>
-      </section>
+      </SectionWrapper>
     </div>
   );
 }

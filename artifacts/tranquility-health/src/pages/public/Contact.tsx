@@ -1,8 +1,10 @@
 import { Link } from "wouter";
 import { Mail, Phone, Clock } from "lucide-react";
 import { ROUTES } from "@/lib/config/routes";
+import { PageHeader } from "@/components/public/PageHeader";
+import { SectionWrapper } from "@/components/public/SectionWrapper";
 
-const contactIcons = [
+const contactItems = [
   {
     Icon: Mail,
     gradient: "from-teal-500 to-teal-600",
@@ -35,31 +37,20 @@ const contactIcons = [
 export default function ContactPage() {
   return (
     <div>
-      {/* Header */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
-        </div>
-        <div className="relative max-w-4xl mx-auto">
-          <span className="inline-block bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide mb-5">
-            Get in touch
-          </span>
-          <h1 className="text-4xl font-bold text-white">Contact Us</h1>
-          <p className="mt-4 text-xl text-slate-300 leading-relaxed">
-            We're here to help. Reach out with questions or to learn more about our services.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Contact Us"
+        subtitle="We're here to help. Reach out with questions or to learn more about our services."
+        badge="Get in touch"
+      />
 
-      <section className="py-14 px-4 bg-slate-50">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+      <SectionWrapper variant="slate">
+        <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-8">
           {/* Contact info */}
           <div className="space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-5">General Inquiries</h3>
               <ul className="space-y-4 text-sm text-slate-600">
-                {contactIcons.map(({ Icon, gradient, label, content }) => (
+                {contactItems.map(({ Icon, gradient, label, content }) => (
                   <li key={label} className="flex items-start gap-4">
                     <div className={`flex-shrink-0 w-9 h-9 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center mt-0.5 shadow-sm`}>
                       <Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
@@ -89,7 +80,6 @@ export default function ContactPage() {
 
           {/* Right column */}
           <div className="space-y-6">
-            {/* Crisis info */}
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
               <h3 className="text-lg font-semibold text-red-900 mb-3">Mental Health Crisis</h3>
               <p className="text-sm text-red-700 leading-relaxed">
@@ -114,7 +104,6 @@ export default function ContactPage() {
               </p>
             </div>
 
-            {/* FAQ link */}
             <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-6">
               <h3 className="text-base font-semibold text-slate-900 mb-2">Have a question?</h3>
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
@@ -129,7 +118,6 @@ export default function ContactPage() {
               </Link>
             </div>
 
-            {/* HIPAA note */}
             <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
               <p className="text-xs text-slate-500 leading-relaxed">
                 <span className="font-semibold text-slate-600">Privacy Notice:</span> Please do not share protected health information (PHI) in any contact form or email. If you need to discuss your health details, please do so during your scheduled appointment over our secure video platform.
@@ -137,7 +125,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
     </div>
   );
 }
