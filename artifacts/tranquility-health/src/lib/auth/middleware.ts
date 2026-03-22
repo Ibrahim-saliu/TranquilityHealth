@@ -12,16 +12,16 @@ export function hasRole(_role: UserRole): boolean {
   return false;
 }
 
-// TODO (Phase 3): Redirect unauthenticated users to /login.
+// TODO (Phase 3): Integrate with router to redirect unauthenticated users.
 export function requireAuth(onUnauthenticated: () => void): void {
   if (!isAuthenticated()) {
-    void onUnauthenticated;
+    onUnauthenticated();
   }
 }
 
-// TODO (Phase 3): Redirect users who lack the required role.
+// TODO (Phase 3): Integrate with router to redirect unauthorized users.
 export function requireRole(_role: UserRole, onUnauthorized: () => void): void {
   if (!hasRole(_role)) {
-    void onUnauthorized;
+    onUnauthorized();
   }
 }
