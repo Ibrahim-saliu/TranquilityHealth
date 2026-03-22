@@ -27,6 +27,10 @@ function providerToForm(p: Provider): ProviderInput {
   };
 }
 
+const inputClass =
+  "w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white transition-colors";
+const labelClass = "block text-sm font-semibold text-slate-700 mb-1";
+
 export default function AdminProvidersPage() {
   const [form, setForm] = useState<ProviderInput>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
@@ -79,8 +83,8 @@ export default function AdminProvidersPage() {
   if (loading) {
     return (
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Profile</h1>
-        <p className="text-gray-400 text-sm">Loading…</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Provider Profile</h1>
+        <p className="text-slate-400 text-sm">Loading…</p>
       </div>
     );
   }
@@ -88,8 +92,8 @@ export default function AdminProvidersPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Provider Profile</h1>
-        <p className="mt-1 text-gray-500">
+        <h1 className="text-3xl font-bold text-slate-900">Provider Profile</h1>
+        <p className="mt-1 text-slate-500">
           Manage the active provider's publicly visible profile information.
           {/* TODO (Phase 3): Support multiple providers */}
         </p>
@@ -102,11 +106,11 @@ export default function AdminProvidersPage() {
       )}
 
       <div className="max-w-2xl">
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white border border-slate-200 rounded-xl shadow-sm p-8">
 
           {/* Full name */}
           <div>
-            <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label htmlFor="fullName" className={labelClass}>
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -117,13 +121,13 @@ export default function AdminProvidersPage() {
               value={form.fullName}
               onChange={handleChange}
               placeholder="e.g. Jane Smith"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClass}
             />
           </div>
 
           {/* Credentials */}
           <div>
-            <label htmlFor="credentials" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label htmlFor="credentials" className={labelClass}>
               Credentials
             </label>
             <input
@@ -133,16 +137,16 @@ export default function AdminProvidersPage() {
               value={form.credentials}
               onChange={handleChange}
               placeholder="e.g. PMHNP-BC, LPC"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClass}
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-slate-400">
               Professional designations only — do not add claims not backed by licensure.
             </p>
           </div>
 
           {/* License state */}
           <div>
-            <label htmlFor="licenseState" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label htmlFor="licenseState" className={labelClass}>
               License State
             </label>
             <input
@@ -153,13 +157,13 @@ export default function AdminProvidersPage() {
               value={form.licenseState}
               onChange={handleChange}
               placeholder="TX"
-              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase"
+              className="w-24 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 uppercase transition-colors"
             />
           </div>
 
           {/* Bio */}
           <div>
-            <label htmlFor="bio" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label htmlFor="bio" className={labelClass}>
               Bio
             </label>
             <textarea
@@ -169,13 +173,13 @@ export default function AdminProvidersPage() {
               value={form.bio}
               onChange={handleChange}
               placeholder="Provider bio visible to patients..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-y"
+              className={`${inputClass} resize-y`}
             />
           </div>
 
           {/* Profile image URL */}
           <div>
-            <label htmlFor="profileImageUrl" className="block text-sm font-semibold text-gray-700 mb-1">
+            <label htmlFor="profileImageUrl" className={labelClass}>
               Profile Image URL
             </label>
             <input
@@ -185,21 +189,21 @@ export default function AdminProvidersPage() {
               value={form.profileImageUrl}
               onChange={handleChange}
               placeholder="https://..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className={inputClass}
             />
           </div>
 
           {/* Active toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
             <input
               id="isActive"
               name="isActive"
               type="checkbox"
               checked={form.isActive}
               onChange={handleChange}
-              className="w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              className="w-4 h-4 text-teal-600 border-slate-300 rounded focus:ring-teal-500"
             />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isActive" className="text-sm font-medium text-slate-700">
               Active (visible to patients)
             </label>
           </div>
@@ -209,7 +213,7 @@ export default function AdminProvidersPage() {
             <div
               className={`p-3 rounded-lg text-sm font-medium ${
                 saveResult.type === "success"
-                  ? "bg-green-50 border border-green-200 text-green-800"
+                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
                   : "bg-red-50 border border-red-200 text-red-800"
               }`}
             >
@@ -222,14 +226,14 @@ export default function AdminProvidersPage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-gray-900 text-white font-semibold rounded-lg text-sm hover:bg-gray-700 transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-indigo-600 text-white font-semibold rounded-lg text-sm hover:from-teal-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save Profile"}
             </button>
           </div>
 
           {/* Compliance note */}
-          <p className="text-xs text-gray-400 pt-2 border-t border-gray-100">
+          <p className="text-xs text-slate-400 pt-2 border-t border-slate-100">
             {/* TODO (Phase 3): Legal/compliance review before making provider info patient-facing */}
             Profile changes take effect immediately. Ensure all credentials and claims have been reviewed for accuracy before saving.
           </p>

@@ -20,14 +20,45 @@ import { ROUTES } from "@/lib/config/routes";
 const STATUS_CARD_CONFIG: {
   status: RequestStatus;
   label: string;
-  color: string;
-  textColor: string;
+  gradient: string;
+  numColor: string;
+  border: string;
 }[] = [
-  { status: "new", label: "New", color: "bg-blue-50 border-blue-200", textColor: "text-blue-700" },
-  { status: "under_review", label: "Under Review", color: "bg-amber-50 border-amber-200", textColor: "text-amber-700" },
-  { status: "approved", label: "Approved", color: "bg-green-50 border-green-200", textColor: "text-green-700" },
-  { status: "rejected", label: "Rejected", color: "bg-red-50 border-red-200", textColor: "text-red-700" },
-  { status: "invited", label: "Invited", color: "bg-purple-50 border-purple-200", textColor: "text-purple-700" },
+  {
+    status: "new",
+    label: "New",
+    gradient: "from-teal-50 to-cyan-50",
+    numColor: "text-teal-700",
+    border: "border-teal-200",
+  },
+  {
+    status: "under_review",
+    label: "Under Review",
+    gradient: "from-amber-50 to-yellow-50",
+    numColor: "text-amber-700",
+    border: "border-amber-200",
+  },
+  {
+    status: "approved",
+    label: "Approved",
+    gradient: "from-emerald-50 to-green-50",
+    numColor: "text-emerald-700",
+    border: "border-emerald-200",
+  },
+  {
+    status: "rejected",
+    label: "Rejected",
+    gradient: "from-red-50 to-rose-50",
+    numColor: "text-red-700",
+    border: "border-red-200",
+  },
+  {
+    status: "invited",
+    label: "Invited",
+    gradient: "from-violet-50 to-indigo-50",
+    numColor: "text-violet-700",
+    border: "border-violet-200",
+  },
 ];
 
 function formatDate(iso: string) {
@@ -65,19 +96,19 @@ export default function AdminDashboardPage() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-1 text-gray-500">Operational overview for Tranquility Health.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
+          <p className="mt-1 text-slate-500">Operational overview for Tranquility Health.</p>
         </div>
         <div className="flex gap-3">
           <Link
             href={ROUTES.admin.requests}
-            className="px-4 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
           >
             View Requests
           </Link>
           <Link
             href={ROUTES.admin.providers}
-            className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-100 hover:border-slate-400 transition-colors"
           >
             Manage Provider
           </Link>
@@ -92,16 +123,16 @@ export default function AdminDashboardPage() {
 
       {/* Status count cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
-        {STATUS_CARD_CONFIG.map(({ status, label, color, textColor }) => (
+        {STATUS_CARD_CONFIG.map(({ status, label, gradient, numColor, border }) => (
           <Link
             key={status}
             href={`${ROUTES.admin.requests}?status=${status}`}
-            className={`p-5 rounded-xl border ${color} hover:shadow-md transition-shadow block`}
+            className={`p-5 rounded-xl border ${border} bg-gradient-to-br ${gradient} hover:shadow-md transition-shadow block`}
           >
-            <p className={`text-xs font-semibold uppercase tracking-wider ${textColor}`}>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               {label}
             </p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">
+            <p className={`text-3xl font-bold mt-2 ${numColor}`}>
               {loading ? "—" : (counts[status] ?? 0)}
             </p>
           </Link>
@@ -109,45 +140,46 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Total summary */}
-      <div className="mb-8 p-4 bg-gray-100 rounded-xl border border-gray-200 text-sm text-gray-600">
-        Total requests: <span className="font-bold text-gray-900">{loading ? "—" : totalRequests}</span>
+      <div className="mb-8 p-4 bg-teal-50 rounded-xl border border-teal-100 text-sm text-slate-600">
+        Total requests:{" "}
+        <span className="font-bold text-slate-900">{loading ? "—" : totalRequests}</span>
       </div>
 
       {/* Recent requests */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">Recent Requests</h2>
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <h2 className="text-base font-semibold text-slate-900">Recent Requests</h2>
           <Link href={ROUTES.admin.requests} className="text-sm text-teal-600 hover:text-teal-800 font-medium">
             View all →
           </Link>
         </div>
 
         {loading ? (
-          <div className="px-6 py-12 text-center text-gray-400 text-sm">Loading…</div>
+          <div className="px-6 py-12 text-center text-slate-400 text-sm">Loading…</div>
         ) : recent.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-400 text-sm">
+          <div className="px-6 py-12 text-center text-slate-400 text-sm">
             No requests yet. Once patients submit the intake form, they will appear here.
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
                 {["Name", "Service", "Preferred Time", "Submitted", "Status"].map((col) => (
-                  <th key={col} className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
+                  <th key={col} className="text-left px-6 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">
                     {col}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-50">
               {recent.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-3 font-medium text-gray-900">{r.fullName}</td>
-                  <td className="px-6 py-3 text-gray-600">
+                <tr key={r.id} className="hover:bg-teal-50/40 transition-colors">
+                  <td className="px-6 py-3 font-medium text-slate-900">{r.fullName}</td>
+                  <td className="px-6 py-3 text-slate-600">
                     {SERVICE_LABELS[r.serviceInterest] ?? r.serviceInterest}
                   </td>
-                  <td className="px-6 py-3 text-gray-600">{r.preferredTime}</td>
-                  <td className="px-6 py-3 text-gray-500">{formatDate(r.createdAt)}</td>
+                  <td className="px-6 py-3 text-slate-600">{r.preferredTime}</td>
+                  <td className="px-6 py-3 text-slate-500">{formatDate(r.createdAt)}</td>
                   <td className="px-6 py-3">
                     <StatusBadge status={r.status} />
                   </td>
