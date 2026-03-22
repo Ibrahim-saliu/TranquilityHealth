@@ -1,0 +1,207 @@
+```txt
+You are a senior software engineer helping build a HIPAA-conscious telehealth MVP called **Tranquility Health**.
+
+Your task is to generate **Phase 0: Foundation only**.
+
+## IMPORTANT RULES
+
+- Do NOT implement business logic
+- Do NOT build forms, auth, scheduling, or telehealth
+- Focus ONLY on clean architecture and structure
+- Code must be modular, readable, and production-oriented
+- Add TODO comments where future implementation is expected
+
+---
+
+## Tech Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Prisma ORM
+- PostgreSQL
+
+---
+
+## 1. Project Setup
+
+- Initialize a Next.js app using App Router
+- Enable TypeScript
+- Configure Tailwind CSS
+- Set up a clean folder structure
+
+---
+
+## 2. Route Structure (VERY IMPORTANT)
+
+Create route groups:
+
+### Public routes
+- `/`
+- `/about`
+- `/services`
+- `/hours`
+- `/faq`
+- `/contact`
+- `/request-appointment`
+
+### Secure patient app routes
+- `/app/dashboard`
+- `/app/onboarding`
+- `/app/appointments`
+- `/app/session`
+
+### Admin routes
+- `/admin/dashboard`
+- `/admin/requests`
+- `/admin/appointments`
+- `/admin/providers`
+
+Use layout grouping to separate:
+- public layout
+- app layout
+- admin layout
+
+---
+
+## 3. Layouts
+
+Create:
+
+- Root layout
+- Public layout (navbar + footer)
+- App layout (authenticated shell placeholder)
+- Admin layout (admin shell placeholder)
+
+Keep UI minimal but clean.
+
+---
+
+## 4. Role Model (Structure Only)
+
+Define roles:
+- patient
+- provider
+- admin
+
+Create:
+- role types (TypeScript enum or constants)
+- placeholder utility for role checking
+
+Do NOT implement authentication yet.
+
+---
+
+## 5. Prisma Setup
+
+Install and configure Prisma.
+
+Create schema with models:
+
+- User
+- Patient
+- Provider
+- AppointmentRequest
+- Appointment
+- ConsentRecord
+- AuditLog
+
+Include basic fields only (no advanced validation yet).
+
+Mark fields that may contain PHI with comments.
+
+Generate migration and Prisma client.
+
+---
+
+## 6. Database Connection
+
+- Configure PostgreSQL connection using environment variables
+- Do NOT hardcode credentials
+- Add `.env.example` file
+
+---
+
+## 7. Middleware (Placeholder Only)
+
+Create middleware or helper functions for:
+
+- route protection (stub)
+- role-based access (stub)
+
+Add TODO comments:
+“Implement authentication and RBAC logic in Phase 3”
+
+---
+
+## 8. Audit Logging Utility (Stub)
+
+Create a reusable function:
+
+logAuditEvent(userId, action, metadata)
+
+- Do NOT implement full logging logic yet
+- Add TODO for DB integration in later phase
+
+---
+
+## 9. Config / Constants
+
+Create central config files for:
+
+- roles
+- route paths
+- environment flags
+
+---
+
+## 10. UI Baseline
+
+- Create simple navbar and footer
+- Add placeholder content to all pages
+- Ensure responsive layout
+
+---
+
+## 11. Folder Structure (IMPORTANT)
+
+Organize code into:
+
+- `/app` (routes)
+- `/components`
+- `/lib` (utilities, db, config)
+- `/prisma`
+- `/types`
+
+---
+
+## 12. Deliverables
+
+- Clean working Next.js app
+- Route groups correctly structured
+- Prisma schema and client generated
+- Layouts working
+- Placeholder pages render
+- No runtime errors
+
+---
+
+## DO NOT:
+
+- Add authentication
+- Add forms
+- Add API endpoints with logic
+- Add analytics or tracking scripts
+- Store any sensitive data
+
+---
+
+## Add comments throughout the code explaining:
+
+- purpose of each module
+- where future phases will extend functionality
+
+---
+
+Generate the full codebase for Phase 0 only.
+```
