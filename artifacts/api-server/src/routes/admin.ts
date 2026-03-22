@@ -160,7 +160,7 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// Placeholder provider seeded on first GET if the table is empty
+// Placeholder provider seeded on first GET if the table is truly empty
 // ---------------------------------------------------------------------------
 const PLACEHOLDER_PROVIDER = {
   fullName: "Provider Name",
@@ -173,18 +173,19 @@ const PLACEHOLDER_PROVIDER = {
 
 // ---------------------------------------------------------------------------
 // GET /admin/providers/active
-// Return the single active provider. Seeds a safe placeholder if none exists.
+// Return the canonical provider row (latest by created_at, regardless of
+// isActive). Seeds a safe placeholder only when the table is empty.
+// isActive is a display flag — admins edit the one provider record.
 // ---------------------------------------------------------------------------
 router.get("/admin/providers/active", async (_req, res) => {
   try {
     let [provider] = await db
       .select()
       .from(providersTable)
-      .where(eq(providersTable.isActive, true))
       .orderBy(desc(providersTable.createdAt))
       .limit(1);
 
-    // First-run seeding: insert placeholder so the form is never blank
+    // First-run seeding: insert placeholder only when no rows exist at all
     if (!provider) {
       [provider] = await db
         .insert(providersTable)
@@ -231,10 +232,11 @@ router.put("/admin/providers/active", async (req, res) => {
   const data = parsed.data;
 
   try {
+    // Always target the canonical (latest created) provider row, regardless of
+    // isActive. isActive is a display flag, not a selector for admin editing.
     const [existing] = await db
       .select({ id: providersTable.id })
       .from(providersTable)
-      .where(eq(providersTable.isActive, true))
       .orderBy(desc(providersTable.createdAt))
       .limit(1);
 
