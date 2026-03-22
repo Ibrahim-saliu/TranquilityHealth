@@ -13,6 +13,9 @@ export function Footer() {
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               Compassionate telehealth care for anxiety, depression, and ADHD — accessible from wherever you are.
             </p>
+            <p className="mt-3 text-xs text-gray-500">
+              Texas telehealth · Cash pay · No insurance required
+            </p>
           </div>
 
           <div>
@@ -42,7 +45,7 @@ export function Footer() {
                   href={ROUTES.public.requestAppointment}
                   className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  Request an Appointment
+                  Book an Appointment
                 </Link>
               </li>
               <li>
@@ -52,7 +55,8 @@ export function Footer() {
 
             <div className="mt-6 p-3 bg-gray-800 rounded-lg border border-gray-700">
               <p className="text-xs text-gray-400">
-                HIPAA-conscious platform. Your health information is protected.
+                {/* TODO (legal): replace with reviewed crisis disclaimer before launch */}
+                If you are in a mental health emergency, call <strong className="text-gray-300">988</strong> (Crisis Lifeline) or <strong className="text-gray-300">911</strong>. Tranquility Health is not an emergency service.
               </p>
             </div>
           </div>

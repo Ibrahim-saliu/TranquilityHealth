@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 
 const navLinks = [
+  { label: "Home", href: ROUTES.public.home },
   { label: "About", href: ROUTES.public.about },
   { label: "Services", href: ROUTES.public.services },
   { label: "Hours", href: ROUTES.public.hours },
@@ -44,7 +45,7 @@ export function Navbar() {
             href={ROUTES.public.requestAppointment}
             className="inline-flex items-center px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition-colors"
           >
-            Request Appointment
+            Book Appointment
           </Link>
         </div>
 
@@ -80,7 +81,7 @@ export function Navbar() {
             className="block text-sm font-semibold text-teal-700 hover:text-teal-800 pt-2 border-t border-gray-100"
             onClick={() => setMobileOpen(false)}
           >
-            Request Appointment →
+            Book Appointment →
           </Link>
         </div>
       )}

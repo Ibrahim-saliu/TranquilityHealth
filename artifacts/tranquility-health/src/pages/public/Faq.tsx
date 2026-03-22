@@ -7,8 +7,8 @@ const faqs = [
     answer: "Telehealth allows you to meet with a licensed mental health provider via secure video call — from the comfort of your home or any private location. Before your appointment you'll receive a link by email or text. Most devices work without any software downloads. You just need a stable internet connection and a private space.",
   },
   {
-    question: "Is telehealth covered by insurance?",
-    answer: "Many insurance plans cover telehealth mental health services, especially since 2020. Coverage depends on your specific plan and state. We recommend calling the member services number on your insurance card and asking about mental health telehealth coverage. Our care coordinator can also help you verify benefits before your first appointment.",
+    question: "How does payment work? Do you accept insurance?",
+    answer: "Tranquility Health is a cash-pay practice — we do not bill insurance directly. All services are paid out of pocket at the time of your appointment. We accept major credit and debit cards. If you have an HSA or FSA account, those funds can typically be used for mental health services. We can provide a superbill upon request that you may submit to your insurer for potential out-of-network reimbursement.",
   },
   {
     question: "What conditions do you treat?",
@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     question: "How do I request an appointment?",
-    answer: "Fill out our short online appointment request form — it takes about 3 minutes. No account is required. Our care coordinator will contact you within one business day to schedule your first appointment, verify insurance, and answer any questions you have.",
+    answer: "Fill out our short online appointment request form — it takes about 3 minutes. No account is required. Our care coordinator will contact you within one business day to schedule your first appointment and answer any questions you have.",
   },
   {
     question: "How long does the first appointment take?",

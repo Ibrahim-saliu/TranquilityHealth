@@ -34,10 +34,33 @@ export default function RequestAppointmentPage() {
     return fieldErrors.find((e) => e.field === field)?.message;
   }
 
+  function validateClientSide(): FieldError[] {
+    const errors: FieldError[] = [];
+    if (!fullName.trim()) errors.push({ field: "fullName", message: "Full name is required." });
+    if (!email.trim()) {
+      errors.push({ field: "email", message: "Email address is required." });
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.push({ field: "email", message: "Please enter a valid email address." });
+    }
+    if (!phone.trim()) errors.push({ field: "phone", message: "Phone number is required." });
+    if (!serviceInterest) errors.push({ field: "serviceInterest", message: "Please select a service." });
+    if (!preferredTime) errors.push({ field: "preferredTime", message: "Please select a preferred time." });
+    if (!contactConsent) errors.push({ field: "contactConsent", message: "You must consent to be contacted." });
+    return errors;
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setFieldErrors([]);
     setServerError(null);
+
+    const clientErrors = validateClientSide();
+    if (clientErrors.length > 0) {
+      setFieldErrors(clientErrors);
+      setStatus("error");
+      return;
+    }
+
     setStatus("submitting");
 
     const payload = {
@@ -90,7 +113,7 @@ export default function RequestAppointmentPage() {
         </p>
         <div className="mt-8 p-5 bg-teal-50 border border-teal-100 rounded-xl text-left">
           <p className="text-sm text-teal-700">
-            <span className="font-semibold">What happens next:</span> We'll reach out to verify your insurance (if applicable), answer any questions you have, and confirm your appointment time.
+            <span className="font-semibold">What happens next:</span> Our care coordinator will reach out, answer any questions you have, and confirm your appointment time. Payment is due at the time of your appointment.
           </p>
         </div>
         <p className="mt-8 text-sm text-gray-400">

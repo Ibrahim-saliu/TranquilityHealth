@@ -61,7 +61,6 @@ model Patient {
 
   onboardingComplete Boolean @default(false)
 
-  appointmentRequests AppointmentRequest[]
   appointments        Appointment[]
   consentRecords      ConsentRecord[]
 
@@ -89,21 +88,29 @@ model Provider {
 }
 
 // TODO (Phase 3): Trigger admin notification on creation.
+// NOTE: Drizzle ORM (lib/db) is the source of truth for this table. Keep in sync.
 model AppointmentRequest {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  // PII: contact info from public intake form
+  fullName  String
+  email     String
+  phone     String
 
-  reasonForVisit    String? // PHI
-  insuranceName     String? // PHI
-  insuranceMemberId String? // PHI
+  preferredTime         String
+  serviceInterest       String  // therapy | medication | not_sure
+  preferredContactMethod String? // phone | email
+  isNewPatient          Boolean?
+  contactConsent        Boolean @default(false)
 
-  status    String   @default("pending") // pending | reviewed | converted | declined
-  reviewedAt DateTime?
-  reviewedByAdminId String?
+  status             String    @default("new") // new | reviewed | converted | declined
+  reviewedAt         DateTime?
+  reviewedByAdminId  String?
+
+  // Phase 3: optional FK after account creation
+  patientId                String?
   convertedToAppointmentId String?
 
   @@map("appointment_requests")
