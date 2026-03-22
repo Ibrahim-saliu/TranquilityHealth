@@ -9,18 +9,20 @@ export function FaqItem({ question, answer }: FaqItemProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden">
+    <div className={`border rounded-2xl overflow-hidden transition-colors ${open ? "border-teal-200 shadow-md" : "border-slate-200"}`}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-gray-50 transition-colors"
+        className={`w-full flex items-center justify-between px-6 py-5 text-left transition-colors ${open ? "bg-teal-50" : "bg-white hover:bg-slate-50"}`}
         aria-expanded={open}
       >
-        <span className="text-base font-semibold text-gray-900 pr-4">{question}</span>
-        <span className="text-teal-600 text-xl flex-shrink-0">{open ? "−" : "+"}</span>
+        <span className="text-base font-semibold text-slate-900 pr-4">{question}</span>
+        <span className={`text-xl flex-shrink-0 font-light transition-transform ${open ? "text-teal-600 rotate-0" : "text-slate-400"}`}>
+          {open ? "−" : "+"}
+        </span>
       </button>
       {open && (
-        <div className="px-6 pb-5 bg-white border-t border-gray-100">
-          <p className="text-gray-600 leading-relaxed text-sm pt-4">{answer}</p>
+        <div className="px-6 pb-5 bg-teal-50 border-t border-teal-100">
+          <p className="text-slate-600 leading-relaxed text-sm pt-4">{answer}</p>
         </div>
       )}
     </div>

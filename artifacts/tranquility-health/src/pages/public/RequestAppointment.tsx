@@ -105,19 +105,19 @@ export default function RequestAppointmentPage() {
   if (status === "success") {
     return (
       <div className="max-w-2xl mx-auto py-20 px-4 text-center">
-        <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-8 h-8 text-teal-600" strokeWidth={1.5} />
+        <div className="w-18 h-18 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg" style={{ width: 72, height: 72 }}>
+          <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={1.5} />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Request received!</h1>
-        <p className="mt-4 text-lg text-gray-500 leading-relaxed">
+        <h1 className="text-3xl font-bold text-slate-900">Request received!</h1>
+        <p className="mt-4 text-lg text-slate-500 leading-relaxed">
           Thank you, {fullName}. Our care coordinator will contact you at your preferred contact method within one business day to schedule your appointment.
         </p>
-        <div className="mt-8 p-5 bg-teal-50 border border-teal-100 rounded-xl text-left">
+        <div className="mt-8 p-5 bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl text-left">
           <p className="text-sm text-teal-700">
             <span className="font-semibold">What happens next:</span> Our care coordinator will reach out, answer any questions you have, and confirm your appointment time. Payment is due at the time of your appointment.
           </p>
         </div>
-        <p className="mt-8 text-sm text-gray-400">
+        <p className="mt-8 text-sm text-slate-400">
           If you have an urgent need, call us at (555) 000-0000 during office hours.
         </p>
       </div>
@@ -127,23 +127,27 @@ export default function RequestAppointmentPage() {
   return (
     <div>
       {/* Header */}
-      <section className="bg-gradient-to-br from-teal-50 to-white py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900">Request an Appointment</h1>
-          <p className="mt-3 text-lg text-gray-500">
+      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-16 px-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
+        </div>
+        <div className="relative max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-white">Request an Appointment</h1>
+          <p className="mt-3 text-lg text-slate-300">
             Takes about 3 minutes. No account required. We'll contact you within one business day.
           </p>
         </div>
       </section>
 
-      <section className="py-10 px-4 pb-20">
+      <section className="py-10 px-4 pb-20 bg-slate-50">
         <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} noValidate>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm divide-y divide-gray-100">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm divide-y divide-slate-100">
 
               {/* Section: Contact Info */}
               <div className="p-8">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">
                   Contact Information
                 </h2>
                 <div className="space-y-5">
@@ -192,9 +196,9 @@ export default function RequestAppointmentPage() {
                             value={m}
                             checked={preferredContactMethod === m}
                             onChange={() => setPreferredContactMethod(m)}
-                            className="w-4 h-4 text-teal-600 border-gray-300"
+                            className="w-4 h-4 text-teal-600 border-slate-300"
                           />
-                          <span className="text-sm text-gray-700 capitalize">{m}</span>
+                          <span className="text-sm text-slate-700 capitalize">{m}</span>
                         </label>
                       ))}
                     </div>
@@ -204,7 +208,7 @@ export default function RequestAppointmentPage() {
 
               {/* Section: Service Interest */}
               <div className="p-8">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">
                   What are you looking for?
                 </h2>
                 <Field label="Service Interest" required error={getFieldError("serviceInterest")}>
@@ -212,10 +216,10 @@ export default function RequestAppointmentPage() {
                     {serviceOptions.map(({ value, label, description }) => (
                       <label
                         key={value}
-                        className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
+                        className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                           serviceInterest === value
-                            ? "border-teal-500 bg-teal-50"
-                            : "border-gray-200 hover:border-teal-300 bg-white"
+                            ? "border-teal-400 bg-teal-50 shadow-sm"
+                            : "border-slate-200 hover:border-teal-300 bg-white"
                         }`}
                       >
                         <input
@@ -224,11 +228,11 @@ export default function RequestAppointmentPage() {
                           value={value}
                           checked={serviceInterest === value}
                           onChange={() => setServiceInterest(value)}
-                          className="mt-0.5 w-4 h-4 text-teal-600 border-gray-300 flex-shrink-0"
+                          className="mt-0.5 w-4 h-4 text-teal-600 border-slate-300 flex-shrink-0"
                         />
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{label}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+                          <p className="text-sm font-semibold text-slate-900">{label}</p>
+                          <p className="text-xs text-slate-500 mt-0.5">{description}</p>
                         </div>
                       </label>
                     ))}
@@ -238,7 +242,7 @@ export default function RequestAppointmentPage() {
 
               {/* Section: Scheduling */}
               <div className="p-8">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-5">
                   Scheduling Preferences
                 </h2>
                 <div className="space-y-5">
@@ -275,9 +279,9 @@ export default function RequestAppointmentPage() {
                             name="isNewPatient"
                             checked={isNewPatient === value}
                             onChange={() => setIsNewPatient(value)}
-                            className="w-4 h-4 text-teal-600 border-gray-300"
+                            className="w-4 h-4 text-teal-600 border-slate-300"
                           />
-                          <span className="text-sm text-gray-700">{label}</span>
+                          <span className="text-sm text-slate-700">{label}</span>
                         </label>
                       ))}
                     </div>
@@ -292,9 +296,9 @@ export default function RequestAppointmentPage() {
                     type="checkbox"
                     checked={contactConsent}
                     onChange={(e) => setContactConsent(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-teal-600 border-gray-300 rounded flex-shrink-0"
+                    className="mt-1 w-4 h-4 text-teal-600 border-slate-300 rounded flex-shrink-0"
                   />
-                  <span className="text-sm text-gray-600 leading-relaxed">
+                  <span className="text-sm text-slate-600 leading-relaxed">
                     I consent to being contacted by Tranquility Health via phone or email to schedule my appointment and discuss my care. I understand this is not a medical emergency service.
                     {getFieldError("contactConsent") && (
                       <span className="block text-red-500 text-xs mt-1">{getFieldError("contactConsent")}</span>
@@ -302,12 +306,12 @@ export default function RequestAppointmentPage() {
                   </span>
                 </label>
 
-                <p className="mt-4 text-xs text-gray-400 leading-relaxed">
+                <p className="mt-4 text-xs text-slate-400 leading-relaxed">
                   Your information is protected. We will never sell your contact details. By submitting this form you acknowledge that you are not sharing protected health information (PHI) — your detailed health history will be discussed privately during your appointment.
                 </p>
 
                 {serverError && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-red-700 text-sm">{serverError}</p>
                   </div>
                 )}
@@ -316,7 +320,7 @@ export default function RequestAppointmentPage() {
                   <button
                     type="submit"
                     disabled={status === "submitting"}
-                    className="px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="px-8 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {status === "submitting" ? "Submitting…" : "Submit Request"}
                   </button>
@@ -331,8 +335,8 @@ export default function RequestAppointmentPage() {
 }
 
 function inputClass(error?: string) {
-  return `w-full px-4 py-2.5 rounded-lg border text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors ${
-    error ? "border-red-300 bg-red-50" : "border-gray-200 bg-white hover:border-gray-300"
+  return `w-full px-4 py-2.5 rounded-xl border text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors ${
+    error ? "border-red-300 bg-red-50" : "border-slate-200 bg-white hover:border-slate-300"
   }`;
 }
 
@@ -349,7 +353,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>

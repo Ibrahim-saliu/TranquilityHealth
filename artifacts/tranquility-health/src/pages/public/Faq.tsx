@@ -48,17 +48,24 @@ export default function FaqPage() {
   return (
     <div>
       {/* Header */}
-      <section className="bg-gradient-to-br from-teal-50 to-white py-16 px-4">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900">Frequently Asked Questions</h1>
-          <p className="mt-4 text-xl text-gray-500">
+      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
+        </div>
+        <div className="relative max-w-3xl mx-auto">
+          <span className="inline-block bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide mb-5">
+            Common Questions
+          </span>
+          <h1 className="text-4xl font-bold text-white">Frequently Asked Questions</h1>
+          <p className="mt-4 text-xl text-slate-300">
             Everything you need to know about getting started with Tranquility Health.
           </p>
         </div>
       </section>
 
       {/* FAQ list */}
-      <section className="py-12 px-4">
+      <section className="py-14 px-4 bg-slate-50">
         <div className="max-w-3xl mx-auto space-y-3">
           {faqs.map((faq) => (
             <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
@@ -67,11 +74,11 @@ export default function FaqPage() {
       </section>
 
       {/* Still have questions */}
-      <section className="py-8 px-4">
+      <section className="py-6 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-gray-500 text-sm">
+          <p className="text-slate-500 text-sm">
             Didn't find your answer?{" "}
-            <a href="/contact" className="text-teal-600 hover:underline font-medium">
+            <a href="/contact" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
               Contact our care team
             </a>
             {" "}and we'll respond within one business day.
@@ -80,7 +87,7 @@ export default function FaqPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-12 px-4">
+      <section className="py-12 px-4 bg-slate-50">
         <div className="max-w-3xl mx-auto">
           <CtaBlock
             heading="Ready to get started?"

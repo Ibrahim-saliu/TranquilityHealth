@@ -14,15 +14,21 @@ export function CtaBlock({
   buttonHref = "/request-appointment",
 }: CtaBlockProps) {
   return (
-    <div className="bg-teal-700 rounded-2xl px-8 py-12 text-center text-white">
-      <h2 className="text-3xl font-bold">{heading}</h2>
-      {subtext && <p className="mt-3 text-teal-100 text-lg max-w-xl mx-auto">{subtext}</p>}
-      <Link
-        href={buttonHref}
-        className="mt-8 inline-block px-8 py-3 bg-white text-teal-700 font-semibold rounded-lg hover:bg-teal-50 transition-colors text-base"
-      >
-        {buttonLabel}
-      </Link>
+    <div className="relative bg-gradient-to-br from-teal-600 via-teal-700 to-indigo-700 rounded-3xl px-8 py-14 text-center text-white overflow-hidden">
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute -top-10 -right-10 w-64 h-64 rounded-full bg-white" />
+        <div className="absolute -bottom-16 -left-10 w-80 h-80 rounded-full bg-indigo-300" />
+      </div>
+      <div className="relative">
+        <h2 className="text-3xl font-bold">{heading}</h2>
+        {subtext && <p className="mt-3 text-teal-100 text-lg max-w-xl mx-auto leading-relaxed">{subtext}</p>}
+        <Link
+          href={buttonHref}
+          className="mt-8 inline-block px-8 py-3.5 bg-white text-teal-700 font-semibold rounded-xl hover:bg-teal-50 transition-colors text-base shadow-lg hover:shadow-xl"
+        >
+          {buttonLabel}
+        </Link>
+      </div>
     </div>
   );
 }

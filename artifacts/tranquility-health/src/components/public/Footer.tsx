@@ -5,15 +5,22 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-slate-900 text-slate-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <span className="text-white font-bold text-lg">Tranquility Health</span>
-            <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-              Compassionate telehealth care for anxiety, depression, and ADHD — accessible from wherever you are.
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <span className="text-white font-bold text-lg">Tranquility Health</span>
+            </div>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Compassionate telehealth care for anxiety, depression, mood disorders, and more — accessible from wherever you are in Texas.
             </p>
-            <p className="mt-3 text-xs text-gray-500">
+            <p className="mt-3 text-xs text-slate-500">
               Texas telehealth · Cash pay · No insurance required
             </p>
           </div>
@@ -29,7 +36,7 @@ export function Footer() {
                 { label: "Contact", href: ROUTES.public.contact },
               ].map(({ label, href }) => (
                 <li key={href}>
-                  <Link href={href} className="text-sm text-gray-400 hover:text-white transition-colors">
+                  <Link href={href} className="text-sm text-slate-400 hover:text-white transition-colors">
                     {label}
                   </Link>
                 </li>
@@ -43,30 +50,30 @@ export function Footer() {
               <li>
                 <Link
                   href={ROUTES.public.requestAppointment}
-                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
                 >
                   Book an Appointment
                 </Link>
               </li>
               <li>
-                <span className="text-sm text-gray-600 italic">Patient portal coming soon</span>
+                <span className="text-sm text-slate-600 italic">Patient portal coming soon</span>
               </li>
             </ul>
 
-            <div className="mt-6 p-3 bg-gray-800 rounded-lg border border-gray-700">
-              <p className="text-xs text-gray-400">
+            <div className="mt-6 p-4 bg-slate-800/80 rounded-xl border border-slate-700/60">
+              <p className="text-xs text-slate-400 leading-relaxed">
                 {/* TODO (legal): replace with reviewed crisis disclaimer before launch */}
-                If you are in a mental health emergency, call <strong className="text-gray-300">988</strong> (Crisis Lifeline) or <strong className="text-gray-300">911</strong>. Tranquility Health is not an emergency service.
+                If you are in a mental health emergency, call <strong className="text-slate-300">988</strong> (Crisis Lifeline) or <strong className="text-slate-300">911</strong>. Tranquility Health is not an emergency service.
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-500">
+        <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-500">
             © {currentYear} Tranquility Health. All rights reserved.
           </p>
-          <div className="flex gap-4 text-xs text-gray-500">
+          <div className="flex gap-4 text-xs text-slate-500">
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>HIPAA Notice</span>
