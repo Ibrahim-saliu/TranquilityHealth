@@ -88,7 +88,7 @@ export default function ServicesPage() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-gray-900">Not sure which service is right for you?</h2>
           <p className="mt-3 text-gray-500 text-base leading-relaxed max-w-xl mx-auto">
-            That's completely okay. In your request form, simply select "Not sure" and our care coordinator will help you figure out the best starting point during your intake call.
+            That's completely okay. In your request form, simply select "Not sure yet" and our care coordinator will help you figure out the best starting point during your intake call.
           </p>
           <Link
             href={ROUTES.public.requestAppointment}
