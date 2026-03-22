@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Tranquility Health"
+version = "1.0.0"
+id = "artifacts/tranquility-health"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20640
+
+[services.development]
+run = "pnpm --filter @workspace/tranquility-health run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tranquility-health", "run", "build" ]
+publicDir = "artifacts/tranquility-health/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20640"
+BASE_PATH = "/"

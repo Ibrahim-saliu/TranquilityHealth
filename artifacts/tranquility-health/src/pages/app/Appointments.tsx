@@ -1,0 +1,61 @@
+/**
+ * Appointments — /app/appointments
+ *
+ * Patient-facing appointment management page.
+ * Phase 0: Placeholder with anticipated UI structure.
+ *
+ * TODO (future phase): Display upcoming and past appointments from DB.
+ * TODO (future phase): Allow patients to cancel or reschedule.
+ * TODO (Phase 3): Load from Appointment model with proper auth guard.
+ */
+
+export default function AppointmentsPage() {
+  return (
+    <div>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
+          <p className="mt-1 text-gray-500">View and manage your upcoming sessions.</p>
+        </div>
+        <button
+          disabled
+          className="px-5 py-2.5 bg-teal-600 text-white font-semibold rounded-lg text-sm opacity-50 cursor-not-allowed"
+        >
+          + Schedule New (Coming Soon)
+        </button>
+      </div>
+
+      {/* Tabs placeholder */}
+      <div className="flex gap-4 mb-6 border-b border-gray-200">
+        {["Upcoming", "Past", "Cancelled"].map((tab, idx) => (
+          <button
+            key={tab}
+            className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
+              idx === 0
+                ? "border-teal-600 text-teal-700"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Empty state */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+        <p className="text-5xl mb-4">🗓️</p>
+        <h3 className="text-lg font-semibold text-gray-900">No appointments yet</h3>
+        <p className="mt-2 text-sm text-gray-500">
+          Your upcoming sessions will appear here.
+          {/* TODO (Phase 3): Fetch from Appointment model */}
+        </p>
+      </div>
+
+      <div className="mt-8 p-4 bg-teal-50 rounded-lg border border-teal-100">
+        <p className="text-teal-800 text-sm font-medium">
+          📋 Phase 0 — Placeholder. Real appointment data coming in future phases.
+        </p>
+      </div>
+    </div>
+  );
+}

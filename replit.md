@@ -94,3 +94,37 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+### `artifacts/tranquility-health` (`@workspace/tranquility-health`)
+
+**Tranquility Health** — HIPAA-conscious telehealth MVP (Phase 0 Foundation).
+React + Vite SPA with full route structure, layouts, placeholder pages, and foundational utilities.
+
+- Served at `/` (preview path root)
+- `pnpm --filter @workspace/tranquility-health run dev` — dev server on port 20640
+
+**Route structure:**
+- Public routes (`/`, `/about`, `/services`, `/hours`, `/faq`, `/contact`, `/request-appointment`) — wrapped in `PublicLayout` (Navbar + Footer)
+- Patient app routes (`/app/dashboard`, `/app/onboarding`, `/app/appointments`, `/app/session`) — wrapped in `AppLayout` (authenticated shell placeholder)
+- Admin routes (`/admin/dashboard`, `/admin/requests`, `/admin/appointments`, `/admin/providers`) — wrapped in `AdminLayout` (admin shell placeholder)
+
+**Key source files:**
+- `src/App.tsx` — router with all 15 routes organized into three layout groups
+- `src/layouts/` — PublicLayout, AppLayout, AdminLayout
+- `src/components/public/` — Navbar, Footer
+- `src/pages/public/` — 7 public pages
+- `src/pages/app/` — 4 patient app pages
+- `src/pages/admin/` — 4 admin pages
+- `src/types/roles.ts` — UserRole type, ROLES constants, isValidRole() guard
+- `src/lib/config/routes.ts` — ROUTES constants for all route paths
+- `src/lib/config/env.ts` — ENV flags, FEATURES feature flags
+- `src/lib/auth/middleware.ts` — Route protection stubs (Phase 3 TODO)
+- `src/lib/audit/index.ts` — logAuditEvent() stub (Phase 3 TODO)
+- `prisma/schema.prisma` — Prisma schema with 7 models: User, Patient, Provider, AppointmentRequest, Appointment, ConsentRecord, AuditLog. PHI fields marked with comments.
+- `.env.example` — Environment variable template
+
+**Phase 0 principles:**
+- No business logic, no auth, no forms (all disabled with "Coming Soon")
+- All pages are clean placeholders with Phase 0 notices
+- TODO comments throughout pointing to Phase 3 implementation
+- No hardcoded credentials
