@@ -1,0 +1,343 @@
+You are a senior software engineer helping build a HIPAA-conscious telehealth MVP called **Tranquility Health**.
+
+Your task is to generate **Phase 1: Public Website only**.
+
+Use the existing Phase 0 foundation. Do not rebuild the project structure from scratch.
+
+## IMPORTANT RULES
+
+- Build ONLY the public-facing website
+- Do NOT implement authentication, admin logic, patient onboarding, scheduling engine, or telehealth
+- Keep all public data collection NON-PHI
+- Code must be modular, readable, and production-oriented
+- Reuse the Phase 0 layouts, route structure, Prisma setup, and utilities
+- Add TODO comments where later phases will extend functionality
+
+---
+
+## PHASE 1 OBJECTIVE
+
+Build the public website for Tranquility Health with polished responsive pages and a safe public appointment request flow.
+
+This phase must establish:
+- brand presence
+- trust-building public content
+- clear CTA
+- non-PHI intake request collection
+
+---
+
+## PUBLIC ROUTES TO IMPLEMENT
+
+Build or complete these public routes:
+
+- `/`
+- `/about`
+- `/services`
+- `/hours`
+- `/faq`
+- `/contact`
+- `/request-appointment`
+
+Use the public layout created in Phase 0.
+
+---
+
+## BRAND / CONTENT DIRECTION
+
+Clinic name:
+- Tranquility Health
+- Legal entity reference can appear as Tranquility Comprehensive Health LLC where appropriate
+
+Operating assumptions for MVP:
+- Texas only
+- Cash-pay only
+- Telehealth mental health clinic
+- Admin approval required before actual appointment scheduling
+- One provider model for MVP, but provider details must remain configurable and safe
+
+Do NOT hardcode final provider credentials.
+Use safe placeholder language such as:
+- "Licensed mental health provider in Texas"
+- "Provider details coming soon"
+
+Do NOT make unsupported claims such as:
+- 24/7 crisis support
+- insurance accepted
+- guaranteed outcomes
+- prescribing claims unless explicitly marked as placeholder/TODO
+
+---
+
+## PAGE REQUIREMENTS
+
+### Home page (`/`)
+Include:
+- Hero section with strong headline
+- Subheadline focused on after-hours telehealth access
+- Primary CTA: "Book Appointment"
+- Secondary CTA: "Learn More" or similar
+- Brief services overview
+- Telehealth convenience section
+- Availability preview
+- Trust-building section
+- Clear Texas/cash-pay positioning if appropriate
+
+Suggested tone:
+- calm
+- professional
+- accessible
+- trustworthy
+
+---
+
+### About page (`/about`)
+Include:
+- clinic mission
+- care philosophy
+- founder/provider placeholder section
+- safe placeholder provider text
+- note that care is delivered by appropriately licensed providers in Texas
+
+Do NOT publish unsupported or inaccurate credentials.
+
+---
+
+### Services page (`/services`)
+Include sections for:
+- Medication management
+- Psychotherapy
+- Conditions supported at a high level:
+  - Depression
+  - Anxiety
+  - Mood concerns
+  - Sleep concerns
+  - Other emotional/behavioral concerns
+
+Add a brief disclaimer that final treatment fit is determined after clinical review.
+
+Do NOT collect or request PHI on this page.
+
+---
+
+### Hours page (`/hours`)
+Show:
+- Monday–Thursday: 5 PM – 9 PM
+- Friday: 8 AM – 1 PM, 3 PM – 7 PM
+- Saturday: 8 AM – 4 PM
+
+Add note:
+- hours subject to confirmation
+- appointments requested online are reviewed before confirmation
+
+---
+
+### FAQ page (`/faq`)
+Include FAQs such as:
+- Do you accept new patients?
+- Is this telehealth only?
+- What ages do you serve? (use safe placeholder if not yet defined)
+- Do you accept insurance? (answer: cash-pay only for now)
+- How does booking work?
+- What if I am in crisis?
+- What conditions do you support?
+- What happens after I submit a request?
+
+Include a strong crisis disclaimer:
+- not for emergencies
+- call 911 or go to nearest emergency room if in immediate danger
+- include TODO comment for final crisis resources/legal review
+
+---
+
+### Contact page (`/contact`)
+Include:
+- business/clinic contact section
+- simple general information
+- safe contact presentation
+- CTA to request appointment
+
+Do NOT expose PHI collection here.
+
+---
+
+### Request Appointment page (`/request-appointment`)
+Build a public form with ONLY these fields:
+
+- fullName
+- email
+- phone
+- preferredTime
+- serviceInterest
+  - therapy
+  - medication
+  - not_sure
+
+Optional:
+- preferredContactMethod
+  - phone
+  - email
+
+Optional:
+- isNewPatient (boolean)
+
+Optional:
+- contactConsent (required checkbox)
+
+DO NOT include:
+- diagnosis details
+- medications
+- symptoms narrative
+- insurance details
+- full medical history
+- emergency disclosures
+
+This form must remain NON-PHI.
+
+---
+
+## FORM HANDLING REQUIREMENTS
+
+Implement submission for the public appointment request form.
+
+Requirements:
+- client-side validation
+- server-side validation
+- save to Prisma `AppointmentRequest` table
+- show clean success state
+- show clean error state
+- do not log sensitive payloads in browser console
+- do not put submitted values into URL params
+
+If the existing Prisma schema needs small updates to support these fields, make minimal safe schema adjustments.
+
+Status for new records should default to:
+- `new`
+
+---
+
+## DATA MODEL EXPECTATION
+
+Use the existing `AppointmentRequest` model from Phase 0.
+
+Expected fields should support:
+- fullName
+- email
+- phone
+- preferredTime
+- serviceInterest
+- status
+- createdAt
+
+Only make minimal schema updates if necessary.
+
+---
+
+## UI / DESIGN REQUIREMENTS
+
+Design style:
+- modern healthcare
+- clean
+- calm
+- spacious
+- mobile responsive
+- trustworthy
+
+Build reusable components where appropriate:
+- section wrapper
+- page header
+- CTA block
+- FAQ item
+- form field components if useful
+
+Use Tailwind CSS.
+Keep the design tasteful and not overly flashy.
+
+---
+
+## NAVBAR / FOOTER REQUIREMENTS
+
+Navbar should include links to:
+- Home
+- About
+- Services
+- Hours
+- FAQ
+- Contact
+- Book Appointment
+
+Footer should include:
+- clinic name
+- quick links
+- telehealth / Texas / cash-pay note if appropriate
+- crisis disclaimer link or short message
+- copyright placeholder
+
+---
+
+## SECURITY / COMPLIANCE RULES
+
+- Do NOT collect PHI in public forms
+- Do NOT add analytics or tracking scripts
+- Do NOT add chat widgets
+- Do NOT add authentication
+- Do NOT create secure onboarding yet
+- Do NOT expose internal IDs unnecessarily in UI
+- Do NOT hardcode secrets
+- Do NOT store sensitive data in localStorage
+- Do NOT claim HIPAA compliance text unless explicitly marked for later legal/compliance review
+
+Add TODO comments where final legal/compliance copy will need review.
+
+---
+
+## CODE ORGANIZATION
+
+Use and extend existing folders:
+- `/app`
+- `/components`
+- `/lib`
+- `/types`
+- `/prisma`
+
+Create reusable public-site components instead of duplicating UI.
+
+---
+
+## DELIVERABLES
+
+At the end of this phase, the codebase should include:
+
+- Complete public pages
+- Working responsive navigation
+- Working footer
+- Public appointment request form
+- Prisma persistence for appointment requests
+- Validation and success/error states
+- No runtime errors
+- No secure app logic added yet
+
+---
+
+## DO NOT
+
+- build admin pages
+- build login
+- build invite flow
+- build onboarding
+- build appointment scheduling logic
+- build telehealth session logic
+- collect PHI
+- add analytics
+- expand scope beyond public website
+
+---
+
+## IMPLEMENTATION NOTES
+
+- Preserve the public/secure/admin separation from Phase 0
+- Keep this phase tightly scoped
+- Comment the code clearly
+- Prefer simple, maintainable implementation over clever abstractions
+
+Generate the Phase 1 implementation only.
