@@ -1,84 +1,337 @@
-/**
- * RequestAppointment — /request-appointment
- *
- * Phase 0: Placeholder for the appointment request intake form.
- * This page is a key conversion point for new patients.
- *
- * TODO (future phase): Implement full intake form including:
- *   - Patient info (name, DOB, contact)
- *   - Insurance info
- *   - Presenting concerns / reason for visit
- *   - Provider preference (therapist vs. psychiatry)
- *   - Availability windows
- *
- * TODO (Phase 3): Submit to API route that creates an AppointmentRequest record in DB
- *   and triggers admin notification.
- */
+import { useState, FormEvent } from "react";
+import { API_BASE_URL } from "@/lib/config/env";
+
+type ServiceInterest = "therapy" | "medication" | "not_sure";
+type ContactMethod = "phone" | "email";
+type FormStatus = "idle" | "submitting" | "success" | "error";
+
+interface FieldError {
+  field: string;
+  message: string;
+}
+
+const serviceOptions: { value: ServiceInterest; label: string; description: string }[] = [
+  { value: "therapy", label: "Therapy", description: "Individual therapy sessions (CBT, DBT, anxiety, depression, ADHD)" },
+  { value: "medication", label: "Medication Management", description: "Psychiatric evaluation and/or medication management" },
+  { value: "not_sure", label: "Not sure yet", description: "Talk to our care coordinator to figure out the best fit" },
+];
 
 export default function RequestAppointmentPage() {
-  return (
-    <div className="max-w-2xl mx-auto py-12">
-      <h1 className="text-4xl font-bold text-gray-900">Request an Appointment</h1>
-      <p className="mt-4 text-lg text-gray-500">
-        Take the first step. Fill out the form below and we'll reach out within one business day.
-      </p>
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-      {/* Intake form placeholder */}
-      <div className="mt-10 p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Patient Intake Form</h2>
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [serviceInterest, setServiceInterest] = useState<ServiceInterest | "">("");
+  const [preferredTime, setPreferredTime] = useState("");
+  const [preferredContactMethod, setPreferredContactMethod] = useState<ContactMethod | "">("");
+  const [isNewPatient, setIsNewPatient] = useState<boolean | null>(null);
+  const [contactConsent, setContactConsent] = useState(false);
 
-        <div className="space-y-5">
-          {/* Personal Info section */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Personal Information
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {["First Name", "Last Name", "Date of Birth", "Phone Number"].map((field) => (
-                <div key={field}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{field}</label>
-                  <div className="w-full h-10 bg-gray-50 border border-gray-200 rounded-lg" />
-                </div>
-              ))}
-            </div>
-          </div>
+  function getFieldError(field: string): string | undefined {
+    return fieldErrors.find((e) => e.field === field)?.message;
+  }
 
-          {/* Insurance section */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Insurance
-            </h3>
-            <div className="w-full h-10 bg-gray-50 border border-gray-200 rounded-lg" />
-          </div>
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFieldErrors([]);
+    setServerError(null);
+    setStatus("submitting");
 
-          {/* Reason for visit */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              Reason for Visit
-            </h3>
-            <div className="w-full h-28 bg-gray-50 border border-gray-200 rounded-lg" />
-          </div>
+    const payload = {
+      fullName,
+      email,
+      phone,
+      serviceInterest,
+      preferredTime,
+      preferredContactMethod: preferredContactMethod || undefined,
+      isNewPatient: isNewPatient ?? undefined,
+      contactConsent,
+    };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/appointment-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 400) {
+        const data = await res.json() as { issues: FieldError[] };
+        setFieldErrors(data.issues ?? []);
+        setStatus("error");
+        return;
+      }
+
+      if (!res.ok) {
+        setServerError("Something went wrong. Please try again or call us directly.");
+        setStatus("error");
+        return;
+      }
+
+      setStatus("success");
+    } catch {
+      setServerError("Unable to reach our servers. Please check your connection and try again.");
+      setStatus("error");
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center">
+        <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="text-3xl">✓</span>
         </div>
-
-        <div className="mt-8 flex items-center justify-between">
-          <p className="text-xs text-gray-400 max-w-sm">
-            By submitting this form, you agree to our privacy practices. Your information
-            is protected and never sold.
+        <h1 className="text-3xl font-bold text-gray-900">Request received!</h1>
+        <p className="mt-4 text-lg text-gray-500 leading-relaxed">
+          Thank you, {fullName}. Our care coordinator will contact you at your preferred contact method within one business day to schedule your appointment.
+        </p>
+        <div className="mt-8 p-5 bg-teal-50 border border-teal-100 rounded-xl text-left">
+          <p className="text-sm text-teal-700">
+            <span className="font-semibold">What happens next:</span> We'll reach out to verify your insurance (if applicable), answer any questions you have, and confirm your appointment time.
           </p>
-          <button
-            disabled
-            className="px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg opacity-50 cursor-not-allowed text-sm"
-          >
-            Submit Request (Coming Soon)
-          </button>
         </div>
-      </div>
-
-      <div className="mt-8 p-6 bg-teal-50 rounded-xl border border-teal-100">
-        <p className="text-teal-800 text-sm font-medium">
-          📋 Phase 0 — Form fields are placeholders. Full form implementation coming in future phases.
+        <p className="mt-8 text-sm text-gray-400">
+          If you have an urgent need, call us at (555) 000-0000 during office hours.
         </p>
       </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <section className="bg-gradient-to-br from-teal-50 to-white py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-900">Request an Appointment</h1>
+          <p className="mt-3 text-lg text-gray-500">
+            Takes about 3 minutes. No account required. We'll contact you within one business day.
+          </p>
+        </div>
+      </section>
+
+      <section className="py-10 px-4 pb-20">
+        <div className="max-w-2xl mx-auto">
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm divide-y divide-gray-100">
+
+              {/* Section: Contact Info */}
+              <div className="p-8">
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                  Contact Information
+                </h2>
+                <div className="space-y-5">
+                  <Field label="Full Name" required error={getFieldError("fullName")}>
+                    <input
+                      type="text"
+                      autoComplete="name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Jane Smith"
+                      className={inputClass(getFieldError("fullName"))}
+                    />
+                  </Field>
+
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <Field label="Email Address" required error={getFieldError("email")}>
+                      <input
+                        type="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="jane@example.com"
+                        className={inputClass(getFieldError("email"))}
+                      />
+                    </Field>
+
+                    <Field label="Phone Number" required error={getFieldError("phone")}>
+                      <input
+                        type="tel"
+                        autoComplete="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="(555) 123-4567"
+                        className={inputClass(getFieldError("phone"))}
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Preferred Contact Method" error={getFieldError("preferredContactMethod")}>
+                    <div className="flex gap-4">
+                      {(["phone", "email"] as ContactMethod[]).map((m) => (
+                        <label key={m} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="contactMethod"
+                            value={m}
+                            checked={preferredContactMethod === m}
+                            onChange={() => setPreferredContactMethod(m)}
+                            className="w-4 h-4 text-teal-600 border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700 capitalize">{m}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </Field>
+                </div>
+              </div>
+
+              {/* Section: Service Interest */}
+              <div className="p-8">
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                  What are you looking for?
+                </h2>
+                <Field label="Service Interest" required error={getFieldError("serviceInterest")}>
+                  <div className="space-y-3">
+                    {serviceOptions.map(({ value, label, description }) => (
+                      <label
+                        key={value}
+                        className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-colors ${
+                          serviceInterest === value
+                            ? "border-teal-500 bg-teal-50"
+                            : "border-gray-200 hover:border-teal-300 bg-white"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="serviceInterest"
+                          value={value}
+                          checked={serviceInterest === value}
+                          onChange={() => setServiceInterest(value)}
+                          className="mt-0.5 w-4 h-4 text-teal-600 border-gray-300 flex-shrink-0"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{label}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </Field>
+              </div>
+
+              {/* Section: Scheduling */}
+              <div className="p-8">
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">
+                  Scheduling Preferences
+                </h2>
+                <div className="space-y-5">
+                  <Field label="Preferred Day / Time" required error={getFieldError("preferredTime")}>
+                    <select
+                      value={preferredTime}
+                      onChange={(e) => setPreferredTime(e.target.value)}
+                      className={inputClass(getFieldError("preferredTime"))}
+                    >
+                      <option value="">Select a preference…</option>
+                      <optgroup label="Monday – Thursday evenings (5–9 PM ET)">
+                        <option value="weekday_evenings">Weekday evenings (Mon–Thu, 5–9 PM)</option>
+                      </optgroup>
+                      <optgroup label="Friday">
+                        <option value="friday_morning">Friday morning (8 AM–1 PM ET)</option>
+                        <option value="friday_afternoon">Friday afternoon (3–7 PM ET)</option>
+                      </optgroup>
+                      <optgroup label="Saturday (8 AM–4 PM ET)">
+                        <option value="saturday_morning">Saturday morning (8 AM–12 PM)</option>
+                        <option value="saturday_afternoon">Saturday afternoon (12–4 PM)</option>
+                      </optgroup>
+                      <option value="flexible">I'm flexible — any availability works</option>
+                    </select>
+                  </Field>
+
+                  <Field label="Are you a new patient?" error={getFieldError("isNewPatient")}>
+                    <div className="flex gap-4">
+                      {[
+                        { value: true, label: "Yes, new patient" },
+                        { value: false, label: "No, returning patient" },
+                      ].map(({ value, label }) => (
+                        <label key={String(value)} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="isNewPatient"
+                            checked={isNewPatient === value}
+                            onChange={() => setIsNewPatient(value)}
+                            className="w-4 h-4 text-teal-600 border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </Field>
+                </div>
+              </div>
+
+              {/* Section: Consent & Submit */}
+              <div className="p-8">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={contactConsent}
+                    onChange={(e) => setContactConsent(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-teal-600 border-gray-300 rounded flex-shrink-0"
+                  />
+                  <span className="text-sm text-gray-600 leading-relaxed">
+                    I consent to being contacted by Tranquility Health via phone or email to schedule my appointment and discuss my care. I understand this is not a medical emergency service.
+                    {getFieldError("contactConsent") && (
+                      <span className="block text-red-500 text-xs mt-1">{getFieldError("contactConsent")}</span>
+                    )}
+                  </span>
+                </label>
+
+                <p className="mt-4 text-xs text-gray-400 leading-relaxed">
+                  Your information is protected. We will never sell your contact details. By submitting this form you acknowledge that you are not sharing protected health information (PHI) — your detailed health history will be discussed privately during your appointment.
+                </p>
+
+                {serverError && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{serverError}</p>
+                  </div>
+                )}
+
+                <div className="mt-6 flex items-center justify-end">
+                  <button
+                    type="submit"
+                    disabled={status === "submitting"}
+                    className="px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {status === "submitting" ? "Submitting…" : "Submit Request"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function inputClass(error?: string) {
+  return `w-full px-4 py-2.5 rounded-lg border text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors ${
+    error ? "border-red-300 bg-red-50" : "border-gray-200 bg-white hover:border-gray-300"
+  }`;
+}
+
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 }
