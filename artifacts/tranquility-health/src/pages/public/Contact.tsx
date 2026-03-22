@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Mail, Phone, Clock } from "lucide-react";
 import { ROUTES } from "@/lib/config/routes";
 
 export default function ContactPage() {
@@ -22,7 +23,9 @@ export default function ContactPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">General Inquiries</h3>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex items-start gap-3">
-                  <span className="text-base mt-0.5">📧</span>
+                  <div className="flex-shrink-0 w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center mt-0.5">
+                    <Mail className="w-4 h-4 text-teal-600" strokeWidth={1.5} />
+                  </div>
                   <div>
                     <p className="font-medium text-gray-700">Email</p>
                     <a href="mailto:hello@tranquilityhealth.com" className="text-teal-600 hover:underline">
@@ -31,15 +34,19 @@ export default function ContactPage() {
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-base mt-0.5">📞</span>
+                  <div className="flex-shrink-0 w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center mt-0.5">
+                    <Phone className="w-4 h-4 text-teal-600" strokeWidth={1.5} />
+                  </div>
                   <div>
                     <p className="font-medium text-gray-700">Phone</p>
                     <p className="text-gray-500">(555) 000-0000</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Mon–Thu 5–9 PM, Fri 8 AM–7 PM, Sat 8 AM–4 PM ET</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Mon–Thu 5–9 PM, Fri 8 AM–7 PM, Sat 8 AM–4 PM CST</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <span className="text-base mt-0.5">💬</span>
+                  <div className="flex-shrink-0 w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center mt-0.5">
+                    <Clock className="w-4 h-4 text-teal-600" strokeWidth={1.5} />
+                  </div>
                   <div>
                     <p className="font-medium text-gray-700">Response time</p>
                     <p className="text-gray-500">We typically respond within one business day.</p>

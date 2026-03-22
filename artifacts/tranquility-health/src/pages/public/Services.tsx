@@ -1,10 +1,11 @@
 import { Link } from "wouter";
+import { Pill, Brain } from "lucide-react";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 
 const services = [
   {
-    icon: "💊",
+    Icon: Pill,
     title: "Medication Management",
     description: "Our primary service — psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.",
     conditions: [
@@ -18,7 +19,7 @@ const services = [
     who: "Adults seeking psychiatric medication support for any of the conditions listed above.",
   },
   {
-    icon: "💬",
+    Icon: Brain,
     title: "Psychotherapy",
     description: "Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.",
     conditions: null,
@@ -45,7 +46,9 @@ export default function ServicesPage() {
           {services.map((service) => (
             <div key={service.title} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start gap-5">
-                <span className="text-4xl">{service.icon}</span>
+                <div className="flex-shrink-0 w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
+                  <service.Icon className="w-6 h-6 text-teal-600" strokeWidth={1.5} />
+                </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-gray-900">{service.title}</h2>
                   <p className="mt-3 text-gray-600 leading-relaxed text-sm">{service.description}</p>

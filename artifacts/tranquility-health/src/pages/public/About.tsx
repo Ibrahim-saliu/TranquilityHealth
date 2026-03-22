@@ -1,3 +1,4 @@
+import { Heart } from "lucide-react";
 import { CtaBlock } from "@/components/public/CtaBlock";
 
 const values = [
@@ -45,7 +46,9 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="bg-teal-50 rounded-2xl p-8 border border-teal-100">
-            <p className="text-4xl mb-4">🌱</p>
+            <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center mb-4">
+              <Heart className="w-5 h-5 text-teal-600" strokeWidth={1.5} />
+            </div>
             <p className="text-teal-800 font-semibold text-lg mb-2">What we treat</p>
             <ul className="space-y-1 text-teal-700 text-sm">
               <li>• Depression</li>

@@ -1,4 +1,5 @@
 import { useState, FormEvent } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/config/env";
 
 type ServiceInterest = "therapy" | "medication" | "not_sure";
@@ -105,7 +106,7 @@ export default function RequestAppointmentPage() {
     return (
       <div className="max-w-2xl mx-auto py-20 px-4 text-center">
         <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-3xl">✓</span>
+          <CheckCircle2 className="w-8 h-8 text-teal-600" strokeWidth={1.5} />
         </div>
         <h1 className="text-3xl font-bold text-gray-900">Request received!</h1>
         <p className="mt-4 text-lg text-gray-500 leading-relaxed">
