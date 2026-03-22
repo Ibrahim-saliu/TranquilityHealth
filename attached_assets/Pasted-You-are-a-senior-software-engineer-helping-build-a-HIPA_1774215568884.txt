@@ -1,0 +1,316 @@
+You are a senior software engineer helping build a HIPAA-conscious telehealth MVP called **Tranquility Health**.
+
+Your task is to generate **Phase 2: Admin Workflow only**.
+
+Use the existing Phase 0 and Phase 1 codebase. Do not rebuild the project from scratch.
+
+## IMPORTANT RULES
+
+- Build ONLY the admin workflow for internal operational use
+- Do NOT implement full authentication yet
+- Do NOT implement patient onboarding, invite acceptance, scheduling engine, or telehealth
+- Keep this phase scoped to admin request management and provider profile management
+- Code must be modular, readable, and production-oriented
+- Reuse the existing layouts, route structure, Prisma setup, and utilities
+- Add TODO comments where later phases will extend functionality
+
+---
+
+## PHASE 2 OBJECTIVE
+
+Build the admin-side operational workflow so Tranquility Health can review incoming appointment requests and manage provider profile content.
+
+This phase must establish:
+- internal admin pages
+- appointment request review workflow
+- request status management
+- provider profile management
+- audit logging for admin actions
+
+---
+
+## ADMIN ROUTES TO IMPLEMENT
+
+Build or complete these admin routes:
+
+- `/admin/dashboard`
+- `/admin/requests`
+- `/admin/providers`
+
+You may add a request detail route if needed, for example:
+- `/admin/requests/[id]`
+
+Or use a detail panel/drawer/modal if cleaner.
+Keep the implementation simple and maintainable.
+
+Use the admin layout created in Phase 0.
+
+---
+
+## OPERATING ASSUMPTIONS
+
+- Public appointment requests already exist from Phase 1
+- Requests are NON-PHI
+- Admin approval is required before any patient invite or scheduling
+- Texas-only, cash-pay MVP
+- One-provider MVP model, but provider data must remain configurable and future-safe
+
+Do NOT hardcode final provider credentials.
+Use configurable fields stored in the database.
+
+---
+
+## REQUEST MANAGEMENT REQUIREMENTS
+
+Use the existing `AppointmentRequest` model.
+
+Expected core fields:
+- id
+- fullName
+- email
+- phone
+- preferredTime
+- serviceInterest
+- status
+- createdAt
+
+If minimal schema updates are needed to support admin workflow, make only small safe changes.
+
+### On `/admin/requests`
+Build a requests table or list view showing:
+- requester name
+- email
+- phone
+- preferred time
+- service interest
+- current status
+- submission date
+
+Allow admin to:
+- filter by status
+- optionally sort by newest/oldest
+- open a request detail view
+
+### Request detail
+Allow admin to see the full non-PHI request details and update the status.
+
+Allowed statuses:
+- `new`
+- `under_review`
+- `approved`
+- `rejected`
+- `invited`
+
+Validate status transitions server-side.
+Keep transitions simple for now; no need for complex workflow engine.
+
+At minimum:
+- prevent invalid status values
+- persist status change correctly
+- show success/error feedback
+
+---
+
+## ADMIN DASHBOARD REQUIREMENTS
+
+Build `/admin/dashboard` with a simple internal overview.
+
+Include:
+- summary cards for request counts by status
+- quick links to requests and provider management
+- recent requests list (optional but useful)
+
+Keep it simple and operational, not flashy.
+
+---
+
+## PROVIDER PROFILE MANAGEMENT REQUIREMENTS
+
+Build `/admin/providers` to manage the active provider profile content.
+
+Create or use a `Provider` model with configurable fields such as:
+- fullName
+- credentials
+- licenseState
+- bio
+- profileImageUrl (optional)
+- isActive
+
+If the existing schema needs small safe updates, make minimal schema changes.
+
+Requirements:
+- load current provider profile
+- allow admin to edit provider content
+- persist updates using Prisma
+- support safe placeholder values
+- do NOT publish unsupported claims automatically
+- do NOT hardcode credentials in page components
+
+If useful, assume one active provider for MVP, but structure the schema so multiple providers can be supported later.
+
+---
+
+## AUDIT LOGGING REQUIREMENTS
+
+Use the audit log utility from Phase 0.
+
+Log admin actions for:
+- updating appointment request status
+- updating provider profile
+
+If viewing actions are easy to add cleanly, you may add them, but they are optional.
+
+Each log entry should capture at least:
+- acting user placeholder or system identifier
+- action name
+- target entity type
+- target entity id
+- metadata relevant to the change
+- timestamp
+
+If the audit logging stub needs light implementation now, connect it cleanly to Prisma in a maintainable way.
+
+Add TODO comments where real auth-based user identity will later replace placeholders.
+
+---
+
+## AUTH / ACCESS CONTROL RULES
+
+Do NOT build full auth in this phase.
+
+However, you may add placeholder admin guard structure, such as:
+- middleware stub
+- helper functions
+- clearly marked TODOs for Phase 3
+
+If needed for temporary development flow, use a simple dev-only placeholder admin access pattern that is clearly marked as temporary and easy to remove later.
+
+Do NOT create a production-looking fake auth system.
+
+---
+
+## API / SERVER ACTION REQUIREMENTS
+
+Use whichever approach best fits the existing codebase:
+- Next.js server actions
+- route handlers
+- or a clean server-side abstraction
+
+Requirements:
+- all write operations must happen server-side
+- validate inputs server-side
+- return clean success/error states
+- do not expose internal stack traces to the UI
+- do not log sensitive payloads in the browser console
+
+---
+
+## UI / DESIGN REQUIREMENTS
+
+Design style:
+- clean admin interface
+- operational
+- readable
+- mobile-friendly where practical, but optimized for desktop admin use
+
+Create reusable components where appropriate:
+- admin page header
+- status badge
+- summary card
+- requests table/list
+- provider form
+
+Use Tailwind CSS.
+Keep UI clean and maintainable.
+
+---
+
+## ADMIN NAVIGATION REQUIREMENTS
+
+Admin layout/navigation should support links to:
+- Dashboard
+- Requests
+- Providers
+
+Optional:
+- highlight active route
+- add breadcrumbs if simple
+
+---
+
+## SECURITY / COMPLIANCE RULES
+
+- Do NOT add patient auth yet
+- Do NOT add onboarding yet
+- Do NOT collect PHI
+- Do NOT add analytics or chat widgets
+- Do NOT store sensitive data in localStorage
+- Do NOT hardcode provider credentials in frontend components
+- Do NOT expose secrets
+- Do NOT add scheduling logic yet
+- Do NOT add telehealth logic yet
+
+Add TODO comments where final compliance/legal review will later apply.
+
+---
+
+## CODE ORGANIZATION
+
+Use and extend existing folders:
+- `/app`
+- `/components`
+- `/lib`
+- `/types`
+- `/prisma`
+
+Create reusable admin components instead of duplicating UI.
+
+Suggested component patterns:
+- admin shell
+- request status badge
+- request filter bar
+- provider profile form
+- dashboard stats cards
+
+---
+
+## DELIVERABLES
+
+At the end of this phase, the codebase should include:
+
+- Working admin dashboard
+- Working admin requests view
+- Request detail or request status update flow
+- Working provider profile management page
+- Prisma persistence for all admin updates
+- Audit logs for key admin write actions
+- Clean success/error states
+- No runtime errors
+- No patient auth logic added yet
+
+---
+
+## DO NOT
+
+- build login
+- build invite acceptance
+- build patient account creation
+- build onboarding forms
+- build consent handling
+- build appointment scheduling engine
+- build telehealth session flow
+- collect PHI
+- add analytics
+- expand scope beyond admin workflow
+
+---
+
+## IMPLEMENTATION NOTES
+
+- Preserve the public/secure/admin separation from earlier phases
+- Keep this phase tightly scoped
+- Comment the code clearly
+- Prefer simple, maintainable implementation over clever abstractions
+- If schema changes are needed, keep them minimal and migration-friendly
+
+Generate the Phase 2 implementation only.
