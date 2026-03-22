@@ -1,65 +1,161 @@
 /**
  * AdminDashboard — /admin/dashboard
- *
- * Admin overview dashboard showing key operational metrics.
- * Phase 0: Placeholder with anticipated widget layout.
- *
- * TODO (future phase): Pull real metrics from DB:
- *   - Pending appointment requests count
- *   - Appointments today
- *   - Provider utilization
- *   - Recent audit log entries
- * TODO (Phase 3): Add admin role guard — only users with role=admin can access.
+ * Shows live request counts by status and a recent-requests list.
+ * TODO (Phase 3): Add admin role guard.
  */
 
+import { useEffect, useState } from "react";
+import { Link } from "wouter";
+import {
+  getRequestCounts,
+  listRequests,
+  REQUEST_STATUS_LABELS,
+  SERVICE_LABELS,
+  type AppointmentRequest,
+  type RequestStatus,
+} from "@/lib/admin-api";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+import { ROUTES } from "@/lib/config/routes";
+
+const STATUS_CARD_CONFIG: {
+  status: RequestStatus;
+  label: string;
+  color: string;
+  textColor: string;
+}[] = [
+  { status: "new", label: "New", color: "bg-blue-50 border-blue-200", textColor: "text-blue-700" },
+  { status: "under_review", label: "Under Review", color: "bg-amber-50 border-amber-200", textColor: "text-amber-700" },
+  { status: "approved", label: "Approved", color: "bg-green-50 border-green-200", textColor: "text-green-700" },
+  { status: "rejected", label: "Rejected", color: "bg-red-50 border-red-200", textColor: "text-red-700" },
+  { status: "invited", label: "Invited", color: "bg-purple-50 border-purple-200", textColor: "text-purple-700" },
+];
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export default function AdminDashboardPage() {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [recent, setRecent] = useState<AppointmentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [c, all] = await Promise.all([getRequestCounts(), listRequests()]);
+        setCounts(c);
+        setRecent(all.slice(0, 10));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const totalRequests = Object.values(counts).reduce((sum, n) => sum + n, 0);
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="mt-2 text-gray-500">
-          Operational overview for Tranquility Health.
-        </p>
-      </div>
-
-      {/* Metric widgets */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-10">
-        {[
-          { label: "Pending Requests", value: "—", color: "bg-amber-50 border-amber-200", textColor: "text-amber-700" },
-          { label: "Appointments Today", value: "—", color: "bg-blue-50 border-blue-200", textColor: "text-blue-700" },
-          { label: "Active Providers", value: "—", color: "bg-teal-50 border-teal-200", textColor: "text-teal-700" },
-          { label: "Total Patients", value: "—", color: "bg-purple-50 border-purple-200", textColor: "text-purple-700" },
-        ].map((widget) => (
-          <div
-            key={widget.label}
-            className={`p-5 rounded-xl border ${widget.color}`}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-1 text-gray-500">Operational overview for Tranquility Health.</p>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            href={ROUTES.admin.requests}
+            className="px-4 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors"
           >
-            <p className={`text-xs font-semibold uppercase tracking-wider ${widget.textColor}`}>
-              {widget.label}
-            </p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">{widget.value}</p>
-            {/* TODO (Phase 3): Fetch from DB */}
-          </div>
-        ))}
-      </div>
-
-      {/* Recent activity placeholder */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-        <div className="text-center py-10 text-gray-400">
-          <p className="text-4xl mb-3">📋</p>
-          <p className="text-sm">Audit log entries will appear here.</p>
-          <p className="text-xs mt-1">
-            {/* TODO (Phase 3): Pull from AuditLog model */}
-            Connected to AuditLog in Phase 3.
-          </p>
+            View Requests
+          </Link>
+          <Link
+            href={ROUTES.admin.providers}
+            className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Manage Provider
+          </Link>
         </div>
       </div>
 
-      <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-100">
-        <p className="text-amber-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder admin dashboard. Real data and RBAC coming in future phases.
-        </p>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Status count cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+        {STATUS_CARD_CONFIG.map(({ status, label, color, textColor }) => (
+          <Link
+            key={status}
+            href={`${ROUTES.admin.requests}?status=${status}`}
+            className={`p-5 rounded-xl border ${color} hover:shadow-md transition-shadow block`}
+          >
+            <p className={`text-xs font-semibold uppercase tracking-wider ${textColor}`}>
+              {label}
+            </p>
+            <p className="text-3xl font-bold text-gray-900 mt-2">
+              {loading ? "—" : (counts[status] ?? 0)}
+            </p>
+          </Link>
+        ))}
+      </div>
+
+      {/* Total summary */}
+      <div className="mb-8 p-4 bg-gray-100 rounded-xl border border-gray-200 text-sm text-gray-600">
+        Total requests: <span className="font-bold text-gray-900">{loading ? "—" : totalRequests}</span>
+      </div>
+
+      {/* Recent requests */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-gray-900">Recent Requests</h2>
+          <Link href={ROUTES.admin.requests} className="text-sm text-teal-600 hover:text-teal-800 font-medium">
+            View all →
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="px-6 py-12 text-center text-gray-400 text-sm">Loading…</div>
+        ) : recent.length === 0 ? (
+          <div className="px-6 py-12 text-center text-gray-400 text-sm">
+            No requests yet. Once patients submit the intake form, they will appear here.
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {["Name", "Service", "Preferred Time", "Submitted", "Status"].map((col) => (
+                  <th key={col} className="text-left px-6 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {recent.map((r) => (
+                <tr key={r.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-3 font-medium text-gray-900">{r.fullName}</td>
+                  <td className="px-6 py-3 text-gray-600">
+                    {SERVICE_LABELS[r.serviceInterest] ?? r.serviceInterest}
+                  </td>
+                  <td className="px-6 py-3 text-gray-600">{r.preferredTime}</td>
+                  <td className="px-6 py-3 text-gray-500">{formatDate(r.createdAt)}</td>
+                  <td className="px-6 py-3">
+                    <StatusBadge status={r.status} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

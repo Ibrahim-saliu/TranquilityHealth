@@ -1,64 +1,310 @@
 /**
  * AdminRequests — /admin/requests
- *
- * Lists all incoming appointment requests for admin review and action.
- * Phase 0: Placeholder with anticipated table layout.
- *
- * TODO (future phase): Load from AppointmentRequest model in DB.
- * TODO (future phase): Allow admin to approve, decline, or assign a provider.
- * TODO (Phase 3): Changes to requests should create AuditLog entries.
+ * Filterable table of appointment requests with an inline detail panel.
+ * TODO (Phase 3): Add admin role guard.
  */
 
+import { useEffect, useState, useCallback } from "react";
+import { useSearch } from "wouter";
+import { X } from "lucide-react";
+import {
+  listRequests,
+  updateRequestStatus,
+  REQUEST_STATUS_LABELS,
+  SERVICE_LABELS,
+  type AppointmentRequest,
+  type RequestStatus,
+} from "@/lib/admin-api";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+
+const ALL_STATUSES: RequestStatus[] = ["new", "under_review", "approved", "rejected", "invited"];
+
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/Chicago",
+    timeZoneName: "short",
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Detail Panel
+// ---------------------------------------------------------------------------
+interface DetailPanelProps {
+  request: AppointmentRequest;
+  onClose: () => void;
+  onStatusUpdated: (id: string, status: RequestStatus) => void;
+}
+
+function DetailPanel({ request, onClose, onStatusUpdated }: DetailPanelProps) {
+  const [updating, setUpdating] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+
+  async function handleStatusChange(newStatus: RequestStatus) {
+    if (newStatus === request.status) return;
+    setUpdating(true);
+    setFeedback(null);
+    try {
+      await updateRequestStatus(request.id, newStatus);
+      onStatusUpdated(request.id, newStatus);
+      setFeedback({ type: "success", msg: `Status updated to "${REQUEST_STATUS_LABELS[newStatus]}"` });
+    } catch (err) {
+      setFeedback({ type: "error", msg: err instanceof Error ? err.message : "Failed to update status" });
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white border-l border-gray-200 shadow-xl z-50 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h2 className="text-base font-semibold text-gray-900">Request Detail</h2>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        {/* Status */}
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Current Status</p>
+          <StatusBadge status={request.status} />
+        </div>
+
+        {/* Contact info */}
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Contact</p>
+          <dl className="space-y-2 text-sm">
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Name</dt>
+              <dd className="font-medium text-gray-900">{request.fullName}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Email</dt>
+              <dd className="text-gray-800 break-all">{request.email}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Phone</dt>
+              <dd className="text-gray-800">{request.phone}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Preferred contact</dt>
+              <dd className="text-gray-800 capitalize">{request.preferredContactMethod ?? "—"}</dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* Request info */}
+        <div className="space-y-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Request</p>
+          <dl className="space-y-2 text-sm">
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Service</dt>
+              <dd className="text-gray-800">{SERVICE_LABELS[request.serviceInterest] ?? request.serviceInterest}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Preferred time</dt>
+              <dd className="text-gray-800">{request.preferredTime}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">New patient?</dt>
+              <dd className="text-gray-800">{request.isNewPatient == null ? "—" : request.isNewPatient ? "Yes" : "No"}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="w-32 text-gray-500 shrink-0">Submitted</dt>
+              <dd className="text-gray-800">{formatDateTime(request.createdAt)}</dd>
+            </div>
+            {request.reviewedAt && (
+              <div className="flex gap-2">
+                <dt className="w-32 text-gray-500 shrink-0">Last reviewed</dt>
+                <dd className="text-gray-800">{formatDateTime(request.reviewedAt)}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </div>
+
+      {/* Status update footer */}
+      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Update Status</p>
+        {feedback && (
+          <p className={`text-xs mb-2 font-medium ${feedback.type === "success" ? "text-green-700" : "text-red-700"}`}>
+            {feedback.msg}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {ALL_STATUSES.map((s) => (
+            <button
+              key={s}
+              onClick={() => handleStatusChange(s)}
+              disabled={updating || s === request.status}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors
+                ${s === request.status
+                  ? "bg-gray-200 text-gray-500 border-gray-200 cursor-default"
+                  : "bg-white border-gray-300 text-gray-700 hover:border-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                }`}
+            >
+              {REQUEST_STATUS_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
 export default function AdminRequestsPage() {
+  const search = useSearch();
+  const initialStatus = new URLSearchParams(search).get("status") as RequestStatus | null;
+
+  const [requests, setRequests] = useState<AppointmentRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | "all">(
+    initialStatus && ALL_STATUSES.includes(initialStatus) ? initialStatus : "all",
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedRequest = requests.find((r) => r.id === selectedId) ?? null;
+
+  const loadRequests = useCallback(async (filter: RequestStatus | "all") => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await listRequests(filter === "all" ? undefined : filter);
+      setRequests(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load requests");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadRequests(statusFilter);
+  }, [statusFilter, loadRequests]);
+
+  function handleStatusUpdated(id: string, newStatus: RequestStatus) {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)),
+    );
+  }
+
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Appointment Requests</h1>
           <p className="mt-1 text-gray-500">Review and manage incoming patient requests.</p>
         </div>
-        <div className="flex gap-3">
-          <button
-            disabled
-            className="px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-500 opacity-50 cursor-not-allowed"
-          >
-            Filter (Coming Soon)
-          </button>
-        </div>
       </div>
 
-      {/* Request table placeholder */}
+      {/* Filter bar */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {(["all", ...ALL_STATUSES] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-colors border
+              ${statusFilter === s
+                ? "bg-gray-900 text-white border-gray-900"
+                : "bg-white text-gray-600 border-gray-300 hover:border-gray-500"
+              }`}
+          >
+            {s === "all" ? "All" : REQUEST_STATUS_LABELS[s]}
+          </button>
+        ))}
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Requests table */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {["Patient", "Date Submitted", "Service Type", "Status", "Actions"].map((col) => (
-                <th key={col} className="text-left px-6 py-4 text-gray-600 font-semibold">
+              {["Name", "Email", "Service", "Preferred Time", "Submitted", "Status"].map((col) => (
+                <th key={col} className="text-left px-5 py-3 text-gray-500 font-semibold text-xs uppercase tracking-wide">
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td colSpan={5} className="px-6 py-16 text-center text-gray-400">
-                <p className="text-4xl mb-3">📬</p>
-                <p className="text-sm">No appointment requests yet.</p>
-                <p className="text-xs mt-1">
-                  {/* TODO (Phase 3): Fetch from AppointmentRequest model */}
-                  Requests will appear here once patients submit intake forms.
-                </p>
-              </td>
-            </tr>
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-5 py-16 text-center text-gray-400 text-sm">
+                  Loading…
+                </td>
+              </tr>
+            ) : requests.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-5 py-16 text-center text-gray-400 text-sm">
+                  No requests found.
+                </td>
+              </tr>
+            ) : (
+              requests.map((r) => (
+                <tr
+                  key={r.id}
+                  onClick={() => setSelectedId(r.id === selectedId ? null : r.id)}
+                  className={`cursor-pointer transition-colors hover:bg-teal-50 ${
+                    r.id === selectedId ? "bg-teal-50" : ""
+                  }`}
+                >
+                  <td className="px-5 py-3 font-medium text-gray-900">{r.fullName}</td>
+                  <td className="px-5 py-3 text-gray-600">{r.email}</td>
+                  <td className="px-5 py-3 text-gray-600">
+                    {SERVICE_LABELS[r.serviceInterest] ?? r.serviceInterest}
+                  </td>
+                  <td className="px-5 py-3 text-gray-600">{r.preferredTime}</td>
+                  <td className="px-5 py-3 text-gray-500 whitespace-nowrap">
+                    {new Date(r.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </td>
+                  <td className="px-5 py-3">
+                    <StatusBadge status={r.status} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-8 p-4 bg-amber-50 rounded-lg border border-amber-100">
-        <p className="text-amber-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder. Request management coming in future phases.
-        </p>
-      </div>
+      <p className="mt-3 text-xs text-gray-400 text-right">
+        {!loading && `${requests.length} request${requests.length !== 1 ? "s" : ""}`}
+      </p>
+
+      {/* Detail panel */}
+      {selectedRequest && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={() => setSelectedId(null)}
+          />
+          <DetailPanel
+            request={selectedRequest}
+            onClose={() => setSelectedId(null)}
+            onStatusUpdated={handleStatusUpdated}
+          />
+        </>
+      )}
     </div>
   );
 }

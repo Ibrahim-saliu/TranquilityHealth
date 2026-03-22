@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
+  version: 0.2.0
   description: API specification
 servers:
   - url: /api
@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: appointments
     description: Appointment request operations
+  - name: admin
+    description: Internal admin operations (Phase 3 — will require admin role)
 paths:
   /appointment-requests:
     post:
@@ -51,8 +53,161 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /admin/requests:
+    get:
+      operationId: adminListRequests
+      tags: [admin]
+      summary: List appointment requests
+      description: Returns all appointment requests ordered by newest first. Optionally filter by status.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/RequestStatus"
+      responses:
+        "200":
+          description: List of requests
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requests:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AppointmentRequest"
+                required: [requests]
+  /admin/requests/counts:
+    get:
+      operationId: adminGetRequestCounts
+      tags: [admin]
+      summary: Get request counts by status
+      responses:
+        "200":
+          description: Counts per status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  counts:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                required: [counts]
+  /admin/requests/{id}:
+    get:
+      operationId: adminGetRequest
+      tags: [admin]
+      summary: Get a single appointment request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The appointment request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request:
+                    $ref: "#/components/schemas/AppointmentRequest"
+                required: [request]
+        "404":
+          description: Not found
+  /admin/requests/{id}/status:
+    patch:
+      operationId: adminUpdateRequestStatus
+      tags: [admin]
+      summary: Update appointment request status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: "#/components/schemas/RequestStatus"
+              required: [status]
+      responses:
+        "200":
+          description: Updated request summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        $ref: "#/components/schemas/RequestStatus"
+                    required: [id, status]
+                required: [request]
+        "400":
+          description: Validation error
+        "404":
+          description: Not found
+  /admin/providers/active:
+    get:
+      operationId: adminGetActiveProvider
+      tags: [admin]
+      summary: Get the active provider profile
+      responses:
+        "200":
+          description: The active provider or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    oneOf:
+                      - $ref: "#/components/schemas/Provider"
+                      - type: "null"
+                required: [provider]
+    put:
+      operationId: adminUpsertProvider
+      tags: [admin]
+      summary: Create or update the active provider profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderInput"
+      responses:
+        "200":
+          description: Saved provider
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    $ref: "#/components/schemas/Provider"
+                required: [provider]
+        "400":
+          description: Validation error
 components:
   schemas:
+    RequestStatus:
+      type: string
+      enum: [new, under_review, approved, rejected, invited]
     AppointmentRequestInput:
       type: object
       properties:
@@ -92,6 +247,106 @@ components:
       required:
         - id
         - status
+    AppointmentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        preferredTime:
+          type: string
+        serviceInterest:
+          type: string
+        preferredContactMethod:
+          type: string
+          nullable: true
+        isNewPatient:
+          type: boolean
+          nullable: true
+        contactConsent:
+          type: boolean
+        status:
+          $ref: "#/components/schemas/RequestStatus"
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        reviewedByAdminId:
+          type: string
+          nullable: true
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - fullName
+        - email
+        - phone
+        - preferredTime
+        - serviceInterest
+        - contactConsent
+        - status
+    ProviderInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        credentials:
+          type: string
+        licenseState:
+          type: string
+        bio:
+          type: string
+        profileImageUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+      required:
+        - fullName
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        fullName:
+          type: string
+        credentials:
+          type: string
+        licenseState:
+          type: string
+        bio:
+          type: string
+        profileImageUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - fullName
+        - credentials
+        - licenseState
+        - bio
+        - isActive
     ValidationError:
       type: object
       properties:
@@ -116,4 +371,3 @@ components:
           type: string
       required:
         - status
-
