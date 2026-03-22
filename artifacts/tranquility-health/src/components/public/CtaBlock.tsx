@@ -24,7 +24,7 @@ export function CtaBlock({
         {subtext && <p className="mt-3 text-teal-100 text-lg max-w-xl mx-auto leading-relaxed">{subtext}</p>}
         <Link
           href={buttonHref}
-          className="mt-8 inline-block px-8 py-3.5 bg-white text-teal-700 font-semibold rounded-xl hover:bg-teal-50 transition-colors text-base shadow-lg hover:shadow-xl"
+          className="mt-8 inline-block px-8 py-3.5 bg-gradient-to-r from-white to-teal-50 text-teal-700 font-semibold rounded-xl hover:from-teal-50 hover:to-indigo-50 hover:text-indigo-700 transition-all text-base shadow-lg hover:shadow-xl"
         >
           {buttonLabel}
         </Link>
