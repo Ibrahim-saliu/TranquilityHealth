@@ -60,7 +60,7 @@ export default function HoursPage() {
           </div>
 
           <p className="mt-4 text-xs text-gray-400 italic">
-            All times are Eastern Time (ET). Hours may vary on federal holidays.
+            All times are Central Time (CST). Hours may vary on federal holidays.
           </p>
         </div>
       </section>

@@ -225,18 +225,17 @@ export default function RequestAppointmentPage() {
                       className={inputClass(getFieldError("preferredTime"))}
                     >
                       <option value="">Select a preference…</option>
-                      <optgroup label="Monday – Thursday evenings (5–9 PM ET)">
+                      <optgroup label="Monday – Thursday evenings (5–9 PM CST)">
                         <option value="weekday_evenings">Weekday evenings (Mon–Thu, 5–9 PM)</option>
                       </optgroup>
                       <optgroup label="Friday">
-                        <option value="friday_morning">Friday morning (8 AM–1 PM ET)</option>
-                        <option value="friday_afternoon">Friday afternoon (3–7 PM ET)</option>
+                        <option value="friday_morning">Friday morning (8 AM–1 PM CST)</option>
+                        <option value="friday_afternoon">Friday afternoon (3–7 PM CST)</option>
                       </optgroup>
-                      <optgroup label="Saturday (8 AM–4 PM ET)">
+                      <optgroup label="Saturday (8 AM–4 PM CST)">
                         <option value="saturday_morning">Saturday morning (8 AM–12 PM)</option>
                         <option value="saturday_afternoon">Saturday afternoon (12–4 PM)</option>
                       </optgroup>
-                      <option value="flexible">I'm flexible — any availability works</option>
                     </select>
                   </Field>
 

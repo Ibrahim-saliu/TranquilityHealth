@@ -61,13 +61,11 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hidden md:flex items-center justify-center">
-            <div className="w-96 h-80 bg-gradient-to-br from-teal-100 to-blue-100 rounded-3xl flex items-center justify-center shadow-lg">
-              <div className="text-center p-8">
-                <p className="text-6xl mb-4">🌿</p>
-                <p className="text-teal-800 font-semibold text-lg">Calm, focused care</p>
-                <p className="text-teal-600 text-sm mt-1">Wherever you are</p>
-              </div>
-            </div>
+            <img
+              src="/hero.png"
+              alt="Person relaxing at home during a telehealth session"
+              className="w-96 h-80 object-cover rounded-3xl shadow-lg"
+            />
           </div>
         </div>
       </section>
