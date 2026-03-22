@@ -19,10 +19,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Connection string must be provided via DATABASE_URL environment variable.
-  // See .env.example for the expected format.
-  // DO NOT hardcode credentials here.
-  url      = env("DATABASE_URL")
+  // In Prisma 7+, the connection URL is configured in prisma.config.ts
+  // (not here) to support the new adapter API.
+  // See prisma.config.ts and .env.example for setup details.
 }
 
 // ==============================================================================
