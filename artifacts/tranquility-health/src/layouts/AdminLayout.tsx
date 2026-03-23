@@ -55,12 +55,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               );
             })}
 
-            {/* Admin user info + logout */}
+            {/* Admin user info + role indicator + logout */}
             {user && (
               <div className="ml-4 flex items-center gap-2 border-l border-slate-700 pl-4">
                 <span className="flex items-center gap-1.5 text-slate-300 text-xs">
                   <User className="w-3.5 h-3.5" />
-                  {user.email}
+                  <span>{user.email}</span>
+                  <span className="bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full">
+                    Administrator
+                  </span>
                 </span>
                 <button
                   onClick={handleLogout}

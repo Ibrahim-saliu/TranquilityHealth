@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable, patientsTable } from "@workspace/db";
 import { getCurrentUser } from "../lib/session";
 import { writeAuditLog } from "../lib/audit";
 
@@ -92,7 +92,7 @@ router.post("/auth/logout", (req, res) => {
 
 // ---------------------------------------------------------------------------
 // GET /api/auth/me
-// Returns the current session user, or 401 if not authenticated.
+// Returns the current session user (+ patient name if role=patient), or 401.
 // ---------------------------------------------------------------------------
 router.get("/auth/me", async (req, res) => {
   const sessionUser = getCurrentUser(req);
@@ -113,7 +113,17 @@ router.get("/auth/me", async (req, res) => {
       return;
     }
 
-    res.json({ user });
+    // For patient accounts, also return their display name from the patients table
+    let name: string | null = null;
+    if (user.role === "patient") {
+      const [patient] = await db
+        .select({ fullName: patientsTable.fullName })
+        .from(patientsTable)
+        .where(eq(patientsTable.userId, user.id));
+      name = patient?.fullName ?? null;
+    }
+
+    res.json({ user: { ...user, name } });
   } catch (_err) {
     res.status(500).json({ error: "Failed to load user" });
   }

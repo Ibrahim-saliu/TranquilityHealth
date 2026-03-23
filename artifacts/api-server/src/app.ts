@@ -35,20 +35,30 @@ app.use(express.urlencoded({ extended: true }));
 // Session middleware — MemoryStore (MVP).
 // TODO (Phase 4): Replace MemoryStore with connect-pg-simple for production.
 // ---------------------------------------------------------------------------
-const SESSION_SECRET =
-  process.env["SESSION_SECRET"] ?? "tranquility-dev-secret-change-in-production";
-
 const isProduction = process.env["NODE_ENV"] === "production";
+
+const SESSION_SECRET = process.env["SESSION_SECRET"];
+if (!SESSION_SECRET) {
+  if (isProduction) {
+    // Never start in production without an explicit secret — prevents cookie
+    // forgery attacks from an accidental default value.
+    throw new Error("SESSION_SECRET environment variable is required in production.");
+  }
+  console.warn(
+    "[SECURITY] SESSION_SECRET is not set. Using a temporary insecure secret for development only.",
+  );
+}
+const sessionSecret = SESSION_SECRET ?? "tranquility-dev-only-secret-do-not-use-in-prod";
 
 app.use(
   session({
     name: "th.sid",
-    secret: SESSION_SECRET,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "strict",
       // In production (Replit deployment), requests arrive over HTTPS via proxy.
       // In development, allow the cookie over HTTP.
       secure: isProduction,

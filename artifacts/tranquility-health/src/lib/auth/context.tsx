@@ -15,6 +15,8 @@ export interface AuthUser {
   id: string;
   email: string;
   role: string;
+  /** Patient's full name from the patients table; null until onboarding completes. */
+  name: string | null;
 }
 
 interface AuthState {

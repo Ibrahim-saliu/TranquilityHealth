@@ -3,12 +3,16 @@ import { useAuth } from "@/lib/auth/context";
 export default function AppDashboardPage() {
   const { user } = useAuth();
 
+  // Display name: patient's full name if set, fallback to email
+  const displayName = user?.name ?? user?.email ?? "there";
+
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Patient Dashboard</h1>
         <p className="mt-2 text-slate-500">
-          Welcome back{user?.email ? `, ${user.email}` : ""}. Here's a summary of your care.
+          Welcome back, <span className="font-medium text-slate-700">{displayName}</span>.
+          Here's a summary of your care.
         </p>
       </div>
 
