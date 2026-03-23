@@ -1,0 +1,274 @@
+You are a senior software engineer helping build a HIPAA-conscious telehealth MVP called **Tranquility Health**.
+
+Your task is to generate **Phase 3: Patient Auth + Invite System only**.
+
+Use the existing Phase 0, Phase 1, and Phase 2 codebase. Do not rebuild the project.
+
+---
+
+## IMPORTANT RULES
+
+- Build ONLY authentication, invite system, and route protection
+- Do NOT implement onboarding forms, PHI intake, scheduling, or telehealth
+- All sensitive logic must be server-side
+- Passwords must be securely hashed
+- Sessions must be secure (prefer cookie-based sessions)
+- Code must be modular, readable, and production-oriented
+- Add TODO comments where later phases extend functionality
+
+---
+
+## PHASE 3 OBJECTIVE
+
+Build a secure, invite-only patient access system.
+
+This phase must establish:
+- invite token generation and validation
+- patient account creation
+- login system
+- session handling
+- role-based route protection
+
+---
+
+## INVITE SYSTEM REQUIREMENTS
+
+When admin updates a request status to `invited`:
+
+- Generate a secure invite token
+- Token must:
+  - be unique
+  - be hard to guess (crypto-secure)
+  - have expiration (e.g., 24–72 hours)
+- Store token in database (hashed if possible)
+
+Create new table if needed:
+- InviteToken
+  - id
+  - email
+  - token_hash
+  - expires_at
+  - used (boolean)
+  - appointment_request_id (optional link)
+  - created_at
+
+---
+
+## INVITE FLOW
+
+1. Admin marks request as `invited`
+2. System generates invite token
+3. System prepares invite link:
+   `/app/invite/[token]`
+
+(No email sending required yet — just generate and display or log link for now)
+
+---
+
+## INVITE ACCEPTANCE
+
+Route:
+- `/app/invite/[token]`
+
+Requirements:
+- Validate token server-side
+- Check:
+  - exists
+  - not expired
+  - not used
+- If invalid → show error state
+- If valid → show account creation form
+
+---
+
+## ACCOUNT CREATION
+
+On valid invite:
+
+- Collect:
+  - email (prefilled or validated)
+  - password
+- Create:
+  - User record
+  - Patient record
+- Link Patient to User
+- Mark invite token as used
+
+Password requirements:
+- hash using bcrypt or equivalent
+- never store plain text
+
+---
+
+## AUTHENTICATION SYSTEM
+
+Implement:
+
+### Login route
+- `/login`
+
+Features:
+- email + password login
+- server-side validation
+- password hash comparison
+- create session on success
+
+---
+
+## SESSION MANAGEMENT
+
+- Use secure cookies for session
+- Do NOT store session in localStorage
+- Session must include:
+  - user id
+  - role
+
+Create helper utilities:
+- getCurrentUser()
+- requireAuth()
+- requireRole(role)
+
+---
+
+## ROLE-BASED ACCESS CONTROL
+
+Implement real protection:
+
+### Protect routes:
+
+- `/app/*` → patient only
+- `/admin/*` → admin only
+
+Redirect unauthorized users:
+- to login
+- or to appropriate page
+
+---
+
+## PATIENT DASHBOARD (BASIC)
+
+Route:
+- `/app/dashboard`
+
+Show:
+- welcome message
+- placeholder onboarding status
+- placeholder appointment section
+
+No real data yet — just structure.
+
+---
+
+## DATABASE UPDATES
+
+Ensure schema supports:
+
+- User
+- Patient
+- InviteToken (new)
+
+User fields:
+- id
+- email
+- password_hash
+- role
+- created_at
+
+Patient fields:
+- id
+- user_id
+- full_name (optional for now)
+- onboarding_status
+
+---
+
+## AUDIT LOGGING
+
+Log:
+
+- invite created
+- invite used
+- user account created
+- login success
+- login failure
+
+Use audit logging utility.
+
+---
+
+## UI REQUIREMENTS
+
+- Clean login page
+- Clean invite acceptance page
+- Clear error states:
+  - invalid token
+  - expired token
+  - already used
+- Responsive design
+- Minimal but professional
+
+---
+
+## SECURITY RULES
+
+- Hash passwords (bcrypt or equivalent)
+- Do NOT expose tokens in logs
+- Do NOT store tokens in plain text if avoidable
+- Validate everything server-side
+- Do NOT store sensitive data in localStorage
+- Do NOT expose internal errors to UI
+- Do NOT implement password reset yet unless fully secure
+
+---
+
+## DO NOT
+
+- build onboarding forms
+- collect PHI
+- build scheduling system
+- build telehealth session flow
+- add messaging/chat
+- add analytics scripts
+- expand scope beyond auth + invite
+
+---
+
+## CODE ORGANIZATION
+
+Use existing structure:
+- `/app`
+- `/lib`
+- `/components`
+- `/types`
+- `/prisma`
+
+Add:
+- auth utilities
+- session utilities
+- invite utilities
+
+Keep code modular and maintainable.
+
+---
+
+## DELIVERABLES
+
+- Invite token system
+- Invite acceptance flow
+- Account creation flow
+- Login system
+- Session handling
+- Role-based route protection
+- Patient dashboard shell
+- Audit logs for auth events
+- No runtime errors
+
+---
+
+## IMPLEMENTATION NOTES
+
+- Keep this phase tight and security-focused
+- Prefer simple, correct implementation over clever abstractions
+- Add clear comments for future extension (Phase 4 onward)
+
+Generate Phase 3 implementation only.
