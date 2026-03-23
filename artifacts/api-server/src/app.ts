@@ -37,6 +37,12 @@ app.use(express.urlencoded({ extended: true }));
 // ---------------------------------------------------------------------------
 const isProduction = process.env["NODE_ENV"] === "production";
 
+// Trust the first proxy hop (Replit's TLS-terminating reverse proxy) so that
+// Express reads X-Forwarded-For correctly and secure cookies are set reliably.
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
 const SESSION_SECRET = process.env["SESSION_SECRET"];
 if (!SESSION_SECRET) {
   if (isProduction) {

@@ -147,6 +147,13 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
       return;
     }
 
+    // When transitioning to "invited", generate the invite token FIRST.
+    // If invite creation fails, we abort before updating status — preventing
+    // a request stuck in "invited" without a usable token/link.
+    if (status === "invited") {
+      await generateInvite(existing.email, id);
+    }
+
     const [updated] = await db
       .update(appointmentRequestsTable)
       .set({
@@ -163,16 +170,6 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
       entityId: id,
       metadata: { previousStatus: existing.status, newStatus: status },
     });
-
-    // Auto-generate invite token when status transitions to "invited"
-    if (status === "invited") {
-      try {
-        await generateInvite(existing.email, id);
-      } catch (inviteErr) {
-        // Don't fail the status update if invite generation fails — log and continue
-        console.error("[ADMIN] Failed to generate invite:", inviteErr);
-      }
-    }
 
     res.json({ request: updated });
   } catch (_err) {
