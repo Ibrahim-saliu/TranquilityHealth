@@ -1,7 +1,7 @@
-// TODO (Phase 3): Add role guard — only users with admin role may access these routes
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Heart } from "lucide-react";
+import { Heart, LogOut, User } from "lucide-react";
+import { useAuth } from "@/lib/auth/context";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -15,6 +15,12 @@ const NAV_LINKS = [
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
+
+  async function handleLogout() {
+    await logout();
+    window.location.href = "/";
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -32,7 +38,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
           <nav className="flex items-center gap-1 text-sm font-medium">
             {NAV_LINKS.map(({ href, label }) => {
-              const isActive = location === href || (href !== "/admin/dashboard" && location.startsWith(href));
+              const isActive =
+                location === href || (href !== "/admin/dashboard" && location.startsWith(href));
               return (
                 <Link
                   key={href}
@@ -47,10 +54,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </Link>
               );
             })}
-            {/* TODO (Phase 3): Replace with authenticated user info and logout */}
-            <span className="ml-4 text-slate-500 text-xs italic border-l border-slate-700 pl-4">
-              Auth — Phase 3
-            </span>
+
+            {/* Admin user info + logout */}
+            {user && (
+              <div className="ml-4 flex items-center gap-2 border-l border-slate-700 pl-4">
+                <span className="flex items-center gap-1.5 text-slate-300 text-xs">
+                  <User className="w-3.5 h-3.5" />
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-red-300 transition-colors px-2 py-1 rounded-md hover:bg-red-500/10"
+                  title="Sign out"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign out
+                </button>
+              </div>
+            )}
           </nav>
         </div>
       </header>

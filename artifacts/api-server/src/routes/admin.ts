@@ -1,11 +1,17 @@
-// TODO (Phase 3): Add RBAC middleware — require admin role on all routes below
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { eq, desc, sql, count } from "drizzle-orm";
 import { db, appointmentRequestsTable, providersTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
+import { requireAuth } from "../lib/session";
+import { generateInvite } from "../lib/invite";
 
 const router: IRouter = Router();
+
+// ---------------------------------------------------------------------------
+// All /admin/* routes require an authenticated admin session
+// ---------------------------------------------------------------------------
+router.use("/admin", requireAuth("admin"));
 
 // ---------------------------------------------------------------------------
 // Allowed status values for Phase 2
@@ -105,7 +111,8 @@ router.get("/admin/requests/:id", async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // PATCH /admin/requests/:id/status
-// Update the status of an appointment request
+// Update the status of an appointment request.
+// When status === "invited", auto-generate an invite token and log the link.
 // ---------------------------------------------------------------------------
 const updateStatusSchema = z.object({
   status: statusSchema,
@@ -127,7 +134,11 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
 
   try {
     const [existing] = await db
-      .select({ id: appointmentRequestsTable.id, status: appointmentRequestsTable.status })
+      .select({
+        id: appointmentRequestsTable.id,
+        status: appointmentRequestsTable.status,
+        email: appointmentRequestsTable.email,
+      })
       .from(appointmentRequestsTable)
       .where(eq(appointmentRequestsTable.id, id));
 
@@ -153,6 +164,16 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
       metadata: { previousStatus: existing.status, newStatus: status },
     });
 
+    // Auto-generate invite token when status transitions to "invited"
+    if (status === "invited") {
+      try {
+        await generateInvite(existing.email, id);
+      } catch (inviteErr) {
+        // Don't fail the status update if invite generation fails — log and continue
+        console.error("[ADMIN] Failed to generate invite:", inviteErr);
+      }
+    }
+
     res.json({ request: updated });
   } catch (_err) {
     res.status(500).json({ error: "Failed to update request status" });
@@ -175,7 +196,6 @@ const PLACEHOLDER_PROVIDER = {
 // GET /admin/providers/active
 // Return the canonical provider row (latest by created_at, regardless of
 // isActive). Seeds a safe placeholder only when the table is empty.
-// isActive is a display flag — admins edit the one provider record.
 // ---------------------------------------------------------------------------
 router.get("/admin/providers/active", async (_req, res) => {
   try {
@@ -185,7 +205,6 @@ router.get("/admin/providers/active", async (_req, res) => {
       .orderBy(desc(providersTable.createdAt))
       .limit(1);
 
-    // First-run seeding: insert placeholder only when no rows exist at all
     if (!provider) {
       [provider] = await db
         .insert(providersTable)
@@ -232,8 +251,6 @@ router.put("/admin/providers/active", async (req, res) => {
   const data = parsed.data;
 
   try {
-    // Always target the canonical (latest created) provider row, regardless of
-    // isActive. isActive is a display flag, not a selector for admin editing.
     const [existing] = await db
       .select({ id: providersTable.id })
       .from(providersTable)

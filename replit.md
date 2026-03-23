@@ -97,34 +97,33 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 
 ### `artifacts/tranquility-health` (`@workspace/tranquility-health`)
 
-**Tranquility Health** — HIPAA-conscious telehealth MVP (Phase 0 Foundation).
-React + Vite SPA with full route structure, layouts, placeholder pages, and foundational utilities.
+**Tranquility Health** — HIPAA-conscious telehealth MVP (Texas cash-pay clinic).
+React + Vite SPA with full public website, admin dashboard, and Phase 3 patient auth + invite system.
 
 - Served at `/` (preview path root)
 - `pnpm --filter @workspace/tranquility-health run dev` — dev server on port 20640
+- Design system: Tailwind v4, teal/indigo/violet palette, slate-* text (not gray-*)
 
 **Route structure:**
 - Public routes (`/`, `/about`, `/services`, `/hours`, `/faq`, `/contact`, `/request-appointment`) — wrapped in `PublicLayout` (Navbar + Footer)
-- Patient app routes (`/app/dashboard`, `/app/onboarding`, `/app/appointments`, `/app/session`) — wrapped in `AppLayout` (authenticated shell placeholder)
-- Admin routes (`/admin/dashboard`, `/admin/requests`, `/admin/appointments`, `/admin/providers`) — wrapped in `AdminLayout` (admin shell placeholder)
+- Auth routes: `/login` (Login page), `/invite/:token` (InviteAccept page) — standalone pages, no shared layout
+- Patient app routes (`/app/dashboard`, `/app/onboarding`, `/app/appointments`, `/app/session`) — wrapped in `AppLayout`, guarded by `RequirePatient`
+- Admin routes (`/admin/dashboard`, `/admin/requests`, `/admin/appointments`, `/admin/providers`) — wrapped in `AdminLayout`, guarded by `RequireAdmin`
+
+**Auth system (Phase 3):**
+- `src/lib/auth/context.tsx` — `AuthProvider` + `useAuth()` hook (fetches `GET /api/auth/me` on mount)
+- `src/lib/auth/guards.tsx` — `RequirePatient` and `RequireAdmin` route guards (redirect to `/login`)
+- Session via httpOnly cookie `th.sid` (express-session on the API server, 8h expiry)
+- Admin user: `admin@tranquilityhealth.com` (seeded in DB, password set at setup)
 
 **Key source files:**
-- `src/App.tsx` — router with all 15 routes organized into three layout groups
-- `src/layouts/` — PublicLayout, AppLayout, AdminLayout
-- `src/components/public/` — Navbar, Footer
-- `src/pages/public/` — 7 public pages
+- `src/App.tsx` — router wrapping all routes with `AuthProvider`, 17 routes in four groups
+- `src/layouts/` — PublicLayout, AppLayout (with user email + sign out), AdminLayout (with user email + sign out)
+- `src/components/public/` — Navbar, Footer, and all public section components
+- `src/pages/public/` — 9 public pages (7 marketing + Login + InviteAccept)
 - `src/pages/app/` — 4 patient app pages
 - `src/pages/admin/` — 4 admin pages
-- `src/types/roles.ts` — UserRole type, ROLES constants, isValidRole() guard
+- `src/lib/admin-api/index.ts` — typed admin API client (includes `credentials: "include"`)
+- `src/types/roles.ts` — UserRole type, ROLES constants
 - `src/lib/config/routes.ts` — ROUTES constants for all route paths
-- `src/lib/config/env.ts` — ENV flags, FEATURES feature flags
-- `src/lib/auth/middleware.ts` — Route protection stubs (Phase 3 TODO)
-- `src/lib/audit/index.ts` — logAuditEvent() stub (Phase 3 TODO)
-- `prisma/schema.prisma` — Prisma schema with 7 models: User, Patient, Provider, AppointmentRequest, Appointment, ConsentRecord, AuditLog. PHI fields marked with comments.
-- `.env.example` — Environment variable template
-
-**Phase 0 principles:**
-- No business logic, no auth, no forms (all disabled with "Coming Soon")
-- All pages are clean placeholders with Phase 0 notices
-- TODO comments throughout pointing to Phase 3 implementation
-- No hardcoded credentials
+- `src/lib/config/env.ts` — ENV flags, API_BASE_URL

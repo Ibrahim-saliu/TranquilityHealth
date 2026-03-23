@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import session from "express-session";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -25,9 +26,36 @@ app.use(
     },
   }),
 );
-app.use(cors());
+
+app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ---------------------------------------------------------------------------
+// Session middleware — MemoryStore (MVP).
+// TODO (Phase 4): Replace MemoryStore with connect-pg-simple for production.
+// ---------------------------------------------------------------------------
+const SESSION_SECRET =
+  process.env["SESSION_SECRET"] ?? "tranquility-dev-secret-change-in-production";
+
+const isProduction = process.env["NODE_ENV"] === "production";
+
+app.use(
+  session({
+    name: "th.sid",
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      // In production (Replit deployment), requests arrive over HTTPS via proxy.
+      // In development, allow the cookie over HTTP.
+      secure: isProduction,
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    },
+  }),
+);
 
 app.use("/api", router);
 

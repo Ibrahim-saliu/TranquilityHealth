@@ -1,16 +1,7 @@
-/**
- * App.tsx — Root application component for Tranquility Health.
- *
- * Organizes routes into three distinct groups:
- *  - Public routes: marketing pages accessible to all visitors
- *  - App routes (/app/*): patient-facing secure application (placeholder shell)
- *  - Admin routes (/admin/*): admin dashboard (placeholder shell)
- *
- * TODO (Phase 3): Wrap /app and /admin routes with authentication guards
- * using the middleware stubs in src/lib/auth/middleware.ts
- */
-
 import { Switch, Route, Router as WouterRouter } from "wouter";
+
+import { AuthProvider } from "@/lib/auth/context";
+import { RequirePatient, RequireAdmin } from "@/lib/auth/guards";
 
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { AppLayout } from "@/layouts/AppLayout";
@@ -23,6 +14,8 @@ import HoursPage from "@/pages/public/Hours";
 import FaqPage from "@/pages/public/Faq";
 import ContactPage from "@/pages/public/Contact";
 import RequestAppointmentPage from "@/pages/public/RequestAppointment";
+import LoginPage from "@/pages/public/Login";
+import InviteAcceptPage from "@/pages/public/InviteAccept";
 
 import AppDashboardPage from "@/pages/app/Dashboard";
 import OnboardingPage from "@/pages/app/Onboarding";
@@ -39,87 +32,85 @@ import NotFoundPage from "@/pages/NotFound";
 function Router() {
   return (
     <Switch>
-      {/* Public routes — wrapped in public layout (navbar + footer) */}
+      {/* ------------------------------------------------------------------ */}
+      {/* Public routes — marketing pages accessible to all visitors          */}
+      {/* ------------------------------------------------------------------ */}
       <Route path="/">
-        <PublicLayout>
-          <HomePage />
-        </PublicLayout>
+        <PublicLayout><HomePage /></PublicLayout>
       </Route>
       <Route path="/about">
-        <PublicLayout>
-          <AboutPage />
-        </PublicLayout>
+        <PublicLayout><AboutPage /></PublicLayout>
       </Route>
       <Route path="/services">
-        <PublicLayout>
-          <ServicesPage />
-        </PublicLayout>
+        <PublicLayout><ServicesPage /></PublicLayout>
       </Route>
       <Route path="/hours">
-        <PublicLayout>
-          <HoursPage />
-        </PublicLayout>
+        <PublicLayout><HoursPage /></PublicLayout>
       </Route>
       <Route path="/faq">
-        <PublicLayout>
-          <FaqPage />
-        </PublicLayout>
+        <PublicLayout><FaqPage /></PublicLayout>
       </Route>
       <Route path="/contact">
-        <PublicLayout>
-          <ContactPage />
-        </PublicLayout>
+        <PublicLayout><ContactPage /></PublicLayout>
       </Route>
       <Route path="/request-appointment">
-        <PublicLayout>
-          <RequestAppointmentPage />
-        </PublicLayout>
+        <PublicLayout><RequestAppointmentPage /></PublicLayout>
       </Route>
 
-      {/* Patient app routes — wrapped in authenticated app shell */}
-      {/* TODO (Phase 3): Add authentication guard around AppLayout */}
+      {/* Auth pages — standalone, no shared layout */}
+      <Route path="/login">
+        <LoginPage />
+      </Route>
+      <Route path="/invite/:token">
+        <InviteAcceptPage />
+      </Route>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Patient app routes — require authenticated patient session          */}
+      {/* ------------------------------------------------------------------ */}
       <Route path="/app/dashboard">
-        <AppLayout>
-          <AppDashboardPage />
-        </AppLayout>
+        <RequirePatient>
+          <AppLayout><AppDashboardPage /></AppLayout>
+        </RequirePatient>
       </Route>
       <Route path="/app/onboarding">
-        <AppLayout>
-          <OnboardingPage />
-        </AppLayout>
+        <RequirePatient>
+          <AppLayout><OnboardingPage /></AppLayout>
+        </RequirePatient>
       </Route>
       <Route path="/app/appointments">
-        <AppLayout>
-          <AppointmentsPage />
-        </AppLayout>
+        <RequirePatient>
+          <AppLayout><AppointmentsPage /></AppLayout>
+        </RequirePatient>
       </Route>
       <Route path="/app/session">
-        <AppLayout>
-          <SessionPage />
-        </AppLayout>
+        <RequirePatient>
+          <AppLayout><SessionPage /></AppLayout>
+        </RequirePatient>
       </Route>
 
-      {/* Admin routes — wrapped in admin shell */}
-      {/* TODO (Phase 3): Add admin role check around AdminLayout */}
+      {/* ------------------------------------------------------------------ */}
+      {/* Admin routes — require authenticated admin session                 */}
+      {/* ------------------------------------------------------------------ */}
       <Route path="/admin/dashboard">
-        <AdminLayout>
-          <AdminDashboardPage />
-        </AdminLayout>
+        <RequireAdmin>
+          <AdminLayout><AdminDashboardPage /></AdminLayout>
+        </RequireAdmin>
       </Route>
       <Route path="/admin/requests">
-        <AdminLayout>
-          <AdminRequestsPage />
-        </AdminLayout>
+        <RequireAdmin>
+          <AdminLayout><AdminRequestsPage /></AdminLayout>
+        </RequireAdmin>
       </Route>
       <Route path="/admin/appointments">
-        <AdminLayout>
-          <AdminAppointmentsPage />
-        </AdminLayout>
+        <RequireAdmin>
+          <AdminLayout><AdminAppointmentsPage /></AdminLayout>
+        </RequireAdmin>
       </Route>
       <Route path="/admin/providers">
-        <AdminLayout>
-          <AdminProvidersPage />
-        </AdminLayout>
+        <RequireAdmin>
+          <AdminLayout><AdminProvidersPage /></AdminLayout>
+        </RequireAdmin>
       </Route>
 
       {/* 404 fallback */}
@@ -130,9 +121,11 @@ function Router() {
 
 function App() {
   return (
-    <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-      <Router />
-    </WouterRouter>
+    <AuthProvider>
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <Router />
+      </WouterRouter>
+    </AuthProvider>
   );
 }
 

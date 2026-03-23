@@ -3,14 +3,19 @@ import { db, auditLogsTable } from "@workspace/db";
 export type AuditAction =
   | "REQUEST_STATUS_UPDATED"
   | "PROVIDER_PROFILE_UPDATED"
-  | "PROVIDER_PLACEHOLDER_SEEDED";
+  | "PROVIDER_PLACEHOLDER_SEEDED"
+  // Phase 3: auth + invite events
+  | "INVITE_CREATED"
+  | "INVITE_USED"
+  | "USER_CREATED"
+  | "LOGIN_SUCCESS"
+  | "LOGIN_FAILURE";
 
 interface AuditParams {
   action: AuditAction;
   entityType: string;
   entityId: string;
   metadata?: Record<string, string | number | boolean | null>;
-  // TODO (Phase 3): Replace with real authenticated admin user id
   actorId?: string;
 }
 
