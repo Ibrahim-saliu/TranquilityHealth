@@ -355,4 +355,44 @@ router.post("/admin/invite-staff", async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// POST /admin/invite-staff/resend
+// Generates a fresh invite link for an email that has a pending (unused,
+// non-expired) invite. Creates a new token — the old one remains valid until
+// its natural expiry. First accepted token wins; subsequent ones are blocked
+// by the "email already has an account" guard.
+// ---------------------------------------------------------------------------
+const resendInviteSchema = z.object({
+  email: z.string().email("Valid email required"),
+});
+
+router.post("/admin/invite-staff/resend", async (req, res) => {
+  const parsed = resendInviteSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
+    return;
+  }
+
+  const { email } = parsed.data;
+
+  try {
+    const [existingUser] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase()));
+
+    if (existingUser) {
+      res.status(409).json({ error: "An account with this email already exists" });
+      return;
+    }
+
+    const rawToken = await generateInvite(email.toLowerCase(), "admin");
+    const inviteUrl = `/admin/accept-invite/${rawToken}`;
+
+    res.status(201).json({ inviteUrl });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to regenerate invite link" });
+  }
+});
+
 export default router;

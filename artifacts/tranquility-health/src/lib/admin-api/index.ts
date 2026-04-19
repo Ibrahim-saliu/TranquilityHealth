@@ -166,6 +166,13 @@ export async function inviteStaff(email: string): Promise<{ inviteUrl: string }>
   });
 }
 
+export async function resendInvite(email: string): Promise<{ inviteUrl: string }> {
+  return apiFetch<{ inviteUrl: string }>("/admin/invite-staff/resend", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function validateAdminInviteToken(
   token: string,
 ): Promise<{ valid: boolean; email?: string; reason?: string }> {

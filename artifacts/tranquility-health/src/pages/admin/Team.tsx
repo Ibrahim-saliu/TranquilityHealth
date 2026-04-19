@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail } from "lucide-react";
+import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail, Link2 } from "lucide-react";
 import {
   getTeam,
   inviteStaff,
+  resendInvite,
   type AdminUser,
   type PendingInvite,
 } from "@/lib/admin-api";
@@ -15,11 +16,25 @@ function formatDate(iso: string) {
   });
 }
 
+function formatTimeLeft(iso: string) {
+  const diff = new Date(iso).getTime() - Date.now();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  if (hours > 24) return `${Math.floor(hours / 24)}d left`;
+  if (hours > 0) return `${hours}h ${minutes}m left`;
+  return `${minutes}m left`;
+}
+
 function isExpired(iso: string) {
   return new Date(iso) < new Date();
 }
 
-function CopyButton({ text }: { text: string }) {
+function toAbsolute(path: string): string {
+  if (path.startsWith("http")) return path;
+  return window.location.origin + path;
+}
+
+function CopyButton({ text, label = "Copy link" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -28,14 +43,21 @@ function CopyButton({ text }: { text: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // fallback: select + execCommand
+      const el = document.createElement("textarea");
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
     }
   }
 
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-medium px-2.5 py-1.5 rounded-md bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors"
+      className="inline-flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-medium px-2.5 py-1.5 rounded-md bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors flex-shrink-0"
     >
       {copied ? (
         <>
@@ -45,10 +67,99 @@ function CopyButton({ text }: { text: string }) {
       ) : (
         <>
           <Copy className="w-3.5 h-3.5" />
-          Copy link
+          {label}
         </>
       )}
     </button>
+  );
+}
+
+function InviteLink({ url, email }: { url: string; email: string }) {
+  const absolute = toAbsolute(url);
+  return (
+    <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <p className="text-sm font-semibold text-emerald-800 mb-0.5">
+        Invite link created for {email}
+      </p>
+      <p className="text-xs text-emerald-700 mb-3">
+        Copy and send this link. It expires in 72 hours and can only be used once.
+      </p>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-xs bg-white border border-emerald-200 rounded px-3 py-2 text-slate-700 break-all min-w-0">
+          {absolute}
+        </code>
+        <CopyButton text={absolute} />
+      </div>
+    </div>
+  );
+}
+
+function PendingInviteRow({ invite, onGetLink }: {
+  invite: PendingInvite;
+  onGetLink: (email: string) => Promise<string>;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [linkUrl, setLinkUrl] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function handleGetLink() {
+    setLoading(true);
+    setErr(null);
+    try {
+      const url = await onGetLink(invite.email);
+      setLinkUrl(url);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed to generate link");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="px-6 py-3.5">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
+          <Mail className="w-3.5 h-3.5 text-amber-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-900 truncate">{invite.email}</p>
+          <p className="text-xs text-slate-400">
+            Sent {formatDate(invite.createdAt)} — {formatTimeLeft(invite.expiresAt)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wide bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-full">
+            Pending
+          </span>
+          {!linkUrl && (
+            <button
+              onClick={handleGetLink}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 text-xs text-indigo-700 hover:text-indigo-900 font-medium px-2.5 py-1.5 rounded-md bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors disabled:opacity-50"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              {loading ? "Generating…" : "Get link"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {err && (
+        <p className="mt-2 text-xs text-red-600 pl-11">{err}</p>
+      )}
+
+      {linkUrl && (
+        <div className="mt-3 ml-11 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+          <p className="text-xs text-indigo-700 font-medium mb-2">New invite link (72 hours):</p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-xs bg-white border border-indigo-200 rounded px-2.5 py-1.5 text-slate-700 break-all min-w-0">
+              {toAbsolute(linkUrl)}
+            </code>
+            <CopyButton text={toAbsolute(linkUrl)} />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -94,10 +205,15 @@ export default function AdminTeamPage() {
       setInviteEmail("");
       loadTeam();
     } catch (err) {
-      setInviteError(err instanceof Error ? err.message : "Failed to send invite");
+      setInviteError(err instanceof Error ? err.message : "Failed to create invite");
     } finally {
       setInviting(false);
     }
+  }
+
+  async function handleResend(email: string): Promise<string> {
+    const result = await resendInvite(email);
+    return result.inviteUrl;
   }
 
   const activePending = pendingInvites.filter((i) => !i.used && !isExpired(i.expiresAt));
@@ -154,20 +270,7 @@ export default function AdminTeamPage() {
             )}
 
             {inviteResult && (
-              <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <p className="text-sm font-semibold text-emerald-800 mb-1">
-                  Invite link created for {inviteResult.email}
-                </p>
-                <p className="text-xs text-emerald-700 mb-3">
-                  Copy and send this link directly. It expires in 72 hours and can only be used once.
-                </p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-xs bg-white border border-emerald-200 rounded px-3 py-2 text-slate-700 break-all">
-                    {inviteResult.url}
-                  </code>
-                  <CopyButton text={inviteResult.url} />
-                </div>
-              </div>
+              <InviteLink url={inviteResult.url} email={inviteResult.email} />
             )}
           </div>
         </div>
@@ -224,20 +327,11 @@ export default function AdminTeamPage() {
           </div>
           <div className="divide-y divide-slate-50">
             {activePending.map((invite) => (
-              <div key={invite.id} className="px-6 py-3.5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-3.5 h-3.5 text-amber-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">{invite.email}</p>
-                  <p className="text-xs text-slate-400">
-                    Invited {formatDate(invite.createdAt)} — expires {formatDate(invite.expiresAt)}
-                  </p>
-                </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wide bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-full">
-                  Pending
-                </span>
-              </div>
+              <PendingInviteRow
+                key={invite.id}
+                invite={invite}
+                onGetLink={handleResend}
+              />
             ))}
           </div>
         </div>
