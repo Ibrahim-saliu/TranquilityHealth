@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { useState, useEffect, useRef } from "react";
+import { ShieldCheck, Lock, Video } from "lucide-react";
 
 // ─── Scroll-reveal hook ────────────────────────────────────────────────────
 function useScrollReveal(threshold = 0.12) {
@@ -234,10 +235,25 @@ export default function HomePage() {
 
       {/* Trust bar */}
       <section className="bg-gradient-to-r from-teal-600 to-indigo-700 py-5">
-        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-10 text-white/90 text-sm font-medium">
-          <span>✓ Licensed Clinicians</span>
-          <span>✓ HIPAA-Conscious Platform</span>
-          <span>✓ Telehealth Appointments</span>
+        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-8 text-white/90 text-sm font-medium overflow-x-auto">
+          <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
+              <ShieldCheck className="w-4 h-4 text-white" />
+            </span>
+            Licensed Clinicians
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
+              <Lock className="w-4 h-4 text-white" />
+            </span>
+            HIPAA-Conscious Platform
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
+              <Video className="w-4 h-4 text-white" />
+            </span>
+            Telehealth Appointments
+          </span>
         </div>
       </section>
 
