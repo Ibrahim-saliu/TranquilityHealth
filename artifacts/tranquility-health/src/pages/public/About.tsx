@@ -14,7 +14,7 @@ const values = [
     Icon: FlaskConical,
     gradient: "from-indigo-500 to-indigo-600",
     title: "Evidence-Based Practice",
-    description: "Our clinicians use therapies with strong research backing — CBT, DBT, motivational interviewing — tailored to each patient's needs.",
+    description: "Our clinicians use therapies with strong research backing, including CBT, DBT, and motivational interviewing, tailored to each patient's needs.",
   },
   {
     Icon: Heart,
@@ -35,7 +35,7 @@ export default function AboutPage() {
     <div>
       <PageHeader
         title="About Tranquility Health"
-        subtitle="We believe everyone deserves access to compassionate, high-quality mental health care — without the barriers that have kept so many from getting the help they need."
+        subtitle="We believe everyone deserves access to compassionate, high-quality mental health care, free from the barriers that have kept so many from getting the help they need."
         badge="Our Story"
       />
 
@@ -65,7 +65,7 @@ export default function AboutPage() {
                 Dr. Okafor has spent over a decade working alongside patients navigating depression, anxiety, mood disorders, and complex psychiatric conditions. She founded Tranquility Health after seeing how many Texans were going without care simply because of scheduling barriers and the cost of traditional psychiatric visits.
               </p>
               <p className="text-slate-600 leading-relaxed text-sm">
-                "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction — no long commutes, no confusing insurance bills, just honest, evidence-based care on a schedule that actually works for you."
+                "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no confusing insurance bills, just honest, evidence-based care on a schedule that actually works for you."
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {["Medication Management", "Psychotherapy Supervision", "CBT", "DBT", "Motivational Interviewing"].map((tag) => (
@@ -84,10 +84,10 @@ export default function AboutPage() {
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Our Mission</h2>
             <p className="text-slate-600 leading-relaxed">
-              Tranquility Health was founded on a simple belief: mental health support should be accessible, compassionate, and convenient. We remove barriers to care by delivering licensed therapy and psychiatric services directly to you — wherever you are.
+              Tranquility Health was founded on a simple belief: mental health support should be accessible, compassionate, and convenient. We remove barriers to care by delivering licensed therapy and psychiatric services directly to you, wherever you are.
             </p>
             <p className="mt-4 text-slate-600 leading-relaxed">
-              We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. Our telehealth model means you can meet with a licensed provider from your home, your car, or anywhere private — no commute, no waiting room.
+              We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. Our telehealth model means you can meet with a licensed provider from your home, your car, or anywhere private. No commute, no waiting room.
             </p>
           </div>
           <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
@@ -111,7 +111,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
           <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
-            Our network of licensed mental health professionals includes therapists, counselors, and psychiatric nurse practitioners — all rigorously vetted and committed to evidence-based care. Every clinician on our platform holds an active state license and maintains continuing education in their area of specialty.
+            Our network of licensed mental health professionals includes therapists, counselors, and psychiatric nurse practitioners, all rigorously vetted and committed to evidence-based care. Every clinician on our platform holds an active state license and maintains continuing education in their area of specialty.
           </p>
           <div className="grid sm:grid-cols-3 gap-5">
             {[

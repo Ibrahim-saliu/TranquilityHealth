@@ -43,7 +43,7 @@ export default function ServicesPage() {
     <div>
       <PageHeader
         title="Our Services"
-        subtitle="Comprehensive mental health care delivered via telehealth — from initial evaluation through ongoing therapy and medication management."
+        subtitle="Comprehensive mental health care delivered via telehealth, from initial evaluation through ongoing therapy and medication management."
         badge="Telehealth · Texas-based"
       />
 
@@ -61,7 +61,7 @@ export default function ServicesPage() {
               <div>
                 <h2 className="text-xl font-bold text-slate-900">Medication Management</h2>
                 <p className="mt-3 text-slate-600 leading-relaxed text-sm">
-                  Our primary service — psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.
+                  Our primary service: psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.
                 </p>
                 <div className="mt-4 p-4 bg-teal-50 rounded-xl">
                   <p className="text-xs text-teal-700">
@@ -125,7 +125,7 @@ export default function ServicesPage() {
               <div>
                 <h3 className="text-base font-semibold text-slate-900 mb-2">All services delivered via telehealth</h3>
                 <p className="text-slate-600 text-sm leading-relaxed">
-                  All Tranquility Health services are conducted over secure, HIPAA-conscious video calls. You'll receive a link before your appointment — no downloads required for most devices. You just need a private space and a reliable internet connection.
+                  All Tranquility Health services are conducted over secure, HIPAA-conscious video calls. You'll receive a link before your appointment. No downloads required for most devices. You just need a private space and a reliable internet connection.
                 </p>
               </div>
             </div>

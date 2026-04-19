@@ -17,7 +17,7 @@ export default function HoursPage() {
     <div>
       <PageHeader
         title="Office Hours"
-        subtitle="Our schedule is designed around working adults — evenings, Fridays, and Saturdays available."
+        subtitle="Our schedule is designed around working adults, with evenings, Fridays, and Saturdays available."
         badge="Central Time (CST)"
       />
 

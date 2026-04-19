@@ -303,7 +303,7 @@ export default function RequestAppointmentPage() {
                 </label>
 
                 <p className="mt-4 text-xs text-slate-400 leading-relaxed">
-                  Your information is protected. We will never sell your contact details. By submitting this form you acknowledge that you are not sharing protected health information (PHI) — your detailed health history will be discussed privately during your appointment.
+                  Your information is protected. We will never sell your contact details. By submitting this form you acknowledge that you are not sharing protected health information (PHI). Your detailed health history will be discussed privately during your appointment.
                 </p>
 
                 {serverError && (

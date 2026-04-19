@@ -107,7 +107,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mt-6 text-xl text-slate-300 leading-relaxed">
-              Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more — via secure video appointments that fit your life.
+              Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
             </p>
             {/* Cash-pay callout */}
             <div className="mt-6 inline-flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
@@ -207,7 +207,7 @@ export default function HomePage() {
                 step: "1",
                 gradient: "from-teal-500 to-teal-600",
                 title: "Submit a request",
-                body: "Fill out our short appointment request form. No account needed — just your contact info and a bit about what you're looking for.",
+                body: "Fill out our short appointment request form. No account needed. Just your contact info and a bit about what you're looking for.",
               },
               {
                 step: "2",

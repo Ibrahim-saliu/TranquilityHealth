@@ -6,19 +6,19 @@ import { SectionWrapper } from "@/components/public/SectionWrapper";
 const faqs = [
   {
     question: "What is telehealth and how does it work?",
-    answer: "Telehealth allows you to meet with a licensed mental health provider via secure video call — from the comfort of your home or any private location. Before your appointment you'll receive a link by email or text. Most devices work without any software downloads. You just need a stable internet connection and a private space.",
+    answer: "Telehealth allows you to meet with a licensed mental health provider via secure video call, from the comfort of your home or any private location. Before your appointment you'll receive a link by email or text. Most devices work without any software downloads. You just need a stable internet connection and a private space.",
   },
   {
     question: "How does payment work? Do you accept insurance?",
-    answer: "Tranquility Health is a cash-pay practice — we do not bill insurance directly. All services are paid out of pocket at the time of your appointment. We accept major credit and debit cards. If you have an HSA or FSA account, those funds can typically be used for mental health services. We can provide a superbill upon request that you may submit to your insurer for potential out-of-network reimbursement.",
+    answer: "Tranquility Health is a cash-pay practice. We do not bill insurance directly. All services are paid out of pocket at the time of your appointment. We accept major credit and debit cards. If you have an HSA or FSA account, those funds can typically be used for mental health services. We can provide a superbill upon request that you may submit to your insurer for potential out-of-network reimbursement.",
   },
   {
     question: "What conditions do you treat?",
-    answer: "We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. If you're unsure whether your situation is a good fit, just request an appointment and select 'Not sure yet' — our care coordinator will help determine the best starting point during your intake call.",
+    answer: "We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. If you're unsure whether your situation is a good fit, just request an appointment and select 'Not sure yet.' Our care coordinator will help determine the best starting point during your intake call.",
   },
   {
     question: "How do I request an appointment?",
-    answer: "Fill out our short online appointment request form — it takes about 3 minutes. No account is required. Our care coordinator will contact you within one business day to schedule your first appointment and answer any questions you have.",
+    answer: "Fill out our short online appointment request form. It takes about 3 minutes and no account is required. Our care coordinator will contact you within one business day to schedule your first appointment and answer any questions you have.",
   },
   {
     question: "How long does the first appointment take?",
@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     question: "What states do you serve?",
-    answer: "We currently serve patients in Texas. All of our clinicians hold active Texas licensure. If you live outside Texas, we are not able to see you at this time — telehealth regulations require clinicians to be licensed in the state where the patient is located.",
+    answer: "We currently serve patients in Texas. All of our clinicians hold active Texas licensure. If you live outside Texas, we are not able to see you at this time. Telehealth regulations require clinicians to be licensed in the state where the patient is located.",
   },
   {
     question: "Can I use Tranquility Health if I've never been to therapy before?",
@@ -79,7 +79,7 @@ export default function FaqPage() {
         <div className="max-w-3xl mx-auto px-4">
           <CtaBlock
             heading="Ready to get started?"
-            subtext="Request an appointment today — no account or commitment needed."
+            subtext="Request an appointment today. No account or commitment needed."
           />
         </div>
       </SectionWrapper>

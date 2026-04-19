@@ -98,15 +98,15 @@ export default function ContactPage() {
               <ul className="mt-3 space-y-2.5 text-sm text-red-800">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>988</strong> — Suicide &amp; Crisis Lifeline (call or text)</span>
+                  <span><strong>988</strong>: Suicide &amp; Crisis Lifeline (call or text)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>911</strong> — Life-threatening emergencies</span>
+                  <span><strong>911</strong>: Life-threatening emergencies</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>Crisis Text Line</strong> — Text HOME to 741741</span>
+                  <span><strong>Crisis Text Line</strong>: Text HOME to 741741</span>
                 </li>
               </ul>
               <p className="mt-4 text-xs text-red-600 font-semibold">
