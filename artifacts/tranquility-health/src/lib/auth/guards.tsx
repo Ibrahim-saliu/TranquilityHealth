@@ -15,14 +15,16 @@ export function RequirePatient({ children }: { children: ReactNode }) {
 }
 
 // ---------------------------------------------------------------------------
-// RequireAdmin — redirects to /login if not authenticated as an admin
+// RequireAdmin — allows admin and collaborator roles; redirects others
 // ---------------------------------------------------------------------------
+const ADMIN_ROLES = ["admin", "collaborator"] as const;
+
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
 
   if (loading) return <AuthLoadingScreen />;
   if (!user) return <Redirect to="/login" />;
-  if (user.role !== "admin") return <Redirect to="/" />;
+  if (!(ADMIN_ROLES as readonly string[]).includes(user.role)) return <Redirect to="/" />;
   return <>{children}</>;
 }
 

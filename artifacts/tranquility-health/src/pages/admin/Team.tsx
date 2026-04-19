@@ -362,8 +362,8 @@ export default function AdminTeamPage() {
         </div>
       </div>
 
-      {/* Pending invites */}
-      {!loading && activePending.length > 0 && (
+      {/* Pending invites — admin only */}
+      {isAdmin && !loading && activePending.length > 0 && (
         <div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
             <Clock className="w-4 h-4 text-amber-500" />
@@ -386,8 +386,8 @@ export default function AdminTeamPage() {
         </div>
       )}
 
-      {/* Accepted / expired invites */}
-      {!loading && usedOrExpired.length > 0 && (
+      {/* Accepted / expired invites — admin only */}
+      {isAdmin && !loading && usedOrExpired.length > 0 && (
         <div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-slate-400" />

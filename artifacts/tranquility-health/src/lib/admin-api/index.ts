@@ -174,7 +174,14 @@ export async function resendInvite(email: string): Promise<{ inviteUrl: string }
 }
 
 export async function deleteCollaborator(userId: string): Promise<void> {
-  await apiFetch<void>(`/admin/team/${userId}`, { method: "DELETE" });
+  const res = await fetch(`${API_BASE_URL}/admin/team/${userId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
 }
 
 export async function validateAdminInviteToken(
