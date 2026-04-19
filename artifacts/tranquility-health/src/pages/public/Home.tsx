@@ -185,7 +185,7 @@ export default function HomePage() {
               Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
             </p>
             {/* Cash-pay callout */}
-            <div className="mt-6 inline-flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
+            <div className="mt-6 inline-flex items-center gap-x-3 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
               <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
                 <svg className="w-4 h-4 text-teal-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
