@@ -21,7 +21,7 @@ const contactItems = [
     gradient: "from-teal-500 to-teal-600",
     label: "Email",
     content: (
-      <a href="mailto:hello@tranquilityhealth.com" className="text-teal-600 hover:text-teal-700 hover:underline">
+      <a href="mailto:hello@tranquilityhealth.com" className="text-teal-600 hover:text-teal-700 hover:underline text-sm">
         hello@tranquilityhealth.com
       </a>
     ),
@@ -32,7 +32,7 @@ const contactItems = [
     label: "Phone",
     content: (
       <>
-        <p className="text-slate-600">(555) 000-0000</p>
+        <p className="text-slate-700 text-sm font-medium">(555) 000-0000</p>
         <p className="text-xs text-slate-400 mt-0.5">Mon–Thu 5–9 PM, Fri 8 AM–7 PM, Sat 8 AM–4 PM CST</p>
       </>
     ),
@@ -41,7 +41,7 @@ const contactItems = [
     Icon: Clock,
     gradient: "from-violet-500 to-violet-600",
     label: "Response time",
-    content: <p className="text-slate-600">We typically respond within one business day.</p>,
+    content: <p className="text-slate-600 text-sm">Typically within one business day.</p>,
   },
 ];
 
@@ -55,62 +55,67 @@ export default function ContactPage() {
       />
 
       <SectionWrapper variant="warm">
-        <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-8">
-          {/* Contact info */}
-          <div className="space-y-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-5">General Inquiries</h3>
-              <ul className="space-y-4 text-sm text-slate-600">
-                {contactItems.map(({ Icon, gradient, label, content }) => (
-                  <li key={label} className="flex items-start gap-4">
-                    <div className={`flex-shrink-0 w-9 h-9 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center mt-0.5 shadow-sm`}>
-                      <Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-700 mb-0.5">{label}</p>
-                      {content}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <div className="max-w-4xl mx-auto px-4 space-y-6">
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-3">Ready to book?</h3>
-              <p className="text-sm text-slate-500 mb-4 leading-relaxed">
-                The fastest way to connect with our team is by submitting an appointment request. Our care coordinator will reach out within one business day to confirm your slot.
-              </p>
+          {/* Row 1: 3 contact method cards */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            {contactItems.map(({ Icon, gradient, label, content }) => (
+              <div
+                key={label}
+                className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200 flex items-start gap-4"
+              >
+                <div className={`flex-shrink-0 w-10 h-10 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-sm`}>
+                  <Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>
+                  {content}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2: CTA + image side by side */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to book?</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  The fastest way to connect is by submitting an appointment request. Our care coordinator will reach out within one business day.
+                </p>
+              </div>
               <Link
                 href={ROUTES.public.requestAppointment}
-                className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-teal-500 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-teal-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
+                className="mt-5 inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-teal-500 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:from-teal-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md self-start"
               >
                 Request Appointment
               </Link>
             </div>
+
+            <div className="rounded-2xl overflow-hidden shadow-sm">
+              <img src="/contact.png" alt="Telehealth appointment from home" className="w-full h-full object-cover min-h-[180px]" />
+            </div>
           </div>
 
-          {/* Right column */}
-          <div className="space-y-6">
-            <div className="rounded-2xl overflow-hidden shadow-sm">
-              <img src="/contact.png" alt="Telehealth appointment from home" className="w-full h-48 object-cover" />
-            </div>
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
-              <h3 className="text-lg font-semibold text-red-900 mb-3">Mental Health Crisis</h3>
-              <p className="text-sm text-red-700 leading-relaxed">
-                If you are in immediate danger or experiencing a mental health crisis, please call:
+          {/* Row 3: Crisis + FAQ side by side */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+              <h3 className="text-base font-semibold text-red-900 mb-3">Mental Health Crisis</h3>
+              <p className="text-sm text-red-700 leading-relaxed mb-3">
+                If you are in immediate danger or experiencing a crisis, please call:
               </p>
-              <ul className="mt-3 space-y-2.5 text-sm text-red-800">
+              <ul className="space-y-2 text-sm text-red-800">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>988</strong>: Suicide &amp; Crisis Lifeline (call or text)</span>
+                  <span><strong>988</strong> — Suicide &amp; Crisis Lifeline (call or text)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>911</strong>: Life-threatening emergencies</span>
+                  <span><strong>911</strong> — Life-threatening emergencies</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>Crisis Text Line</strong>: Text HOME to 741741</span>
+                  <span><strong>Crisis Text Line</strong> — Text HOME to 741741</span>
                 </li>
               </ul>
               <p className="mt-4 text-xs text-red-600 font-semibold">
@@ -118,24 +123,25 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
-              <h3 className="text-base font-semibold text-slate-900 mb-2">Have a question?</h3>
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                Our FAQ page covers most common questions about services, insurance, scheduling, and privacy.
-              </p>
-              <Link
-                href={ROUTES.public.faq}
-                className="text-sm font-semibold text-teal-700 hover:text-teal-800 inline-flex items-center gap-1"
-              >
-                Browse FAQ
-                <span aria-hidden>→</span>
-              </Link>
-            </div>
+            <div className="space-y-4">
+              <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                <h3 className="text-base font-semibold text-slate-900 mb-1.5">Have a question?</h3>
+                <p className="text-sm text-slate-600 mb-3 leading-relaxed">
+                  Our FAQ covers most questions about services, scheduling, and privacy.
+                </p>
+                <Link
+                  href={ROUTES.public.faq}
+                  className="text-sm font-semibold text-teal-700 hover:text-teal-800 inline-flex items-center gap-1"
+                >
+                  Browse FAQ <span aria-hidden>→</span>
+                </Link>
+              </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
-              <p className="text-xs text-slate-500 leading-relaxed">
-                <span className="font-semibold text-slate-600">Privacy Notice:</span> Please do not share protected health information (PHI) in any contact form or email. If you need to discuss your health details, please do so during your scheduled appointment over our secure video platform.
-              </p>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  <span className="font-semibold text-slate-600">Privacy Notice:</span> Please do not share protected health information (PHI) in email or contact forms. Discuss health details during your scheduled appointment over our secure video platform.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +186,7 @@ export default function ContactPage() {
               </tbody>
             </table>
           </div>
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
+          <div className="mt-4 p-4 bg-amber-100/60 border border-amber-200 rounded-xl">
             <p className="text-amber-800 text-sm font-semibold mb-1">Appointment Only</p>
             <p className="text-amber-700 text-sm leading-relaxed">
               Tranquility Health is an appointment-only telehealth practice. We do not offer walk-in slots. Request an appointment online and our care coordinator will confirm your time within one business day.
