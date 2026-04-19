@@ -152,7 +152,7 @@ router.patch("/admin/requests/:id/status", async (req, res) => {
     // If invite creation fails, we abort before updating status — preventing
     // a request stuck in "invited" without a usable token/link.
     if (status === "invited") {
-      await generateInvite(existing.email, id);
+      await generateInvite(existing.email, "patient", id);
     }
 
     const [updated] = await db
@@ -397,7 +397,7 @@ router.post("/admin/invite-staff/resend", requireAuth("admin"), async (req, res)
 // Remove a collaborator from the team. Cannot delete yourself or another admin.
 // ---------------------------------------------------------------------------
 router.delete("/admin/team/:userId", requireAuth("admin"), async (req, res) => {
-  const { userId } = req.params;
+  const userId = String(req.params["userId"]);
   const currentUserId = req.session.userId!;
 
   if (userId === currentUserId) {

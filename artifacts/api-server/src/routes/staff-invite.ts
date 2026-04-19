@@ -20,7 +20,7 @@ router.get("/admin/accept-invite/:token/validate", async (req, res) => {
       res.status(400).json({ valid: false, reason: result.reason });
       return;
     }
-    if (result.invite.role !== "admin") {
+    if (!["admin", "collaborator"].includes(result.invite.role)) {
       res.status(400).json({ valid: false, reason: "wrong_role" });
       return;
     }
@@ -54,12 +54,13 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
   }
 
   const { invite } = result;
-  if (invite.role !== "admin") {
-    res.status(403).json({ error: "This invite link is not for an admin account" });
+  if (!["admin", "collaborator"].includes(invite.role)) {
+    res.status(403).json({ error: "This invite link cannot be used to create a staff account" });
     return;
   }
 
   const email = invite.email.toLowerCase();
+  const role = invite.role as "admin" | "collaborator";
 
   try {
     const [existingUser] = await db
@@ -76,7 +77,7 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
 
     const [user] = await db
       .insert(usersTable)
-      .values({ email, passwordHash, role: "admin" })
+      .values({ email, passwordHash, role })
       .returning();
 
     await db
@@ -89,7 +90,7 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
       entityType: "user",
       entityId: user.id,
       actorId: user.id,
-      metadata: { email, role: "admin", via: "staff_invite" },
+      metadata: { email, role, via: "staff_invite" },
     });
 
     req.session.userId = user.id;
