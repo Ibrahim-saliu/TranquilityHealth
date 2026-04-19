@@ -1,4 +1,5 @@
 import { CtaBlock } from "@/components/public/CtaBlock";
+import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
 
@@ -23,6 +24,10 @@ export default function HoursPage() {
 
       <SectionWrapper variant="warm">
         <div className="max-w-3xl mx-auto px-4">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-slate-500">Current status</p>
+            <OpenStatusBadge />
+          </div>
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
             <table className="w-full text-sm">
               <thead className="bg-gradient-to-r from-teal-600 to-indigo-700 text-white">

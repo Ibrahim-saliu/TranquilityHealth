@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Mail, Phone, Clock } from "lucide-react";
 import { ROUTES } from "@/lib/config/routes";
+import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
 
@@ -143,7 +144,10 @@ export default function ContactPage() {
       {/* Office Hours */}
       <SectionWrapper variant="amber">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Office Hours</h2>
+          <div className="flex items-center gap-4 mb-2">
+            <h2 className="text-3xl font-bold text-slate-900">Office Hours</h2>
+            <OpenStatusBadge />
+          </div>
           <p className="text-slate-500 text-sm mb-6">All times are Central Time (CST). Hours may vary on federal holidays.</p>
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
             <table className="w-full text-sm">
