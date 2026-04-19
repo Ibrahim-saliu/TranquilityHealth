@@ -4,10 +4,8 @@ import { ROUTES } from "@/lib/config/routes";
 
 const navLinks = [
   { label: "Home", href: ROUTES.public.home },
-  { label: "About", href: ROUTES.public.about },
   { label: "Services", href: ROUTES.public.services },
-  { label: "Hours", href: ROUTES.public.hours },
-  { label: "FAQ", href: ROUTES.public.faq },
+  { label: "About", href: ROUTES.public.about },
   { label: "Contact", href: ROUTES.public.contact },
 ];
 

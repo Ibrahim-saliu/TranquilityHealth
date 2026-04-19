@@ -1,43 +1,40 @@
 import { Link } from "wouter";
-import { Pill, Brain } from "lucide-react";
+import { Brain } from "lucide-react";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
 
-const services = [
+const conditions = [
   {
-    Icon: Pill,
-    gradient: "from-teal-500 to-teal-600",
-    tagBg: "bg-teal-50",
-    tagText: "text-teal-700",
-    tagBorder: "border-teal-200",
-    goodBg: "bg-teal-50",
-    goodText: "text-teal-700",
-    title: "Medication Management",
-    description: "Our primary service — psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.",
-    conditions: [
-      "Depression",
-      "Anxiety",
-      "Mood Disorders",
-      "Sleep Disorders",
-      "Personality Disorders",
-      "Schizophrenia",
-    ],
-    who: "Adults seeking psychiatric medication support for any of the conditions listed above.",
+    name: "Depression",
+    description: "Persistent low mood, loss of energy, or difficulty finding pleasure in daily activities.",
+    icon: "🌧",
   },
   {
-    Icon: Brain,
-    gradient: "from-indigo-500 to-violet-600",
-    tagBg: "bg-indigo-50",
-    tagText: "text-indigo-700",
-    tagBorder: "border-indigo-200",
-    goodBg: "bg-indigo-50",
-    goodText: "text-indigo-700",
-    title: "Psychotherapy",
-    description: "Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.",
-    conditions: null,
-    who: "Adults seeking individual counseling and therapeutic support.",
+    name: "Anxiety",
+    description: "Excessive worry, nervousness, or fear that interferes with everyday life and relationships.",
+    icon: "⚡",
+  },
+  {
+    name: "Mood Disorders",
+    description: "Conditions like bipolar disorder that cause significant shifts in mood, energy, and behavior.",
+    icon: "🔄",
+  },
+  {
+    name: "Sleep Disorders",
+    description: "Chronic difficulty falling asleep, staying asleep, or getting restorative rest.",
+    icon: "🌙",
+  },
+  {
+    name: "Personality Disorders",
+    description: "Enduring patterns of inner experience and behavior that differ markedly from cultural norms.",
+    icon: "🧩",
+  },
+  {
+    name: "Schizophrenia",
+    description: "A complex condition affecting how a person thinks, feels, and perceives reality.",
+    icon: "🔬",
   },
 ];
 
@@ -50,38 +47,69 @@ export default function ServicesPage() {
         badge="Telehealth · Texas-based"
       />
 
+      {/* Medication Management */}
       <SectionWrapper variant="slate">
         <div className="max-w-4xl mx-auto px-4 space-y-8">
-          {services.map((service) => (
-            <div key={service.title} className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-start gap-5">
-                <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center shadow-md`}>
-                  <service.Icon className="w-7 h-7 text-white" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-slate-900">{service.title}</h2>
-                  <p className="mt-3 text-slate-600 leading-relaxed text-sm">{service.description}</p>
-                  {service.conditions && (
-                    <div className="mt-5">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Conditions treated</p>
-                      <div className="flex flex-wrap gap-2">
-                        {service.conditions.map((c) => (
-                          <span key={c} className={`inline-block ${service.tagBg} ${service.tagText} text-xs font-medium px-3 py-1.5 rounded-full border ${service.tagBorder}`}>
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className={`mt-5 p-4 ${service.goodBg} rounded-xl`}>
-                    <p className={`text-xs ${service.goodText}`}>
-                      <span className="font-semibold">Good for:</span> {service.who}
-                    </p>
-                  </div>
+          {/* Service card — Medication Management */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
+            <div className="flex items-start gap-5 mb-6">
+              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-md">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Medication Management</h2>
+                <p className="mt-3 text-slate-600 leading-relaxed text-sm">
+                  Our primary service — psychiatric evaluation and ongoing medication management delivered entirely via telehealth. Our psychiatric nurse practitioner works with you to find the right treatment plan, monitor your progress, and adjust medications as needed.
+                </p>
+                <div className="mt-4 p-4 bg-teal-50 rounded-xl">
+                  <p className="text-xs text-teal-700">
+                    <span className="font-semibold">Good for:</span> Adults seeking psychiatric medication support for any of the conditions listed below.
+                  </p>
                 </div>
               </div>
             </div>
-          ))}
+
+            {/* Conditions grid */}
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Conditions we treat</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {conditions.map((c) => (
+                  <div
+                    key={c.name}
+                    className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl hover:border-teal-200 hover:bg-teal-50 transition-all"
+                  >
+                    <span className="text-xl flex-shrink-0 mt-0.5">{c.icon}</span>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{c.name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{c.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Service card — Psychotherapy */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all">
+            <div className="flex items-start gap-5">
+              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-md">
+                <Brain className="w-7 h-7 text-white" strokeWidth={1.5} />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-slate-900">Psychotherapy</h2>
+                <p className="mt-3 text-slate-600 leading-relaxed text-sm">
+                  Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.
+                </p>
+                <div className="mt-5 p-4 bg-indigo-50 rounded-xl">
+                  <p className="text-xs text-indigo-700">
+                    <span className="font-semibold">Good for:</span> Adults seeking individual counseling and therapeutic support.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </SectionWrapper>
 

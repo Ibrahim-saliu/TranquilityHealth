@@ -4,6 +4,16 @@ import { ROUTES } from "@/lib/config/routes";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
 
+const schedule = [
+  { day: "Monday", hours: "5:00 PM – 9:00 PM", closed: false },
+  { day: "Tuesday", hours: "5:00 PM – 9:00 PM", closed: false },
+  { day: "Wednesday", hours: "5:00 PM – 9:00 PM", closed: false },
+  { day: "Thursday", hours: "5:00 PM – 9:00 PM", closed: false },
+  { day: "Friday", hours: "8:00 AM – 1:00 PM, 3:00 PM – 7:00 PM", closed: false },
+  { day: "Saturday", hours: "8:00 AM – 4:00 PM", closed: false },
+  { day: "Sunday", hours: "Closed", closed: true },
+];
+
 const contactItems = [
   {
     Icon: Mail,
@@ -123,6 +133,51 @@ export default function ContactPage() {
                 <span className="font-semibold text-slate-600">Privacy Notice:</span> Please do not share protected health information (PHI) in any contact form or email. If you need to discuss your health details, please do so during your scheduled appointment over our secure video platform.
               </p>
             </div>
+          </div>
+        </div>
+      </SectionWrapper>
+
+      {/* Office Hours */}
+      <SectionWrapper variant="white">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Office Hours</h2>
+          <p className="text-slate-500 text-sm mb-6">All times are Central Time (CST). Hours may vary on federal holidays.</p>
+          <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
+            <table className="w-full text-sm">
+              <thead className="bg-gradient-to-r from-teal-600 to-indigo-700 text-white">
+                <tr>
+                  <th className="text-left px-6 py-4 font-semibold">Day</th>
+                  <th className="text-right px-6 py-4 font-semibold">Available Hours (CST)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {schedule.map(({ day, hours, closed }) => (
+                  <tr
+                    key={day}
+                    className={`${closed ? "bg-slate-50" : "hover:bg-teal-50"} transition-colors`}
+                  >
+                    <td className={`px-6 py-4 font-medium ${closed ? "text-slate-400" : "text-slate-900"}`}>
+                      {day}
+                    </td>
+                    <td className={`px-6 py-4 text-right ${closed ? "text-slate-400" : "text-slate-700"}`}>
+                      {closed ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 uppercase tracking-wider">
+                          Closed
+                        </span>
+                      ) : (
+                        hours
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <p className="text-amber-800 text-sm font-semibold mb-1">Appointment Only</p>
+            <p className="text-amber-700 text-sm leading-relaxed">
+              Tranquility Health is an appointment-only telehealth practice. We do not offer walk-in slots. Request an appointment online and our care coordinator will confirm your time within one business day.
+            </p>
           </div>
         </div>
       </SectionWrapper>

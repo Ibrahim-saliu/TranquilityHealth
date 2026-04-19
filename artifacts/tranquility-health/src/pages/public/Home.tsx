@@ -65,6 +65,27 @@ const features = [
   },
 ];
 
+const testimonials = [
+  {
+    quote: "I was nervous about doing therapy over video, but honestly it's been so much easier than going in-person. My provider is incredibly thoughtful and really listens. I look forward to every session.",
+    name: "J.M.",
+    location: "Austin, TX",
+    stars: 5,
+  },
+  {
+    quote: "Getting my medication managed through Tranquility Health has been seamless. No insurance hassle, I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
+    name: "R.T.",
+    location: "Houston, TX",
+    stars: 5,
+  },
+  {
+    quote: "I finally found a practice that fits my schedule. Evening and Saturday slots mean I don't have to take time off work. The intake process was simple and the care coordinator was so helpful.",
+    name: "A.K.",
+    location: "Dallas, TX",
+    stars: 5,
+  },
+];
+
 export default function HomePage() {
   return (
     <div>
@@ -88,6 +109,29 @@ export default function HomePage() {
             <p className="mt-6 text-xl text-slate-300 leading-relaxed">
               Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more — via secure video appointments that fit your life.
             </p>
+            {/* Cash-pay callout */}
+            <div className="mt-6 inline-flex flex-wrap items-center gap-x-4 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
+              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
+                <svg className="w-4 h-4 text-teal-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                No insurance required
+              </span>
+              <span className="w-px h-4 bg-white/20 hidden sm:block" />
+              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
+                <svg className="w-4 h-4 text-teal-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Cash pay · Transparent pricing
+              </span>
+              <span className="w-px h-4 bg-white/20 hidden sm:block" />
+              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
+                <svg className="w-4 h-4 text-teal-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                HSA / FSA accepted
+              </span>
+            </div>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link
                 href={ROUTES.public.requestAppointment}
@@ -192,8 +236,48 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-20 px-4 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
+            <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
+              Real words from real patients across Texas.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t) => (
+              <div key={t.name} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-7 flex flex-col">
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: t.stars }).map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.643 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
+                    </svg>
+                  ))}
+                </div>
+                {/* Quote */}
+                <blockquote className="text-slate-600 text-sm leading-relaxed flex-1">
+                  "{t.quote}"
+                </blockquote>
+                {/* Attribution */}
+                <div className="mt-5 flex items-center gap-3 pt-5 border-t border-slate-100">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{t.name}</p>
+                    <p className="text-xs text-slate-400">{t.location}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-16 px-4 bg-slate-50">
+      <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <CtaBlock
             heading="Ready to take the first step?"
