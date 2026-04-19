@@ -172,7 +172,7 @@ export default function HomePage() {
               Telehealth · No commute required
             </span>
             <h1 className="text-5xl font-bold text-white leading-tight">
-              Mental health care you can access
+              Mental health care,
               <br />
               <span
                 className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent inline-block transition-all duration-300"
