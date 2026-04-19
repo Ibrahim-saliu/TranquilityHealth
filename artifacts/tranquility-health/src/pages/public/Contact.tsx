@@ -4,16 +4,7 @@ import { ROUTES } from "@/lib/config/routes";
 import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
-
-const schedule = [
-  { day: "Monday", hours: "5:00 PM – 9:00 PM", closed: false },
-  { day: "Tuesday", hours: "5:00 PM – 9:00 PM", closed: false },
-  { day: "Wednesday", hours: "5:00 PM – 9:00 PM", closed: false },
-  { day: "Thursday", hours: "5:00 PM – 9:00 PM", closed: false },
-  { day: "Friday", hours: "8:00 AM – 1:00 PM, 3:00 PM – 7:00 PM", closed: false },
-  { day: "Saturday", hours: "8:00 AM – 4:00 PM", closed: false },
-  { day: "Sunday", hours: "Closed", closed: true },
-];
+import { WEEKLY_SCHEDULE, PHONE_HOURS_SUMMARY } from "@/lib/config/schedule";
 
 const contactItems = [
   {
@@ -33,7 +24,7 @@ const contactItems = [
     content: (
       <>
         <p className="text-slate-700 text-sm font-medium">(555) 000-0000</p>
-        <p className="text-xs text-slate-400 mt-0.5">Mon–Thu 5–9 PM, Fri 8 AM–7 PM, Sat 8 AM–4 PM CST</p>
+        <p className="text-xs text-slate-400 mt-0.5">{PHONE_HOURS_SUMMARY}</p>
       </>
     ),
   },
@@ -164,7 +155,7 @@ export default function ContactPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {schedule.map(({ day, hours, closed }) => (
+                {WEEKLY_SCHEDULE.map(({ day, hours, closed }) => (
                   <tr
                     key={day}
                     className={`${closed ? "bg-slate-50" : "hover:bg-teal-50"} transition-colors`}

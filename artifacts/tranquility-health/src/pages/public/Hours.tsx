@@ -2,16 +2,7 @@ import { CtaBlock } from "@/components/public/CtaBlock";
 import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
-
-const schedule = [
-  { day: "Monday", hours: "5:00 PM – 9:00 PM" },
-  { day: "Tuesday", hours: "5:00 PM – 9:00 PM" },
-  { day: "Wednesday", hours: "5:00 PM – 9:00 PM" },
-  { day: "Thursday", hours: "5:00 PM – 9:00 PM" },
-  { day: "Friday", hours: "8:00 AM – 1:00 PM, 3:00 PM – 7:00 PM" },
-  { day: "Saturday", hours: "8:00 AM – 4:00 PM" },
-  { day: "Sunday", hours: "Closed" },
-];
+import { WEEKLY_SCHEDULE } from "@/lib/config/schedule";
 
 export default function HoursPage() {
   return (
@@ -37,9 +28,7 @@ export default function HoursPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {schedule.map(({ day, hours }) => {
-                  const closed = hours === "Closed";
-                  return (
+                {WEEKLY_SCHEDULE.map(({ day, hours, closed }) => (
                     <tr
                       key={day}
                       className={`${closed ? "bg-slate-50" : "hover:bg-teal-50"} transition-colors`}
@@ -57,8 +46,7 @@ export default function HoursPage() {
                         )}
                       </td>
                     </tr>
-                  );
-                })}
+                  ))}
               </tbody>
             </table>
           </div>

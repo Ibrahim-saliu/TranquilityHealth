@@ -1,27 +1,5 @@
 import { useState, useEffect } from "react";
-
-type TimeRange = { open: number; close: number };
-
-const SCHEDULE: Record<number, TimeRange[]> = {
-  0: [],
-  1: [{ open: 17 * 60, close: 21 * 60 }],
-  2: [{ open: 17 * 60, close: 21 * 60 }],
-  3: [{ open: 17 * 60, close: 21 * 60 }],
-  4: [{ open: 17 * 60, close: 21 * 60 }],
-  5: [
-    { open: 8 * 60, close: 13 * 60 },
-    { open: 15 * 60, close: 19 * 60 },
-  ],
-  6: [{ open: 8 * 60, close: 16 * 60 }],
-};
-
-function minutesToTime(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  const period = h >= 12 ? "PM" : "AM";
-  const hour = h % 12 === 0 ? 12 : h % 12;
-  return m === 0 ? `${hour}:00 ${period}` : `${hour}:${String(m).padStart(2, "0")} ${period}`;
-}
+import { SCHEDULE, formatRanges } from "@/lib/config/schedule";
 
 function getCSTDateParts(): { day: number; minutes: number } {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -53,8 +31,7 @@ function isOpenNow(): boolean {
 function getTodayHours(): string {
   const { day } = getCSTDateParts();
   const ranges = SCHEDULE[day] ?? [];
-  if (ranges.length === 0) return "Closed";
-  return ranges.map((r) => `${minutesToTime(r.open)} – ${minutesToTime(r.close)}`).join(", ");
+  return formatRanges(ranges);
 }
 
 export function useOpenStatus(): boolean {
