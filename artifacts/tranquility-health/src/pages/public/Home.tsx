@@ -237,7 +237,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 flex justify-center gap-10 text-white/90 text-sm font-medium">
           <span>✓ Licensed Clinicians</span>
           <span>✓ HIPAA-Conscious Platform</span>
-          <span>✓ 100% Telehealth</span>
+          <span>✓ Telehealth Appointments</span>
         </div>
       </section>
 
