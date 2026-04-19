@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "t1HvDVWW3UXAmE-VYbLdw"
+uri = "file://attached_assets/generated_images/tranquility-icon.png"
+type = "image"
+title = "tranquility health icon"
