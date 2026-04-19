@@ -46,10 +46,8 @@ export default function AboutPage() {
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center shadow-lg ring-4 ring-white">
-                <svg className="w-14 h-14 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg ring-4 ring-white">
+                <img src="/clinician-portrait.png" alt="Dr. Maya Okafor, PMHNP-BC" className="w-full h-full object-cover object-top" />
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold border border-teal-200">
                 Licensed in Texas &amp; Maryland

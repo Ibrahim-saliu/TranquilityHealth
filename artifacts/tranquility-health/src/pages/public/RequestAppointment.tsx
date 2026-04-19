@@ -136,6 +136,14 @@ export default function RequestAppointmentPage() {
         subtitle="Takes about 3 minutes. No account required. We'll contact you within one business day."
       />
 
+      <div className="bg-slate-50 px-4 pt-8 pb-2">
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-2xl overflow-hidden shadow-sm">
+            <img src="/request-apt.png" alt="Getting started with telehealth" className="w-full h-56 object-cover" />
+          </div>
+        </div>
+      </div>
+
       <SectionWrapper variant="slate">
         <div className="max-w-2xl mx-auto px-4">
           <form onSubmit={handleSubmit} noValidate>

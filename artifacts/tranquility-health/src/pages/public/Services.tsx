@@ -71,6 +71,10 @@ export default function ServicesPage() {
               </div>
             </div>
 
+            <div className="rounded-xl overflow-hidden mb-6">
+              <img src="/services-medication.png" alt="Medication management telehealth" className="w-full h-52 object-cover" />
+            </div>
+
             {/* Conditions grid */}
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Conditions we treat</p>
@@ -106,6 +110,9 @@ export default function ServicesPage() {
                   <p className="text-xs text-indigo-700">
                     <span className="font-semibold">Good for:</span> Adults seeking individual counseling and therapeutic support.
                   </p>
+                </div>
+                <div className="mt-5 rounded-xl overflow-hidden">
+                  <img src="/services-therapy.png" alt="Psychotherapy session" className="w-full h-48 object-cover" />
                 </div>
               </div>
             </div>

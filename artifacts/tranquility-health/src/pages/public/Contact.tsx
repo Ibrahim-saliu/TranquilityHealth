@@ -90,6 +90,9 @@ export default function ContactPage() {
 
           {/* Right column */}
           <div className="space-y-6">
+            <div className="rounded-2xl overflow-hidden shadow-sm">
+              <img src="/contact.png" alt="Telehealth appointment from home" className="w-full h-48 object-cover" />
+            </div>
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
               <h3 className="text-lg font-semibold text-red-900 mb-3">Mental Health Crisis</h3>
               <p className="text-sm text-red-700 leading-relaxed">

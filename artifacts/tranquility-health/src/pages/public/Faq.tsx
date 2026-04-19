@@ -55,6 +55,14 @@ export default function FaqPage() {
         badge="Common Questions"
       />
 
+      <div className="bg-white px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-2xl overflow-hidden shadow-sm">
+            <img src="/faq-header.png" alt="A calm space for your questions" className="w-full h-52 object-cover" />
+          </div>
+        </div>
+      </div>
+
       <SectionWrapper variant="slate">
         <div className="max-w-3xl mx-auto px-4 space-y-3">
           {faqs.map((faq) => (

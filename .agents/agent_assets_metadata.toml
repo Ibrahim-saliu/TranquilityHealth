@@ -6,3 +6,39 @@ id = "t1HvDVWW3UXAmE-VYbLdw"
 uri = "file://attached_assets/generated_images/tranquility-icon.png"
 type = "image"
 title = "tranquility health icon"
+
+[[generated]]
+id = "7AM83PUI6AtasDYnxr1on"
+uri = "file://attached_assets/generated_images/clinician-portrait.png"
+type = "image"
+title = "clinician portrait for About page"
+
+[[generated]]
+id = "AAyh7LYfE5dESsxlHuw-6"
+uri = "file://attached_assets/generated_images/services-medication.png"
+type = "image"
+title = "medication management services image"
+
+[[generated]]
+id = "mWQB-A3uBgkPB8DrTHXhn"
+uri = "file://attached_assets/generated_images/services-therapy.png"
+type = "image"
+title = "psychotherapy services image"
+
+[[generated]]
+id = "52yFFLCDBKzi7wrAscOyp"
+uri = "file://attached_assets/generated_images/contact.png"
+type = "image"
+title = "contact page image"
+
+[[generated]]
+id = "lBw1zgXT36FXX_gBszMho"
+uri = "file://attached_assets/generated_images/request-apt.png"
+type = "image"
+title = "request appointment page image"
+
+[[generated]]
+id = "61CjSVS2g8-VFkvuc5hKI"
+uri = "file://attached_assets/generated_images/faq-header.png"
+type = "image"
+title = "FAQ page header image"
