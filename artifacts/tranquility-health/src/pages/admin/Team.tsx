@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail, Link2 } from "lucide-react";
+import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail, Link2, Trash2 } from "lucide-react";
 import {
   getTeam,
   inviteStaff,
   resendInvite,
+  deleteCollaborator,
   type AdminUser,
   type PendingInvite,
 } from "@/lib/admin-api";
+import { useAuth } from "@/lib/auth/context";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -164,6 +166,9 @@ function PendingInviteRow({ invite, onGetLink }: {
 }
 
 export default function AdminTeamPage() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -173,6 +178,9 @@ export default function AdminTeamPage() {
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteResult, setInviteResult] = useState<{ email: string; url: string } | null>(null);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function loadTeam() {
     try {
@@ -216,6 +224,20 @@ export default function AdminTeamPage() {
     return result.inviteUrl;
   }
 
+  async function handleDelete(member: AdminUser) {
+    if (!window.confirm(`Remove ${member.email} from the team? This cannot be undone.`)) return;
+    setDeletingId(member.id);
+    setDeleteError(null);
+    try {
+      await deleteCollaborator(member.id);
+      loadTeam();
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : "Failed to remove collaborator");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   const activePending = pendingInvites.filter((i) => !i.used && !isExpired(i.expiresAt));
   const usedOrExpired = pendingInvites.filter((i) => i.used || isExpired(i.expiresAt));
 
@@ -232,16 +254,24 @@ export default function AdminTeamPage() {
         </div>
       )}
 
+      {deleteError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex justify-between items-center">
+          <span>{deleteError}</span>
+          <button onClick={() => setDeleteError(null)} className="ml-4 text-red-400 hover:text-red-600 text-xs font-medium">Dismiss</button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Invite form */}
+        {/* Invite form — admin only */}
+        {isAdmin && (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
             <UserPlus className="w-4 h-4 text-teal-600" />
-            <h2 className="text-base font-semibold text-slate-900">Invite a team member</h2>
+            <h2 className="text-base font-semibold text-slate-900">Invite a collaborator</h2>
           </div>
           <div className="px-6 py-5">
             <p className="text-sm text-slate-500 mb-4">
-              Enter their email address to generate a secure invite link. The link expires in 72 hours.
+              Enter their email address to generate a secure invite link. The link expires in 72 hours and can only be used once.
             </p>
             <form onSubmit={handleInvite} className="flex gap-3">
               <div className="relative flex-1">
@@ -274,13 +304,14 @@ export default function AdminTeamPage() {
             )}
           </div>
         </div>
+        )}
 
-        {/* Current admins */}
+        {/* Current team members */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
             <Users className="w-4 h-4 text-teal-600" />
             <h2 className="text-base font-semibold text-slate-900">
-              Active admins
+              Team members
               {!loading && (
                 <span className="ml-2 text-xs font-normal text-slate-400">
                   {admins.length} {admins.length === 1 ? "member" : "members"}
@@ -292,7 +323,7 @@ export default function AdminTeamPage() {
             {loading ? (
               <div className="px-6 py-10 text-center text-slate-400 text-sm">Loading…</div>
             ) : admins.length === 0 ? (
-              <div className="px-6 py-10 text-center text-slate-400 text-sm">No admins found.</div>
+              <div className="px-6 py-10 text-center text-slate-400 text-sm">No team members found.</div>
             ) : (
               admins.map((admin) => (
                 <div key={admin.id} className="px-6 py-3.5 flex items-center gap-3">
@@ -303,9 +334,27 @@ export default function AdminTeamPage() {
                     <p className="text-sm font-medium text-slate-900 truncate">{admin.email}</p>
                     <p className="text-xs text-slate-400">Joined {formatDate(admin.createdAt)}</p>
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full">
-                    Admin
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {admin.role === "admin" ? (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full">
+                        Admin
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide bg-slate-50 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
+                        Collaborator
+                      </span>
+                    )}
+                    {isAdmin && admin.role !== "admin" && (
+                      <button
+                        onClick={() => handleDelete(admin)}
+                        disabled={deletingId === admin.id}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
+                        title="Remove collaborator"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             )}

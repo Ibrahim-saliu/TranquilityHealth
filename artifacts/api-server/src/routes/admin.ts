@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { eq, desc, sql, count } from "drizzle-orm";
+import { eq, desc, sql, count, or } from "drizzle-orm";
 import { db, appointmentRequestsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
 import { requireAuth } from "../lib/session";
@@ -9,9 +9,10 @@ import { generateInvite } from "../lib/invite";
 const router: IRouter = Router();
 
 // ---------------------------------------------------------------------------
-// All /admin/* routes require an authenticated admin session
+// All /admin/* routes require an authenticated session (admin or collaborator).
+// Specific admin-only actions add an inline requireAuth("admin") guard.
 // ---------------------------------------------------------------------------
-router.use("/admin", requireAuth("admin"));
+router.use("/admin", requireAuth(["admin", "collaborator"]));
 
 // ---------------------------------------------------------------------------
 // Allowed status values for Phase 2
@@ -280,7 +281,7 @@ router.put("/admin/providers/active", async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // GET /admin/team
-// List all admin users and pending admin invites
+// List all admin and collaborator users, plus pending collaborator invites
 // ---------------------------------------------------------------------------
 router.get("/admin/team", async (req, res) => {
   try {
@@ -292,7 +293,7 @@ router.get("/admin/team", async (req, res) => {
         createdAt: usersTable.createdAt,
       })
       .from(usersTable)
-      .where(eq(usersTable.role, "admin"))
+      .where(or(eq(usersTable.role, "admin"), eq(usersTable.role, "collaborator")))
       .orderBy(usersTable.createdAt);
 
     const pendingInvites = await db
@@ -304,7 +305,7 @@ router.get("/admin/team", async (req, res) => {
         used: inviteTokensTable.used,
       })
       .from(inviteTokensTable)
-      .where(eq(inviteTokensTable.role, "admin"))
+      .where(eq(inviteTokensTable.role, "collaborator"))
       .orderBy(desc(inviteTokensTable.createdAt));
 
     res.json({ admins, pendingInvites });
@@ -314,14 +315,14 @@ router.get("/admin/team", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// POST /admin/invite-staff
-// Invite a new admin user. Returns the raw token so the caller can share the link.
+// POST /admin/invite-staff  [admin only]
+// Invite a new collaborator. Returns the raw token so the caller can share the link.
 // ---------------------------------------------------------------------------
 const inviteStaffSchema = z.object({
   email: z.string().email("Valid email required"),
 });
 
-router.post("/admin/invite-staff", async (req, res) => {
+router.post("/admin/invite-staff", requireAuth("admin"), async (req, res) => {
   const parsed = inviteStaffSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
@@ -331,7 +332,6 @@ router.post("/admin/invite-staff", async (req, res) => {
   const { email } = parsed.data;
 
   try {
-    // Check if this email already has an account
     const [existingUser] = await db
       .select({ id: usersTable.id })
       .from(usersTable)
@@ -342,7 +342,7 @@ router.post("/admin/invite-staff", async (req, res) => {
       return;
     }
 
-    const rawToken = await generateInvite(email.toLowerCase(), "admin");
+    const rawToken = await generateInvite(email.toLowerCase(), "collaborator");
 
     const baseUrl = process.env["APP_BASE_URL"] ?? "";
     const inviteUrl = baseUrl
@@ -356,17 +356,14 @@ router.post("/admin/invite-staff", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// POST /admin/invite-staff/resend
-// Generates a fresh invite link for an email that has a pending (unused,
-// non-expired) invite. Creates a new token — the old one remains valid until
-// its natural expiry. First accepted token wins; subsequent ones are blocked
-// by the "email already has an account" guard.
+// POST /admin/invite-staff/resend  [admin only]
+// Generates a fresh collaborator invite link for a pending invite email.
 // ---------------------------------------------------------------------------
 const resendInviteSchema = z.object({
   email: z.string().email("Valid email required"),
 });
 
-router.post("/admin/invite-staff/resend", async (req, res) => {
+router.post("/admin/invite-staff/resend", requireAuth("admin"), async (req, res) => {
   const parsed = resendInviteSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
@@ -386,12 +383,48 @@ router.post("/admin/invite-staff/resend", async (req, res) => {
       return;
     }
 
-    const rawToken = await generateInvite(email.toLowerCase(), "admin");
+    const rawToken = await generateInvite(email.toLowerCase(), "collaborator");
     const inviteUrl = `/admin/accept-invite/${rawToken}`;
 
     res.status(201).json({ inviteUrl });
   } catch (_err) {
     res.status(500).json({ error: "Failed to regenerate invite link" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// DELETE /admin/team/:userId  [admin only]
+// Remove a collaborator from the team. Cannot delete yourself or another admin.
+// ---------------------------------------------------------------------------
+router.delete("/admin/team/:userId", requireAuth("admin"), async (req, res) => {
+  const { userId } = req.params;
+  const currentUserId = req.session.userId!;
+
+  if (userId === currentUserId) {
+    res.status(400).json({ error: "You cannot remove your own account" });
+    return;
+  }
+
+  try {
+    const [target] = await db
+      .select({ id: usersTable.id, role: usersTable.role })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId));
+
+    if (!target) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (target.role === "admin") {
+      res.status(400).json({ error: "Cannot remove an admin account" });
+      return;
+    }
+
+    await db.delete(usersTable).where(eq(usersTable.id, userId));
+    res.status(204).send();
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to remove collaborator" });
   }
 });
 

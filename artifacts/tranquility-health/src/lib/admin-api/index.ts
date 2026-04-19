@@ -173,6 +173,10 @@ export async function resendInvite(email: string): Promise<{ inviteUrl: string }
   });
 }
 
+export async function deleteCollaborator(userId: string): Promise<void> {
+  await apiFetch<void>(`/admin/team/${userId}`, { method: "DELETE" });
+}
+
 export async function validateAdminInviteToken(
   token: string,
 ): Promise<{ valid: boolean; email?: string; reason?: string }> {
