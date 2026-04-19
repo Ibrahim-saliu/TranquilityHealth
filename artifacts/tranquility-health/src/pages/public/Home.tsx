@@ -1,6 +1,51 @@
 import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
+import { useState, useEffect, useRef } from "react";
+
+// ─── Scroll-reveal hook ────────────────────────────────────────────────────
+function useScrollReveal(threshold = 0.12) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+  return { ref, isVisible };
+}
+
+// ─── Count-up hook ─────────────────────────────────────────────────────────
+function useCountUp(target: number, duration = 1600, shouldStart = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!shouldStart) return;
+    let frame = 0;
+    const totalFrames = Math.round(duration / 16);
+    const timer = setInterval(() => {
+      frame++;
+      const progress = frame / totalFrames;
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.min(Math.round(eased * target), target));
+      if (frame >= totalFrames) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [shouldStart, target, duration]);
+  return count;
+}
+
+// ─── Data ──────────────────────────────────────────────────────────────────
+const HERO_WORDS = ["anywhere", "at home", "on your schedule", "in Texas"];
 
 const features = [
   {
@@ -87,13 +132,39 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  // ── Rotating hero word ──────────────────────────────────────────────────
+  const [wordIdx, setWordIdx] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFadeIn(false);
+      setTimeout(() => {
+        setWordIdx((i) => (i + 1) % HERO_WORDS.length);
+        setFadeIn(true);
+      }, 320);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
+
+  // ── Scroll-reveal refs ──────────────────────────────────────────────────
+  const { ref: featuresRef, isVisible: featuresVisible } = useScrollReveal();
+  const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal();
+  const { ref: statsRef, isVisible: statsVisible } = useScrollReveal();
+  const { ref: ctaRef, isVisible: ctaVisible } = useScrollReveal();
+
+  // ── Count-up values (triggered when stats section enters view) ──────────
+  const patientsCount = useCountUp(500, 1600, statsVisible);
+  const sessionsCount = useCountUp(98, 1600, statsVisible);
+
   return (
     <div>
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-24 px-4 overflow-hidden">
+        {/* Background blobs */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4 animate-blob" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000" />
         </div>
         <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -102,8 +173,11 @@ export default function HomePage() {
             </span>
             <h1 className="text-5xl font-bold text-white leading-tight">
               Mental health care you can access{" "}
-              <span className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent">
-                anywhere
+              <span
+                className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent inline-block transition-all duration-300"
+                style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? "translateY(0)" : "translateY(6px)" }}
+              >
+                {HERO_WORDS[wordIdx]}
               </span>
             </h1>
             <p className="mt-6 text-xl text-slate-300 leading-relaxed">
@@ -180,9 +254,18 @@ export default function HomePage() {
               We combine clinical expertise with technology to make quality mental health care genuinely accessible.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((f) => (
-              <div key={f.title} className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5 group">
+          <div ref={featuresRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5 group"
+                style={{
+                  opacity: featuresVisible ? 1 : 0,
+                  transform: featuresVisible ? "translateY(0)" : "translateY(24px)",
+                  transition: `opacity 0.6s ease, transform 0.6s ease`,
+                  transitionDelay: `${i * 80}ms`,
+                }}
+              >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center text-white mb-4 shadow-sm`}>
                   {f.icon}
                 </div>
@@ -194,6 +277,49 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Stat counters */}
+      <section className="py-16 px-4 bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900">
+        <div ref={statsRef} className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {[
+            {
+              value: `${patientsCount}+`,
+              label: "Patients across Texas",
+              delay: 0,
+            },
+            {
+              value: `${sessionsCount}%`,
+              label: "Patient satisfaction",
+              delay: 100,
+            },
+            {
+              value: "< 3 min",
+              label: "To request an appointment",
+              delay: 200,
+            },
+            {
+              value: "Same week",
+              label: "Appointments available",
+              delay: 300,
+            },
+          ].map(({ value, label, delay }) => (
+            <div
+              key={label}
+              style={{
+                opacity: statsVisible ? 1 : 0,
+                transform: statsVisible ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.7s ease, transform 0.7s ease",
+                transitionDelay: `${delay}ms`,
+              }}
+            >
+              <p className="text-4xl font-bold bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent">
+                {value}
+              </p>
+              <p className="mt-2 text-sm text-slate-400">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -201,7 +327,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
             <p className="mt-3 text-lg text-slate-500">Getting started takes less than 3 minutes.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div ref={stepsRef} className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: "1",
@@ -221,8 +347,17 @@ export default function HomePage() {
                 title: "Meet your clinician",
                 body: "Attend your video appointment from anywhere. Your clinician will work with you to build a personalized care plan.",
               },
-            ].map(({ step, gradient, title, body }) => (
-              <div key={step} className="flex gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            ].map(({ step, gradient, title, body }, i) => (
+              <div
+                key={step}
+                className="flex gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm"
+                style={{
+                  opacity: stepsVisible ? 1 : 0,
+                  transform: stepsVisible ? "translateY(0)" : "translateY(28px)",
+                  transition: "opacity 0.65s ease, transform 0.65s ease",
+                  transitionDelay: `${i * 120}ms`,
+                }}
+              >
                 <div className={`flex-shrink-0 w-11 h-11 bg-gradient-to-br ${gradient} text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm`}>
                   {step}
                 </div>
@@ -244,7 +379,7 @@ export default function HomePage() {
             Real words from real patients across Texas.
           </p>
         </div>
-        {/* Marquee track — 6 cards (3 originals + 3 duplicates for seamless loop) */}
+        {/* Marquee track */}
         <div className="relative">
           <div className="flex gap-6 animate-marquee w-max">
             {[...testimonials, ...testimonials].map((t, idx) => (
@@ -274,7 +409,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          {/* Fade edges */}
           <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10" />
         </div>
@@ -282,11 +416,20 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <CtaBlock
-            heading="Ready to take the first step?"
-            subtext="Requesting an appointment takes less than 3 minutes. No commitment, no account required."
-          />
+        <div
+          ref={ctaRef}
+          style={{
+            opacity: ctaVisible ? 1 : 0,
+            transform: ctaVisible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)",
+            transition: "opacity 0.7s ease, transform 0.7s ease",
+          }}
+        >
+          <div className="max-w-4xl mx-auto">
+            <CtaBlock
+              heading="Ready to take the first step?"
+              subtext="Requesting an appointment takes less than 3 minutes. No commitment, no account required."
+            />
+          </div>
         </div>
       </section>
     </div>
