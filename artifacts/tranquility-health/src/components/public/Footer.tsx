@@ -18,10 +18,10 @@ export function Footer() {
               <span className="text-white font-bold text-lg">Tranquility Health</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Compassionate telehealth care for anxiety, depression, mood disorders, and more. Accessible from wherever you are in Texas.
+              Compassionate telehealth care for anxiety, depression, mood disorders, and more. Accessible from wherever you are.
             </p>
             <p className="mt-3 text-xs text-slate-500">
-              Texas telehealth · Cash pay · No insurance required
+              Telehealth · Cash pay · No insurance required
             </p>
           </div>
 

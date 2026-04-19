@@ -44,7 +44,7 @@ export default function ServicesPage() {
       <PageHeader
         title="Our Services"
         subtitle="Comprehensive mental health care delivered via telehealth, from initial evaluation through ongoing therapy and medication management."
-        badge="Telehealth · Texas-based"
+        badge="Telehealth · Licensed in TX &amp; MD"
       />
 
       {/* Medication Management */}

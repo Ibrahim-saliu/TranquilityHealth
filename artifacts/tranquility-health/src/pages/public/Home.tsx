@@ -281,7 +281,7 @@ export default function HomePage() {
           {[
             {
               value: `${patientsCount}+`,
-              label: "Patients across Texas",
+              label: "Patients served",
               delay: 0,
             },
             {
@@ -374,7 +374,7 @@ export default function HomePage() {
         <div className="text-center mb-12 px-4">
           <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
           <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
-            Real words from real patients across Texas.
+            Real words from real patients.
           </p>
         </div>
         {/* Marquee track */}

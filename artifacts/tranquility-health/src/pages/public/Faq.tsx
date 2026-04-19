@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     question: "What states do you serve?",
-    answer: "We currently serve patients in Texas. All of our clinicians hold active Texas licensure. If you live outside Texas, we are not able to see you at this time. Telehealth regulations require clinicians to be licensed in the state where the patient is located.",
+    answer: "We currently serve patients in Texas and Maryland. Our clinician holds active licensure in both states. If you are located outside of Texas or Maryland at the time of your appointment, we are not able to see you, as telehealth regulations require clinicians to be licensed in the state where the patient is physically located.",
   },
   {
     question: "Can I use Tranquility Health if I've never been to therapy before?",

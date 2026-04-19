@@ -52,7 +52,7 @@ export default function AboutPage() {
                 </svg>
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold border border-teal-200">
-                Licensed in Texas
+                Licensed in Texas &amp; Maryland
               </span>
             </div>
             {/* Bio */}
