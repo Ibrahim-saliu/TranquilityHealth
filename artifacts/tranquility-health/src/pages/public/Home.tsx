@@ -237,18 +237,21 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 px-4 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
-            <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
-              Real words from real patients across Texas.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t) => (
-              <div key={t.name} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-7 flex flex-col">
-                {/* Stars */}
+      <section className="py-20 bg-slate-50 overflow-hidden">
+        <div className="text-center mb-12 px-4">
+          <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
+          <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
+            Real words from real patients across Texas.
+          </p>
+        </div>
+        {/* Marquee track — 6 cards (3 originals + 3 duplicates for seamless loop) */}
+        <div className="relative">
+          <div className="flex gap-6 animate-marquee w-max">
+            {[...testimonials, ...testimonials].map((t, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl border border-slate-100 shadow-sm p-7 flex flex-col w-[340px] flex-shrink-0"
+              >
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: t.stars }).map((_, i) => (
                     <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -256,11 +259,9 @@ export default function HomePage() {
                     </svg>
                   ))}
                 </div>
-                {/* Quote */}
                 <blockquote className="text-slate-600 text-sm leading-relaxed flex-1">
                   "{t.quote}"
                 </blockquote>
-                {/* Attribution */}
                 <div className="mt-5 flex items-center gap-3 pt-5 border-t border-slate-100">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                     {t.name.charAt(0)}
@@ -273,6 +274,9 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+          {/* Fade edges */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10" />
         </div>
       </section>
 
