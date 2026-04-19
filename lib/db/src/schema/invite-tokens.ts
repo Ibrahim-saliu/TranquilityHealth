@@ -15,6 +15,9 @@ export const inviteTokensTable = pgTable("invite_tokens", {
   used: boolean("used").notNull().default(false),
   usedAt: timestamp("used_at"),
 
+  // Role the invited user will receive upon accepting — "admin" | "patient"
+  role: text("role").notNull().default("admin"),
+
   // Nullable FK back to the appointment request that triggered this invite
   appointmentRequestId: text("appointment_request_id")
     .references(() => appointmentRequestsTable.id, { onDelete: "set null" }),

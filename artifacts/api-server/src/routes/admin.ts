@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { eq, desc, sql, count } from "drizzle-orm";
-import { db, appointmentRequestsTable, providersTable } from "@workspace/db";
+import { db, appointmentRequestsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
 import { requireAuth } from "../lib/session";
 import { generateInvite } from "../lib/invite";
@@ -275,6 +275,83 @@ router.put("/admin/providers/active", async (req, res) => {
     res.json({ provider });
   } catch (_err) {
     res.status(500).json({ error: "Failed to save provider" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /admin/team
+// List all admin users and pending admin invites
+// ---------------------------------------------------------------------------
+router.get("/admin/team", async (req, res) => {
+  try {
+    const admins = await db
+      .select({
+        id: usersTable.id,
+        email: usersTable.email,
+        role: usersTable.role,
+        createdAt: usersTable.createdAt,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.role, "admin"))
+      .orderBy(usersTable.createdAt);
+
+    const pendingInvites = await db
+      .select({
+        id: inviteTokensTable.id,
+        email: inviteTokensTable.email,
+        createdAt: inviteTokensTable.createdAt,
+        expiresAt: inviteTokensTable.expiresAt,
+        used: inviteTokensTable.used,
+      })
+      .from(inviteTokensTable)
+      .where(eq(inviteTokensTable.role, "admin"))
+      .orderBy(desc(inviteTokensTable.createdAt));
+
+    res.json({ admins, pendingInvites });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load team" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/invite-staff
+// Invite a new admin user. Returns the raw token so the caller can share the link.
+// ---------------------------------------------------------------------------
+const inviteStaffSchema = z.object({
+  email: z.string().email("Valid email required"),
+});
+
+router.post("/admin/invite-staff", async (req, res) => {
+  const parsed = inviteStaffSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
+    return;
+  }
+
+  const { email } = parsed.data;
+
+  try {
+    // Check if this email already has an account
+    const [existingUser] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase()));
+
+    if (existingUser) {
+      res.status(409).json({ error: "An account with this email already exists" });
+      return;
+    }
+
+    const rawToken = await generateInvite(email.toLowerCase(), "admin");
+
+    const baseUrl = process.env["APP_BASE_URL"] ?? "";
+    const inviteUrl = baseUrl
+      ? `${baseUrl}/admin/accept-invite/${rawToken}`
+      : `/admin/accept-invite/${rawToken}`;
+
+    res.status(201).json({ inviteUrl });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to create invite" });
   }
 });
 

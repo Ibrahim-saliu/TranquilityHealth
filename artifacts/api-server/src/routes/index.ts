@@ -4,6 +4,7 @@ import appointmentRequestsRouter from "./appointment-requests";
 import adminRouter from "./admin";
 import authRouter from "./auth";
 import inviteRouter from "./invite";
+import staffInviteRouter from "./staff-invite";
 
 const router: IRouter = Router();
 
@@ -11,6 +12,7 @@ router.use(healthRouter);
 router.use(appointmentRequestsRouter);
 router.use(authRouter);
 router.use(inviteRouter);
+router.use(staffInviteRouter);
 router.use(adminRouter);
 
 export default router;

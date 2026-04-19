@@ -23,6 +23,7 @@ export const ROUTES = {
     requests: "/admin/requests",
     appointments: "/admin/appointments",
     providers: "/admin/providers",
+    team: "/admin/team",
   },
 } as const;
 

@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: "/admin/dashboard", label: "Dashboard" },
   { href: "/admin/requests", label: "Requests" },
   { href: "/admin/providers", label: "Providers" },
+  { href: "/admin/team", label: "Team" },
 ] as const;
 
 export function AdminLayout({ children }: AdminLayoutProps) {

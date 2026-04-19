@@ -132,6 +132,60 @@ export async function updateRequestStatus(
 }
 
 // ---------------------------------------------------------------------------
+// Team management
+// ---------------------------------------------------------------------------
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface PendingInvite {
+  id: string;
+  email: string;
+  createdAt: string;
+  expiresAt: string;
+  used: boolean;
+}
+
+export interface TeamData {
+  admins: AdminUser[];
+  pendingInvites: PendingInvite[];
+}
+
+export async function getTeam(): Promise<TeamData> {
+  return apiFetch<TeamData>("/admin/team");
+}
+
+export async function inviteStaff(email: string): Promise<{ inviteUrl: string }> {
+  return apiFetch<{ inviteUrl: string }>("/admin/invite-staff", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function validateAdminInviteToken(
+  token: string,
+): Promise<{ valid: boolean; email?: string; reason?: string }> {
+  const res = await fetch(`${API_BASE_URL}/admin/accept-invite/${token}/validate`, {
+    credentials: "include",
+  });
+  return res.json();
+}
+
+export async function acceptAdminInvite(
+  token: string,
+  password: string,
+): Promise<{ user: { id: string; email: string; role: string } }> {
+  return apiFetch(`/admin/accept-invite/${token}`, {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Providers
 // ---------------------------------------------------------------------------
 

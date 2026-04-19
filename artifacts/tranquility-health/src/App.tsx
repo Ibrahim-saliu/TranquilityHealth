@@ -26,6 +26,8 @@ import AdminDashboardPage from "@/pages/admin/Dashboard";
 import AdminRequestsPage from "@/pages/admin/Requests";
 import AdminAppointmentsPage from "@/pages/admin/Appointments";
 import AdminProvidersPage from "@/pages/admin/Providers";
+import AdminTeamPage from "@/pages/admin/Team";
+import AdminAcceptInvitePage from "@/pages/admin/AcceptInvite";
 
 import NotFoundPage from "@/pages/NotFound";
 
@@ -111,6 +113,16 @@ function Router() {
         <RequireAdmin>
           <AdminLayout><AdminProvidersPage /></AdminLayout>
         </RequireAdmin>
+      </Route>
+      <Route path="/admin/team">
+        <RequireAdmin>
+          <AdminLayout><AdminTeamPage /></AdminLayout>
+        </RequireAdmin>
+      </Route>
+
+      {/* Admin invite acceptance — standalone, no layout, no auth required */}
+      <Route path="/admin/accept-invite/:token">
+        {(params) => <AdminAcceptInvitePage token={params.token} />}
       </Route>
 
       {/* 404 fallback */}
