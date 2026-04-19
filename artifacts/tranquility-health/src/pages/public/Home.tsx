@@ -168,9 +168,6 @@ export default function HomePage() {
         </div>
         <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <span className="inline-block bg-white/10 border border-white/20 text-teal-200 text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide mb-5 backdrop-blur-sm">
-              Telehealth · No commute required
-            </span>
             <h1 className="text-5xl font-bold text-white leading-tight">
               Mental health care,
               <br />
