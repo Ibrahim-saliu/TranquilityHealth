@@ -15,6 +15,14 @@ const SCHEDULE: Record<number, TimeRange[]> = {
   6: [{ open: 8 * 60, close: 16 * 60 }],
 };
 
+function minutesToTime(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return m === 0 ? `${hour}:00 ${period}` : `${hour}:${String(m).padStart(2, "0")} ${period}`;
+}
+
 function getCSTDateParts(): { day: number; minutes: number } {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Chicago",
@@ -42,6 +50,13 @@ function isOpenNow(): boolean {
   return ranges.some((r) => minutes >= r.open && minutes < r.close);
 }
 
+function getTodayHours(): string {
+  const { day } = getCSTDateParts();
+  const ranges = SCHEDULE[day] ?? [];
+  if (ranges.length === 0) return "Closed";
+  return ranges.map((r) => `${minutesToTime(r.open)} – ${minutesToTime(r.close)}`).join(", ");
+}
+
 export function useOpenStatus(): boolean {
   const [open, setOpen] = useState<boolean>(isOpenNow);
 
@@ -52,4 +67,16 @@ export function useOpenStatus(): boolean {
   }, []);
 
   return open;
+}
+
+export function useTodayHours(): string {
+  const [hours, setHours] = useState<string>(getTodayHours);
+
+  useEffect(() => {
+    const tick = () => setHours(getTodayHours());
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  return hours;
 }
