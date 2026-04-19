@@ -68,19 +68,19 @@ const features = [
 const testimonials = [
   {
     quote: "I was nervous about doing therapy over video, but honestly it's been so much easier than going in-person. My provider is incredibly thoughtful and really listens. I look forward to every session.",
-    name: "J.M.",
+    name: "Jamie M.",
     location: "Austin, TX",
     stars: 5,
   },
   {
     quote: "Getting my medication managed through Tranquility Health has been seamless. No insurance hassle, I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
-    name: "R.T.",
+    name: "Rachel T.",
     location: "Houston, TX",
     stars: 5,
   },
   {
     quote: "I finally found a practice that fits my schedule. Evening and Saturday slots mean I don't have to take time off work. The intake process was simple and the care coordinator was so helpful.",
-    name: "A.K.",
+    name: "Andre K.",
     location: "Dallas, TX",
     stars: 5,
   },
