@@ -234,12 +234,10 @@ export default function HomePage() {
 
       {/* Trust bar */}
       <section className="bg-gradient-to-r from-teal-600 to-indigo-700 py-5">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-6 text-white/90 text-sm font-medium">
+        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-10 text-white/90 text-sm font-medium">
           <span>✓ Licensed Clinicians</span>
           <span>✓ HIPAA-Conscious Platform</span>
-          <span>✓ No In-Person Visits</span>
-          <span>✓ Evening &amp; Weekend Hours</span>
-          <span>✓ New Patients Welcome</span>
+          <span>✓ Flexible Visits</span>
         </div>
       </section>
 
