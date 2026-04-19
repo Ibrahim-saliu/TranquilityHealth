@@ -120,13 +120,13 @@ const testimonials = [
   {
     quote: "Getting my medication managed through Tranquility Health has been seamless. No insurance hassle, I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
     name: "Rachel T.",
-    location: "Houston, TX",
+    location: "Baltimore, MD",
     stars: 5,
   },
   {
     quote: "I finally found a practice that fits my schedule. Evening and Saturday slots mean I don't have to take time off work. The intake process was simple and the care coordinator was so helpful.",
     name: "Andre K.",
-    location: "Dallas, TX",
+    location: "Bethesda, MD",
     stars: 5,
   },
 ];
