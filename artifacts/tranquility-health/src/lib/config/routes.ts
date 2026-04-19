@@ -9,6 +9,9 @@ export const ROUTES = {
     faq: "/faq",
     contact: "/contact",
     requestAppointment: "/request-appointment",
+    privacyPolicy: "/privacy-policy",
+    termsOfService: "/terms-of-service",
+    hipaaNotice: "/hipaa-notice",
   },
   // Requires auth — Phase 3
   app: {

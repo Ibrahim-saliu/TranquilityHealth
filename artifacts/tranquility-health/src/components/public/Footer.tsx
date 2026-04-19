@@ -56,14 +56,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <span className="text-sm text-slate-600 italic">Patient portal coming soon</span>
+                <Link
+                  href={ROUTES.public.contact}
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  Contact Us
+                </Link>
               </li>
             </ul>
 
             <div className="mt-6 p-4 bg-slate-800/80 rounded-xl border border-slate-700/60">
               <p className="text-xs text-slate-400 leading-relaxed">
-                {/* TODO (legal): replace with reviewed crisis disclaimer before launch */}
-                If you are in a mental health emergency, call <strong className="text-slate-300">988</strong> (Crisis Lifeline) or <strong className="text-slate-300">911</strong>. Tranquility Health is not an emergency service.
+                If you are in a mental health emergency, call <strong className="text-slate-300">988</strong> (Suicide &amp; Crisis Lifeline) or <strong className="text-slate-300">911</strong>. Tranquility Health is not an emergency service.
               </p>
             </div>
           </div>
@@ -74,9 +78,9 @@ export function Footer() {
             © {currentYear} Tranquility Health. All rights reserved.
           </p>
           <div className="flex gap-4 text-xs text-slate-500">
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>HIPAA Notice</span>
+            <Link href={ROUTES.public.privacyPolicy} className="hover:text-slate-300 transition-colors">Privacy Policy</Link>
+            <Link href={ROUTES.public.termsOfService} className="hover:text-slate-300 transition-colors">Terms of Service</Link>
+            <Link href={ROUTES.public.hipaaNotice} className="hover:text-slate-300 transition-colors">HIPAA Notice</Link>
           </div>
         </div>
       </div>

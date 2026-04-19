@@ -14,6 +14,9 @@ import HoursPage from "@/pages/public/Hours";
 import FaqPage from "@/pages/public/Faq";
 import ContactPage from "@/pages/public/Contact";
 import RequestAppointmentPage from "@/pages/public/RequestAppointment";
+import PrivacyPolicyPage from "@/pages/public/PrivacyPolicy";
+import TermsOfServicePage from "@/pages/public/TermsOfService";
+import HipaaNoticePage from "@/pages/public/HipaaNotice";
 import LoginPage from "@/pages/public/Login";
 import InviteAcceptPage from "@/pages/public/InviteAccept";
 
@@ -57,6 +60,15 @@ function Router() {
       </Route>
       <Route path="/request-appointment">
         <PublicLayout><RequestAppointmentPage /></PublicLayout>
+      </Route>
+      <Route path="/privacy-policy">
+        <PublicLayout><PrivacyPolicyPage /></PublicLayout>
+      </Route>
+      <Route path="/terms-of-service">
+        <PublicLayout><TermsOfServicePage /></PublicLayout>
+      </Route>
+      <Route path="/hipaa-notice">
+        <PublicLayout><HipaaNoticePage /></PublicLayout>
       </Route>
 
       {/* Auth pages — standalone, no shared layout */}
