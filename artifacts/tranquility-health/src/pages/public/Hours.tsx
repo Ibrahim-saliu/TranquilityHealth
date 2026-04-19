@@ -21,7 +21,7 @@ export default function HoursPage() {
         badge="Central Time (CST)"
       />
 
-      <SectionWrapper variant="slate">
+      <SectionWrapper variant="warm">
         <div className="max-w-3xl mx-auto px-4">
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
             <table className="w-full text-sm">
@@ -63,21 +63,21 @@ export default function HoursPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="white" tight>
+      <SectionWrapper variant="amber" tight>
         <div className="max-w-3xl mx-auto px-4 space-y-4">
-          <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+          <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
             <p className="text-amber-800 text-sm font-semibold mb-1">Holiday Schedule</p>
             <p className="text-amber-700 text-sm leading-relaxed">
               Hours may vary on holidays. We post any schedule changes on this page at least 48 hours in advance. When in doubt, contact us at the number listed on our Contact page.
             </p>
           </div>
-          <div className="p-5 bg-teal-50 border border-teal-100 rounded-2xl">
+          <div className="p-5 bg-teal-50 border border-teal-100 rounded-2xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
             <p className="text-teal-800 text-sm font-semibold mb-1">Appointment vs. Walk-in</p>
             <p className="text-teal-700 text-sm leading-relaxed">
               Tranquility Health is an appointment-only telehealth practice. We do not offer walk-in slots. Request an appointment online and our care coordinator will confirm your time within one business day.
             </p>
           </div>
-          <div className="p-5 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="p-5 bg-red-50 border border-red-200 rounded-2xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
             <p className="text-red-800 text-sm font-semibold mb-1">Mental Health Crisis</p>
             <p className="text-red-700 text-sm leading-relaxed">
               If you are experiencing a mental health emergency, please call <strong>988</strong> (Suicide &amp; Crisis Lifeline) or <strong>911</strong>. Tranquility Health is not an emergency service.

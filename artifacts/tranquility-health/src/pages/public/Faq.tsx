@@ -55,15 +55,15 @@ export default function FaqPage() {
         badge="Common Questions"
       />
 
-      <div className="bg-white px-4 py-8">
-        <div className="max-w-3xl mx-auto">
+      <SectionWrapper variant="warm" tight>
+        <div className="max-w-3xl mx-auto px-4">
           <div className="rounded-2xl overflow-hidden shadow-sm">
             <img src="/faq-header.png" alt="A calm space for your questions" className="w-full h-52 object-cover" />
           </div>
         </div>
-      </div>
+      </SectionWrapper>
 
-      <SectionWrapper variant="slate">
+      <SectionWrapper variant="warm">
         <div className="max-w-3xl mx-auto px-4 space-y-3">
           {faqs.map((faq) => (
             <FaqItem key={faq.question} question={faq.question} answer={faq.answer} />
@@ -71,7 +71,7 @@ export default function FaqPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="white" tight>
+      <SectionWrapper variant="amber" tight>
         <div className="max-w-3xl mx-auto px-4 text-center">
           <p className="text-slate-500 text-sm">
             Didn't find your answer?{" "}

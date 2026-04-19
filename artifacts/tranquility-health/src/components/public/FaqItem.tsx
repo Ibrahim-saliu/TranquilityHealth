@@ -9,7 +9,7 @@ export function FaqItem({ question, answer }: FaqItemProps) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`border rounded-2xl overflow-hidden transition-colors ${open ? "border-teal-200 shadow-md" : "border-slate-200"}`}>
+    <div className={`border rounded-2xl overflow-hidden transition-all duration-200 ${open ? "border-teal-200 shadow-xl -translate-y-1" : "border-slate-200 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200"}`}>
       <button
         onClick={() => setOpen(!open)}
         className={`w-full flex items-center justify-between px-6 py-5 text-left transition-colors ${open ? "bg-teal-50" : "bg-white hover:bg-slate-50"}`}

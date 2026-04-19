@@ -53,11 +53,11 @@ export default function ContactPage() {
         badge="Get in touch"
       />
 
-      <SectionWrapper variant="slate">
+      <SectionWrapper variant="warm">
         <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-8">
           {/* Contact info */}
           <div className="space-y-6">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
               <h3 className="text-lg font-semibold text-slate-900 mb-5">General Inquiries</h3>
               <ul className="space-y-4 text-sm text-slate-600">
                 {contactItems.map(({ Icon, gradient, label, content }) => (
@@ -74,7 +74,7 @@ export default function ContactPage() {
               </ul>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
               <h3 className="text-lg font-semibold text-slate-900 mb-3">Ready to book?</h3>
               <p className="text-sm text-slate-500 mb-4 leading-relaxed">
                 The fastest way to connect with our team is by submitting an appointment request. Our care coordinator will reach out within one business day to confirm your slot.
@@ -93,7 +93,7 @@ export default function ContactPage() {
             <div className="rounded-2xl overflow-hidden shadow-sm">
               <img src="/contact.png" alt="Telehealth appointment from home" className="w-full h-48 object-cover" />
             </div>
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
               <h3 className="text-lg font-semibold text-red-900 mb-3">Mental Health Crisis</h3>
               <p className="text-sm text-red-700 leading-relaxed">
                 If you are in immediate danger or experiencing a mental health crisis, please call:
@@ -117,7 +117,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-6">
+            <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
               <h3 className="text-base font-semibold text-slate-900 mb-2">Have a question?</h3>
               <p className="text-sm text-slate-600 mb-4 leading-relaxed">
                 Our FAQ page covers most common questions about services, insurance, scheduling, and privacy.
@@ -131,7 +131,7 @@ export default function ContactPage() {
               </Link>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
               <p className="text-xs text-slate-500 leading-relaxed">
                 <span className="font-semibold text-slate-600">Privacy Notice:</span> Please do not share protected health information (PHI) in any contact form or email. If you need to discuss your health details, please do so during your scheduled appointment over our secure video platform.
               </p>
@@ -141,9 +141,9 @@ export default function ContactPage() {
       </SectionWrapper>
 
       {/* Office Hours */}
-      <SectionWrapper variant="white">
+      <SectionWrapper variant="amber">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Office Hours</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Office Hours</h2>
           <p className="text-slate-500 text-sm mb-6">All times are Central Time (CST). Hours may vary on federal holidays.</p>
           <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-md">
             <table className="w-full text-sm">
@@ -176,7 +176,7 @@ export default function ContactPage() {
               </tbody>
             </table>
           </div>
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
             <p className="text-amber-800 text-sm font-semibold mb-1">Appointment Only</p>
             <p className="text-amber-700 text-sm leading-relaxed">
               Tranquility Health is an appointment-only telehealth practice. We do not offer walk-in slots. Request an appointment online and our care coordinator will confirm your time within one business day.
