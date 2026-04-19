@@ -254,7 +254,7 @@ export default function HomePage() {
             {features.map((f, i) => (
               <div
                 key={f.title}
-                className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5 group"
+                className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200 group"
                 style={{
                   opacity: featuresVisible ? 1 : 0,
                   transform: featuresVisible ? "translateY(0)" : "translateY(24px)",
@@ -269,6 +269,44 @@ export default function HomePage() {
                 <p className="text-slate-500 text-sm leading-relaxed">{f.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Editorial — Designed for real life */}
+      <section className="py-20 px-4 bg-amber-50">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-700/70 mb-4">Designed for real life</p>
+            <h2 className="text-4xl font-bold text-slate-900 leading-tight">
+              Getting care shouldn't feel like a second job.
+            </h2>
+            <p className="mt-5 text-lg text-slate-500 leading-relaxed">
+              Between work, family, and everything else, carving out time for mental health support is hard. We built Tranquility Health around your schedule — not a clinic's.
+            </p>
+            <ul className="mt-8 space-y-4">
+              {[
+                "Evening and weekend slots — see a provider after hours",
+                "No commute, no waiting room — just you and your clinician",
+                "Same-week availability for new patients",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-slate-700">
+                  <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-base leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="hidden md:block">
+            <img
+              src="/services-therapy.png"
+              alt="Telehealth care from home"
+              className="rounded-3xl shadow-2xl w-full aspect-[4/3] object-cover"
+            />
           </div>
         </div>
       </section>
@@ -317,7 +355,7 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-emerald-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-slate-900">How it works</h2>

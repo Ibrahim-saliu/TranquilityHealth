@@ -42,7 +42,7 @@ export default function AboutPage() {
       {/* Provider Profile */}
       <SectionWrapper variant="white">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">Meet Your Clinician</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Your Clinician</h2>
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
@@ -77,10 +77,10 @@ export default function AboutPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="slate">
+      <SectionWrapper variant="amber">
         <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-start">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Our Mission</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Mission</h2>
             <p className="text-slate-600 leading-relaxed">
               Tranquility Health was founded on a simple belief: mental health support should be accessible, compassionate, and convenient. We remove barriers to care by delivering licensed therapy and psychiatric services directly to you, wherever you are.
             </p>
@@ -88,7 +88,7 @@ export default function AboutPage() {
               We specialize in medication management and psychotherapy for depression, anxiety, mood disorders, sleep disorders, personality disorders, and schizophrenia. Our telehealth model means you can meet with a licensed provider from your home, your car, or anywhere private. No commute, no waiting room.
             </p>
           </div>
-          <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+          <div className="bg-white rounded-2xl p-8 border border-amber-100 shadow-sm">
             <div className="w-11 h-11 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-xl flex items-center justify-center mb-5 shadow-md">
               <Heart className="w-5 h-5 text-white" strokeWidth={1.5} />
             </div>
@@ -105,9 +105,9 @@ export default function AboutPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="white">
+      <SectionWrapper variant="warm">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
           <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
             Our network of licensed mental health professionals includes therapists, counselors, and psychiatric nurse practitioners, all rigorously vetted and committed to evidence-based care. Every clinician on our platform holds an active state license and maintains continuing education in their area of specialty.
           </p>
@@ -117,7 +117,7 @@ export default function AboutPage() {
               { role: "Psychiatric NPs", detail: "Evaluation, diagnosis, and medication management", gradient: "from-indigo-500 to-indigo-600" },
               { role: "Care Coordinators", detail: "Scheduling, follow-up, and patient support", gradient: "from-violet-500 to-violet-600" },
             ].map((r) => (
-              <div key={r.role} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div key={r.role} className="bg-white rounded-2xl p-6 border border-emerald-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div className={`w-2 h-8 bg-gradient-to-b ${r.gradient} rounded-full mb-4`} />
                 <p className="text-sm font-semibold text-slate-900">{r.role}</p>
                 <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{r.detail}</p>
@@ -129,10 +129,10 @@ export default function AboutPage() {
 
       <SectionWrapper variant="slate">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-slate-900 mb-10 text-center">What guides us</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-10 text-center">What guides us</h2>
           <div className="grid sm:grid-cols-2 gap-6">
             {values.map((v) => (
-              <div key={v.title} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+              <div key={v.title} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-teal-100 transition-all duration-200">
                 <div className={`w-11 h-11 bg-gradient-to-br ${v.gradient} rounded-xl flex items-center justify-center mb-4 shadow-sm`}>
                   <v.Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </div>

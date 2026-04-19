@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type SectionVariant = "white" | "slate" | "dark" | "gradient-subtle";
+type SectionVariant = "white" | "slate" | "dark" | "gradient-subtle" | "warm" | "amber";
 
 interface SectionWrapperProps {
   children: ReactNode;
@@ -14,6 +14,8 @@ const variantClasses: Record<SectionVariant, string> = {
   slate: "bg-slate-50",
   dark: "bg-slate-900",
   "gradient-subtle": "bg-gradient-to-br from-teal-50 to-indigo-50",
+  warm: "bg-emerald-50",
+  amber: "bg-amber-50",
 };
 
 export function SectionWrapper({
