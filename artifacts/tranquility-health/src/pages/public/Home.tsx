@@ -45,7 +45,7 @@ function useCountUp(target: number, duration = 1600, shouldStart = false) {
 }
 
 // ─── Data ──────────────────────────────────────────────────────────────────
-const HERO_WORDS = ["anywhere", "at home", "on your schedule", "in Texas"];
+const HERO_WORDS = ["anywhere", "at home", "on your schedule"];
 
 const features = [
   {
