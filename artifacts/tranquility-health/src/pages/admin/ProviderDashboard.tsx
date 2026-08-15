@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { User, Clock, FileText, CheckCircle, AlertCircle } from "lucide-react";
 import { getMyProviderProfile, getActiveProvider, type Provider } from "@/lib/admin-api";
+import { resolvePhotoSrc } from "@/components/admin/PhotoUploader";
 import { ROUTES } from "@/lib/config/routes";
 import { useAuth } from "@/lib/auth/context";
 import { WEEKLY_SCHEDULE } from "@/lib/config/schedule";
@@ -110,9 +111,9 @@ export default function ProviderDashboardPage() {
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  {provider.profileImageUrl ? (
+                  {resolvePhotoSrc(provider.profileImageUrl) ? (
                     <img
-                      src={provider.profileImageUrl}
+                      src={resolvePhotoSrc(provider.profileImageUrl)!}
                       alt={provider.fullName}
                       className="w-16 h-16 rounded-full object-cover border border-slate-200 flex-shrink-0"
                     />

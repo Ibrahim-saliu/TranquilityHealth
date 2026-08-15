@@ -5,10 +5,12 @@ import adminRouter from "./admin";
 import authRouter from "./auth";
 import inviteRouter from "./invite";
 import staffInviteRouter from "./staff-invite";
+import storageRouter from "./storage";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(storageRouter);
 router.use(appointmentRequestsRouter);
 router.use(authRouter);
 router.use(inviteRouter);

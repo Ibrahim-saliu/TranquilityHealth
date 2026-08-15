@@ -15,6 +15,7 @@ import {
   type ProviderInput,
 } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth/context";
+import { PhotoUploader, resolvePhotoSrc } from "@/components/admin/PhotoUploader";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -110,6 +111,18 @@ function ProviderFormPanel({ editing, onSave, onClose }: FormPanelProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex-1 px-6 py-6 space-y-5">
+          {/* Profile photo */}
+          <div>
+            <label className={labelClass}>Profile Photo</label>
+            <PhotoUploader
+              value={form.profileImageUrl}
+              onChange={(objectPath) =>
+                setForm((prev) => ({ ...prev, profileImageUrl: objectPath }))
+              }
+              initials={form.fullName || "?"}
+            />
+          </div>
+
           {/* Full name */}
           <div>
             <label htmlFor="fullName" className={labelClass}>
@@ -179,22 +192,6 @@ function ProviderFormPanel({ editing, onSave, onClose }: FormPanelProps) {
             />
           </div>
 
-          {/* Profile image URL */}
-          <div>
-            <label htmlFor="profileImageUrl" className={labelClass}>
-              Profile Image URL
-            </label>
-            <input
-              id="profileImageUrl"
-              name="profileImageUrl"
-              type="url"
-              value={form.profileImageUrl}
-              onChange={handleChange}
-              placeholder="https://..."
-              className={inputClass}
-            />
-          </div>
-
           {/* Active toggle */}
           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
             <input
@@ -255,12 +252,13 @@ interface ProviderCardProps {
 }
 
 function ProviderCard({ provider, canEdit, onEdit }: ProviderCardProps) {
+  const photoSrc = resolvePhotoSrc(provider.profileImageUrl);
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 flex items-start gap-4">
       {/* Avatar */}
-      {provider.profileImageUrl ? (
+      {photoSrc ? (
         <img
-          src={provider.profileImageUrl}
+          src={photoSrc}
           alt={provider.fullName}
           className="w-14 h-14 rounded-full object-cover border border-slate-200 flex-shrink-0"
         />
@@ -498,6 +496,8 @@ function ProviderSelfView() {
     );
   }
 
+  const photoSrc = resolvePhotoSrc(provider?.profileImageUrl);
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -536,8 +536,8 @@ function ProviderSelfView() {
       {provider && !editing && (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 max-w-2xl">
           <div className="flex items-center gap-4 mb-4">
-            {provider.profileImageUrl ? (
-              <img src={provider.profileImageUrl} alt={provider.fullName} className="w-16 h-16 rounded-full object-cover border border-slate-200 flex-shrink-0" />
+            {photoSrc ? (
+              <img src={photoSrc} alt={provider.fullName} className="w-16 h-16 rounded-full object-cover border border-slate-200 flex-shrink-0" />
             ) : (
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                 {provider.fullName.charAt(0).toUpperCase()}
@@ -564,6 +564,19 @@ function ProviderSelfView() {
 
       {provider && editing && (
         <form onSubmit={handleSubmit} className="space-y-5 bg-white border border-slate-200 rounded-xl shadow-sm p-6 max-w-2xl">
+          {/* Profile photo */}
+          <div>
+            <label className={labelClass}>Profile Photo</label>
+            <PhotoUploader
+              value={form.profileImageUrl}
+              onChange={(objectPath) => {
+                setForm((prev) => ({ ...prev, profileImageUrl: objectPath }));
+                setSaveResult(null);
+              }}
+              initials={form.fullName || "?"}
+            />
+          </div>
+
           <div>
             <label htmlFor="se-fullName" className={labelClass}>Full Name <span className="text-red-500">*</span></label>
             <input id="se-fullName" name="fullName" type="text" required value={form.fullName} onChange={handleChange} className={inputClass} />
@@ -580,10 +593,7 @@ function ProviderSelfView() {
             <label htmlFor="se-bio" className={labelClass}>Bio</label>
             <textarea id="se-bio" name="bio" rows={4} value={form.bio} onChange={handleChange} placeholder="Your bio visible to patients..." className={`${inputClass} resize-y`} />
           </div>
-          <div>
-            <label htmlFor="se-profileImageUrl" className={labelClass}>Profile Image URL</label>
-            <input id="se-profileImageUrl" name="profileImageUrl" type="url" value={form.profileImageUrl} onChange={handleChange} placeholder="https://..." className={inputClass} />
-          </div>
+
           {saveResult && (
             <div className={`p-3 rounded-lg text-sm font-medium ${saveResult.type === "success" ? "bg-emerald-50 border border-emerald-200 text-emerald-800" : "bg-red-50 border border-red-200 text-red-800"}`}>
               {saveResult.msg}

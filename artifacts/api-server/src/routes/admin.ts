@@ -194,7 +194,7 @@ const providerSchema = z.object({
   credentials: z.string().default(""),
   licenseState: z.string().min(2).max(2).default("TX"),
   bio: z.string().default(""),
-  profileImageUrl: z.string().url().optional().or(z.literal("")),
+  profileImageUrl: z.string().optional().or(z.literal("")),
   isActive: z.boolean().default(true),
 });
 
@@ -206,7 +206,7 @@ const providerSelfSchema = z.object({
   credentials: z.string().default(""),
   licenseState: z.string().min(2).max(2).default("TX"),
   bio: z.string().default(""),
-  profileImageUrl: z.string().url().optional().or(z.literal("")),
+  profileImageUrl: z.string().optional().or(z.literal("")),
 });
 
 // ---------------------------------------------------------------------------
