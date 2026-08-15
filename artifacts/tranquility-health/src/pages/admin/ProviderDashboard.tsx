@@ -1,21 +1,44 @@
+/**
+ * ProviderDashboard — /admin/provider-dashboard
+ *
+ * Landing page for provider-role users. Shows the provider's own profile
+ * (scoped via /api/providers/me) and their office hours.
+ *
+ * Admins who visit via the "Provider View" nav link see the same UI but
+ * fall back to the first active provider if no user-linked record exists.
+ */
+
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { User, Clock, FileText, CheckCircle } from "lucide-react";
-import { getActiveProvider, type Provider } from "@/lib/admin-api";
+import { User, Clock, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { getMyProviderProfile, getActiveProvider, type Provider } from "@/lib/admin-api";
 import { ROUTES } from "@/lib/config/routes";
 import { useAuth } from "@/lib/auth/context";
 import { WEEKLY_SCHEDULE } from "@/lib/config/schedule";
 
 export default function ProviderDashboardPage() {
   const { user } = useAuth();
+  const isProvider = user?.role === "provider";
+
   const [provider, setProvider] = useState<Provider | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileMissing, setProfileMissing] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const p = await getActiveProvider();
+        let p: Provider | null = null;
+
+        if (isProvider) {
+          // Scope to the signed-in provider's own record
+          p = await getMyProviderProfile();
+          if (!p) setProfileMissing(true);
+        } else {
+          // Admin/collaborator visiting "Provider View" — show first active provider
+          p = await getActiveProvider();
+        }
+
         setProvider(p);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load profile");
@@ -24,14 +47,18 @@ export default function ProviderDashboardPage() {
       }
     }
     load();
-  }, []);
+  }, [isProvider]);
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Provider Dashboard</h1>
+        <h1 className="text-3xl font-bold text-slate-900">
+          {isProvider ? "Provider Dashboard" : "Provider View"}
+        </h1>
         <p className="mt-1 text-slate-500">
-          Welcome back{user?.email ? `, ${user.email}` : ""}. Here's your profile and schedule overview.
+          {isProvider
+            ? `Welcome back${user?.email ? `, ${user.email}` : ""}. Here's your profile and schedule overview.`
+            : "Preview of the provider dashboard as your providers see it."}
         </p>
       </div>
 
@@ -41,26 +68,45 @@ export default function ProviderDashboardPage() {
         </div>
       )}
 
+      {/* Profile not yet linked — prompt setup */}
+      {!loading && profileMissing && isProvider && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Profile not set up yet</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              Your provider profile hasn't been configured. Contact an admin to complete your setup.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Profile card */}
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-teal-600" />
-              <h2 className="text-base font-semibold text-slate-900">My Profile</h2>
+              <h2 className="text-base font-semibold text-slate-900">
+                {isProvider ? "My Profile" : "Provider Profile"}
+              </h2>
             </div>
-            <Link
-              href={ROUTES.admin.providers}
-              className="text-sm text-teal-600 hover:text-teal-800 font-medium"
-            >
-              Edit →
-            </Link>
+            {isProvider && (
+              <Link
+                href={ROUTES.admin.providers}
+                className="text-sm text-teal-600 hover:text-teal-800 font-medium"
+              >
+                Edit →
+              </Link>
+            )}
           </div>
           <div className="px-6 py-5">
             {loading ? (
               <p className="text-sm text-slate-400">Loading…</p>
             ) : !provider ? (
-              <p className="text-sm text-slate-500">No profile found. Set up your profile to get started.</p>
+              <p className="text-sm text-slate-500">
+                No active provider profile found.
+              </p>
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
@@ -131,20 +177,22 @@ export default function ProviderDashboardPage() {
       </div>
 
       {/* Quick links */}
-      <div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
-          <FileText className="w-4 h-4 text-teal-600" />
-          <h2 className="text-base font-semibold text-slate-900">Quick Actions</h2>
+      {isProvider && (
+        <div className="mt-6 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-teal-600" />
+            <h2 className="text-base font-semibold text-slate-900">Quick Actions</h2>
+          </div>
+          <div className="px-6 py-5 flex flex-wrap gap-3">
+            <Link
+              href={ROUTES.admin.providers}
+              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 transition-all shadow-sm"
+            >
+              Edit My Profile
+            </Link>
+          </div>
         </div>
-        <div className="px-6 py-5 flex flex-wrap gap-3">
-          <Link
-            href={ROUTES.admin.providers}
-            className="px-4 py-2 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 transition-all shadow-sm"
-          >
-            Edit My Profile
-          </Link>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

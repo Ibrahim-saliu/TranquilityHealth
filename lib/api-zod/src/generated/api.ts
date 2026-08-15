@@ -151,7 +151,47 @@ export const AdminUpdateRequestStatusResponse = zod.object({
 });
 
 /**
- * @summary Get the active provider profile
+ * Returns all providers sorted by name. Requires admin or collaborator role.
+ * @summary List all provider profiles
+ */
+export const AdminListProvidersResponse = zod.object({
+  providers: zod.array(
+    zod.object({
+      id: zod.string(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+      userId: zod
+        .string()
+        .nullish()
+        .describe(
+          "Linked user account ID (set when provider accepts an invite)",
+        ),
+      fullName: zod.string(),
+      credentials: zod.string(),
+      licenseState: zod.string(),
+      bio: zod.string(),
+      profileImageUrl: zod.string().nullish(),
+      isActive: zod.boolean(),
+    }),
+  ),
+});
+
+/**
+ * Creates a new provider profile. Requires admin role.
+ * @summary Create a new provider profile
+ */
+export const AdminCreateProviderBody = zod.object({
+  fullName: zod.string(),
+  credentials: zod.string().optional(),
+  licenseState: zod.string().optional(),
+  bio: zod.string().optional(),
+  profileImageUrl: zod.string().nullish(),
+  isActive: zod.boolean().optional(),
+});
+
+/**
+ * Returns the most recently created active provider. Kept for backward compatibility.
+ * @summary Get the first active provider profile (legacy)
  */
 export const AdminGetActiveProviderResponse = zod.object({
   provider: zod.union([
@@ -159,6 +199,12 @@ export const AdminGetActiveProviderResponse = zod.object({
       id: zod.string(),
       createdAt: zod.date(),
       updatedAt: zod.date(),
+      userId: zod
+        .string()
+        .nullish()
+        .describe(
+          "Linked user account ID (set when provider accepts an invite)",
+        ),
       fullName: zod.string(),
       credentials: zod.string(),
       licenseState: zod.string(),
@@ -171,7 +217,8 @@ export const AdminGetActiveProviderResponse = zod.object({
 });
 
 /**
- * @summary Create or update the active provider profile
+ * Updates the most recent provider row or creates one. Kept for backward compatibility.
+ * @summary Upsert the active provider profile (legacy)
  */
 export const AdminUpsertProviderBody = zod.object({
   fullName: zod.string(),
@@ -187,6 +234,103 @@ export const AdminUpsertProviderResponse = zod.object({
     id: zod.string(),
     createdAt: zod.date(),
     updatedAt: zod.date(),
+    userId: zod
+      .string()
+      .nullish()
+      .describe("Linked user account ID (set when provider accepts an invite)"),
+    fullName: zod.string(),
+    credentials: zod.string(),
+    licenseState: zod.string(),
+    bio: zod.string(),
+    profileImageUrl: zod.string().nullish(),
+    isActive: zod.boolean(),
+  }),
+});
+
+/**
+ * Updates a specific provider by their UUID. Requires admin role.
+ * @summary Update a provider profile by ID
+ */
+export const AdminUpdateProviderParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AdminUpdateProviderBody = zod.object({
+  fullName: zod.string(),
+  credentials: zod.string().optional(),
+  licenseState: zod.string().optional(),
+  bio: zod.string().optional(),
+  profileImageUrl: zod.string().nullish(),
+  isActive: zod.boolean().optional(),
+});
+
+export const AdminUpdateProviderResponse = zod.object({
+  provider: zod.object({
+    id: zod.string(),
+    createdAt: zod.date(),
+    updatedAt: zod.date(),
+    userId: zod
+      .string()
+      .nullish()
+      .describe("Linked user account ID (set when provider accepts an invite)"),
+    fullName: zod.string(),
+    credentials: zod.string(),
+    licenseState: zod.string(),
+    bio: zod.string(),
+    profileImageUrl: zod.string().nullish(),
+    isActive: zod.boolean(),
+  }),
+});
+
+/**
+ * Returns the provider record linked to the currently authenticated provider user.
+ * @summary Get the signed-in provider's own profile
+ */
+export const GetMyProviderProfileResponse = zod.object({
+  provider: zod.union([
+    zod.object({
+      id: zod.string(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+      userId: zod
+        .string()
+        .nullish()
+        .describe(
+          "Linked user account ID (set when provider accepts an invite)",
+        ),
+      fullName: zod.string(),
+      credentials: zod.string(),
+      licenseState: zod.string(),
+      bio: zod.string(),
+      profileImageUrl: zod.string().nullish(),
+      isActive: zod.boolean(),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * Allows a provider to update their own linked profile record.
+ * @summary Update the signed-in provider's own profile
+ */
+export const UpdateMyProviderProfileBody = zod.object({
+  fullName: zod.string(),
+  credentials: zod.string().optional(),
+  licenseState: zod.string().optional(),
+  bio: zod.string().optional(),
+  profileImageUrl: zod.string().nullish(),
+  isActive: zod.boolean().optional(),
+});
+
+export const UpdateMyProviderProfileResponse = zod.object({
+  provider: zod.object({
+    id: zod.string(),
+    createdAt: zod.date(),
+    updatedAt: zod.date(),
+    userId: zod
+      .string()
+      .nullish()
+      .describe("Linked user account ID (set when provider accepts an invite)"),
     fullName: zod.string(),
     credentials: zod.string(),
     licenseState: zod.string(),

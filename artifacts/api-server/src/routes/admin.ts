@@ -98,7 +98,7 @@ router.get("/admin/requests/counts", requireAuth(["admin", "collaborator"]), asy
 // Restricted to admin and collaborator — providers cannot access request data.
 // ---------------------------------------------------------------------------
 router.get("/admin/requests/:id", requireAuth(["admin", "collaborator"]), async (req, res) => {
-  const { id } = req.params;
+  const id = String(req.params.id);
   try {
     const [row] = await db
       .select()
@@ -126,7 +126,7 @@ const updateStatusSchema = z.object({
 });
 
 router.patch("/admin/requests/:id/status", requireAuth(["admin", "collaborator"]), async (req, res) => {
-  const { id } = req.params;
+  const id = String(req.params.id);
 
   const parsed = updateStatusSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -185,54 +185,10 @@ router.patch("/admin/requests/:id/status", requireAuth(["admin", "collaborator"]
 });
 
 // ---------------------------------------------------------------------------
-// Placeholder provider seeded on first GET if the table is truly empty
+// Provider input validation schemas
 // ---------------------------------------------------------------------------
-const PLACEHOLDER_PROVIDER = {
-  fullName: "Provider Name",
-  credentials: "MD",
-  licenseState: "TX",
-  bio: "Board-certified provider serving the Tranquility Health clinic.",
-  profileImageUrl: "",
-  isActive: true,
-} as const;
 
-// ---------------------------------------------------------------------------
-// GET /admin/providers/active
-// Return the canonical provider row (latest by created_at, regardless of
-// isActive). Seeds a safe placeholder only when the table is empty.
-// ---------------------------------------------------------------------------
-router.get("/admin/providers/active", async (_req, res) => {
-  try {
-    let [provider] = await db
-      .select()
-      .from(providersTable)
-      .orderBy(desc(providersTable.createdAt))
-      .limit(1);
-
-    if (!provider) {
-      [provider] = await db
-        .insert(providersTable)
-        .values(PLACEHOLDER_PROVIDER)
-        .returning();
-
-      await writeAuditLog({
-        action: "PROVIDER_PLACEHOLDER_SEEDED",
-        entityType: "provider",
-        entityId: provider.id,
-        metadata: { reason: "first_run" },
-      });
-    }
-
-    res.json({ provider });
-  } catch (_err) {
-    res.status(500).json({ error: "Failed to load provider" });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// PUT /admin/providers/active
-// Upsert the active provider profile
-// ---------------------------------------------------------------------------
+// Full schema — used for admin create/update (includes isActive).
 const providerSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   credentials: z.string().default(""),
@@ -242,7 +198,92 @@ const providerSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-router.put("/admin/providers/active", async (req, res) => {
+// Restricted schema — used for provider self-update.
+// Excludes isActive and other admin-owned fields so providers cannot
+// change their own roster status or escalate privileges.
+const providerSelfSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  credentials: z.string().default(""),
+  licenseState: z.string().min(2).max(2).default("TX"),
+  bio: z.string().default(""),
+  profileImageUrl: z.string().url().optional().or(z.literal("")),
+});
+
+// ---------------------------------------------------------------------------
+// GET /admin/providers
+// List all provider records ordered by name.
+// Accessible to admin and collaborator.
+// ---------------------------------------------------------------------------
+router.get("/admin/providers", requireAuth(["admin", "collaborator"]), async (_req, res) => {
+  try {
+    const providers = await db
+      .select()
+      .from(providersTable)
+      .orderBy(asc(providersTable.fullName));
+    res.json({ providers });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load providers" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/providers
+// Create a new provider profile. Admin only.
+// ---------------------------------------------------------------------------
+router.post("/admin/providers", requireAuth("admin"), async (req, res) => {
+  const parsed = providerSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "Validation failed",
+      issues: parsed.error.issues.map((i) => ({ field: i.path.join("."), message: i.message })),
+    });
+    return;
+  }
+
+  try {
+    const [provider] = await db
+      .insert(providersTable)
+      .values(parsed.data)
+      .returning();
+
+    await writeAuditLog({
+      action: "PROVIDER_CREATED",
+      entityType: "provider",
+      entityId: provider.id,
+      metadata: { fullName: parsed.data.fullName },
+    });
+
+    res.status(201).json({ provider });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to create provider" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /admin/providers/active  — MUST be registered before /:id
+// Legacy endpoint — returns the first active provider for backward
+// compatibility (e.g. ProviderDashboard fallback, About page).
+// ---------------------------------------------------------------------------
+router.get("/admin/providers/active", async (_req, res) => {
+  try {
+    const [provider] = await db
+      .select()
+      .from(providersTable)
+      .where(eq(providersTable.isActive, true))
+      .orderBy(desc(providersTable.createdAt))
+      .limit(1);
+
+    res.json({ provider: provider ?? null });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load provider" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /admin/providers/active  — MUST be registered before /:id
+// Legacy upsert endpoint — kept for existing callers (admin-api upsertProvider).
+// ---------------------------------------------------------------------------
+router.put("/admin/providers/active", requireAuth("admin"), async (req, res) => {
   const parsed = providerSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({
@@ -276,12 +317,122 @@ router.put("/admin/providers/active", async (req, res) => {
       action: "PROVIDER_PROFILE_UPDATED",
       entityType: "provider",
       entityId: provider.id,
-      metadata: { fullName: data.fullName, credentials: data.credentials },
+      metadata: { fullName: data.fullName },
     });
 
     res.json({ provider });
   } catch (_err) {
     res.status(500).json({ error: "Failed to save provider" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /admin/providers/:id  — registered AFTER /active to avoid shadowing
+// Update a provider profile by ID. Admin only.
+// ---------------------------------------------------------------------------
+router.put("/admin/providers/:id", requireAuth("admin"), async (req, res) => {
+  const id = String(req.params.id);
+  const parsed = providerSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "Validation failed",
+      issues: parsed.error.issues.map((i) => ({ field: i.path.join("."), message: i.message })),
+    });
+    return;
+  }
+
+  try {
+    const [provider] = await db
+      .update(providersTable)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(providersTable.id, id))
+      .returning();
+
+    if (!provider) {
+      res.status(404).json({ error: "Provider not found" });
+      return;
+    }
+
+    await writeAuditLog({
+      action: "PROVIDER_UPDATED",
+      entityType: "provider",
+      entityId: provider.id,
+      metadata: { fullName: parsed.data.fullName },
+    });
+
+    res.json({ provider });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to update provider" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /providers/me
+// Returns the provider record linked to the currently signed-in provider user.
+// Accessible to provider role only.
+// ---------------------------------------------------------------------------
+router.get("/providers/me", requireAuth("provider"), async (req, res) => {
+  const userId = req.session.userId;
+  try {
+    const [provider] = await db
+      .select()
+      .from(providersTable)
+      .where(eq(providersTable.userId, userId!))
+      .limit(1);
+
+    res.json({ provider: provider ?? null });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load provider profile" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /providers/me
+// Allows a signed-in provider to update their own profile.
+// Uses the restricted self-edit schema — isActive is excluded so providers
+// cannot change their own roster status.
+// Provider role only.
+// ---------------------------------------------------------------------------
+router.put("/providers/me", requireAuth("provider"), async (req, res) => {
+  const userId = req.session.userId;
+  const parsed = providerSelfSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "Validation failed",
+      issues: parsed.error.issues.map((i) => ({ field: i.path.join("."), message: i.message })),
+    });
+    return;
+  }
+
+  try {
+    const [existing] = await db
+      .select({ id: providersTable.id })
+      .from(providersTable)
+      .where(eq(providersTable.userId, userId!))
+      .limit(1);
+
+    if (!existing) {
+      res.status(404).json({ error: "No provider profile linked to your account" });
+      return;
+    }
+
+    const [provider] = await db
+      .update(providersTable)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(providersTable.id, existing.id))
+      .returning();
+
+    await writeAuditLog({
+      action: "PROVIDER_SELF_UPDATED",
+      entityType: "provider",
+      entityId: provider.id,
+      actorId: userId,
+      metadata: { fullName: parsed.data.fullName },
+    });
+
+    res.json({ provider });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to update provider profile" });
   }
 });
 

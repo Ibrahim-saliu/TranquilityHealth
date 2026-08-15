@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { db, usersTable, inviteTokensTable } from "@workspace/db";
+import { db, usersTable, inviteTokensTable, providersTable } from "@workspace/db";
 import { validateInviteToken } from "../lib/invite";
 import { writeAuditLog } from "../lib/audit";
 
@@ -92,6 +92,30 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
       actorId: user.id,
       metadata: { email, role, via: "staff_invite" },
     });
+
+    // Auto-create a blank provider profile linked to this user so the
+    // provider dashboard has a record to display immediately.
+    if (role === "provider") {
+      const [providerRecord] = await db
+        .insert(providersTable)
+        .values({
+          userId: user.id,
+          fullName: email.split("@")[0] ?? "New Provider",
+          credentials: "",
+          licenseState: "TX",
+          bio: "",
+          isActive: true,
+        })
+        .returning();
+
+      await writeAuditLog({
+        action: "PROVIDER_CREATED",
+        entityType: "provider",
+        entityId: providerRecord.id,
+        actorId: user.id,
+        metadata: { via: "invite_acceptance", userId: user.id },
+      });
+    }
 
     req.session.userId = user.id;
     req.session.role = user.role;

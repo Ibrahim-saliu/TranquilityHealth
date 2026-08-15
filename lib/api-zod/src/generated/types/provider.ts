@@ -10,6 +10,8 @@ export interface Provider {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Linked user account ID (set when provider accepts an invite) */
+  userId?: string | null;
   fullName: string;
   credentials: string;
   licenseState: string;

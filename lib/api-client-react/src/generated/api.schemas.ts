@@ -78,6 +78,8 @@ export interface Provider {
   id: string;
   createdAt: string;
   updatedAt: string;
+  /** Linked user account ID (set when provider accepts an invite) */
+  userId?: string | null;
   fullName: string;
   credentials: string;
   licenseState: string;
@@ -149,10 +151,30 @@ export type AdminUpdateRequestStatus200 = {
   request: AdminUpdateRequestStatus200Request;
 };
 
+export type AdminListProviders200 = {
+  providers: Provider[];
+};
+
+export type AdminCreateProvider201 = {
+  provider: Provider;
+};
+
 export type AdminGetActiveProvider200 = {
   provider: Provider | null;
 };
 
 export type AdminUpsertProvider200 = {
+  provider: Provider;
+};
+
+export type AdminUpdateProvider200 = {
+  provider: Provider;
+};
+
+export type GetMyProviderProfile200 = {
+  provider: Provider | null;
+};
+
+export type UpdateMyProviderProfile200 = {
   provider: Provider;
 };

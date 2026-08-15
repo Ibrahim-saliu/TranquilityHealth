@@ -17,18 +17,23 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AdminCreateProvider201,
   AdminGetActiveProvider200,
   AdminGetRequest200,
   AdminGetRequestCounts200,
+  AdminListProviders200,
   AdminListRequests200,
   AdminListRequestsParams,
+  AdminUpdateProvider200,
   AdminUpdateRequestStatus200,
   AdminUpdateRequestStatusBody,
   AdminUpsertProvider200,
   AppointmentRequestCreated,
   AppointmentRequestInput,
+  GetMyProviderProfile200,
   HealthStatus,
   ProviderInput,
+  UpdateMyProviderProfile200,
   ValidationError,
 } from "./api.schemas";
 
@@ -560,7 +565,171 @@ export const useAdminUpdateRequestStatus = <
 };
 
 /**
- * @summary Get the active provider profile
+ * Returns all providers sorted by name. Requires admin or collaborator role.
+ * @summary List all provider profiles
+ */
+export const getAdminListProvidersUrl = () => {
+  return `/api/admin/providers`;
+};
+
+export const adminListProviders = async (
+  options?: RequestInit,
+): Promise<AdminListProviders200> => {
+  return customFetch<AdminListProviders200>(getAdminListProvidersUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getAdminListProvidersQueryKey = () => {
+  return [`/api/admin/providers`] as const;
+};
+
+export const getAdminListProvidersQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListProviders>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListProviders>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getAdminListProvidersQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof adminListProviders>>
+  > = ({ signal }) => adminListProviders({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListProviders>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type AdminListProvidersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListProviders>>
+>;
+export type AdminListProvidersQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all provider profiles
+ */
+
+export function useAdminListProviders<
+  TData = Awaited<ReturnType<typeof adminListProviders>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminListProviders>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminListProvidersQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Creates a new provider profile. Requires admin role.
+ * @summary Create a new provider profile
+ */
+export const getAdminCreateProviderUrl = () => {
+  return `/api/admin/providers`;
+};
+
+export const adminCreateProvider = async (
+  providerInput: ProviderInput,
+  options?: RequestInit,
+): Promise<AdminCreateProvider201> => {
+  return customFetch<AdminCreateProvider201>(getAdminCreateProviderUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(providerInput),
+  });
+};
+
+export const getAdminCreateProviderMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateProvider>>,
+    TError,
+    { data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminCreateProvider>>,
+  TError,
+  { data: BodyType<ProviderInput> },
+  TContext
+> => {
+  const mutationKey = ["adminCreateProvider"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminCreateProvider>>,
+    { data: BodyType<ProviderInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return adminCreateProvider(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminCreateProviderMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminCreateProvider>>
+>;
+export type AdminCreateProviderMutationBody = BodyType<ProviderInput>;
+export type AdminCreateProviderMutationError = ErrorType<void>;
+
+/**
+ * @summary Create a new provider profile
+ */
+export const useAdminCreateProvider = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminCreateProvider>>,
+    TError,
+    { data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminCreateProvider>>,
+  TError,
+  { data: BodyType<ProviderInput> },
+  TContext
+> => {
+  return useMutation(getAdminCreateProviderMutationOptions(options));
+};
+
+/**
+ * Returns the most recently created active provider. Kept for backward compatibility.
+ * @summary Get the first active provider profile (legacy)
  */
 export const getAdminGetActiveProviderUrl = () => {
   return `/api/admin/providers/active`;
@@ -615,7 +784,7 @@ export type AdminGetActiveProviderQueryResult = NonNullable<
 export type AdminGetActiveProviderQueryError = ErrorType<unknown>;
 
 /**
- * @summary Get the active provider profile
+ * @summary Get the first active provider profile (legacy)
  */
 
 export function useAdminGetActiveProvider<
@@ -639,7 +808,8 @@ export function useAdminGetActiveProvider<
 }
 
 /**
- * @summary Create or update the active provider profile
+ * Updates the most recent provider row or creates one. Kept for backward compatibility.
+ * @summary Upsert the active provider profile (legacy)
  */
 export const getAdminUpsertProviderUrl = () => {
   return `/api/admin/providers/active`;
@@ -702,7 +872,7 @@ export type AdminUpsertProviderMutationBody = BodyType<ProviderInput>;
 export type AdminUpsertProviderMutationError = ErrorType<void>;
 
 /**
- * @summary Create or update the active provider profile
+ * @summary Upsert the active provider profile (legacy)
  */
 export const useAdminUpsertProvider = <
   TError = ErrorType<void>,
@@ -722,4 +892,258 @@ export const useAdminUpsertProvider = <
   TContext
 > => {
   return useMutation(getAdminUpsertProviderMutationOptions(options));
+};
+
+/**
+ * Updates a specific provider by their UUID. Requires admin role.
+ * @summary Update a provider profile by ID
+ */
+export const getAdminUpdateProviderUrl = (id: string) => {
+  return `/api/admin/providers/${id}`;
+};
+
+export const adminUpdateProvider = async (
+  id: string,
+  providerInput: ProviderInput,
+  options?: RequestInit,
+): Promise<AdminUpdateProvider200> => {
+  return customFetch<AdminUpdateProvider200>(getAdminUpdateProviderUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(providerInput),
+  });
+};
+
+export const getAdminUpdateProviderMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateProvider>>,
+    TError,
+    { id: string; data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminUpdateProvider>>,
+  TError,
+  { id: string; data: BodyType<ProviderInput> },
+  TContext
+> => {
+  const mutationKey = ["adminUpdateProvider"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateProvider>>,
+    { id: string; data: BodyType<ProviderInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminUpdateProvider(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminUpdateProviderMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminUpdateProvider>>
+>;
+export type AdminUpdateProviderMutationBody = BodyType<ProviderInput>;
+export type AdminUpdateProviderMutationError = ErrorType<void>;
+
+/**
+ * @summary Update a provider profile by ID
+ */
+export const useAdminUpdateProvider = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateProvider>>,
+    TError,
+    { id: string; data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateProvider>>,
+  TError,
+  { id: string; data: BodyType<ProviderInput> },
+  TContext
+> => {
+  return useMutation(getAdminUpdateProviderMutationOptions(options));
+};
+
+/**
+ * Returns the provider record linked to the currently authenticated provider user.
+ * @summary Get the signed-in provider's own profile
+ */
+export const getGetMyProviderProfileUrl = () => {
+  return `/api/providers/me`;
+};
+
+export const getMyProviderProfile = async (
+  options?: RequestInit,
+): Promise<GetMyProviderProfile200> => {
+  return customFetch<GetMyProviderProfile200>(getGetMyProviderProfileUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMyProviderProfileQueryKey = () => {
+  return [`/api/providers/me`] as const;
+};
+
+export const getGetMyProviderProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyProviderProfile>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProviderProfile>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyProviderProfileQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyProviderProfile>>
+  > = ({ signal }) => getMyProviderProfile({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProviderProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyProviderProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyProviderProfile>>
+>;
+export type GetMyProviderProfileQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get the signed-in provider's own profile
+ */
+
+export function useGetMyProviderProfile<
+  TData = Awaited<ReturnType<typeof getMyProviderProfile>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProviderProfile>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyProviderProfileQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Allows a provider to update their own linked profile record.
+ * @summary Update the signed-in provider's own profile
+ */
+export const getUpdateMyProviderProfileUrl = () => {
+  return `/api/providers/me`;
+};
+
+export const updateMyProviderProfile = async (
+  providerInput: ProviderInput,
+  options?: RequestInit,
+): Promise<UpdateMyProviderProfile200> => {
+  return customFetch<UpdateMyProviderProfile200>(
+    getUpdateMyProviderProfileUrl(),
+    {
+      ...options,
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(providerInput),
+    },
+  );
+};
+
+export const getUpdateMyProviderProfileMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyProviderProfile>>,
+    TError,
+    { data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMyProviderProfile>>,
+  TError,
+  { data: BodyType<ProviderInput> },
+  TContext
+> => {
+  const mutationKey = ["updateMyProviderProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMyProviderProfile>>,
+    { data: BodyType<ProviderInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return updateMyProviderProfile(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMyProviderProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMyProviderProfile>>
+>;
+export type UpdateMyProviderProfileMutationBody = BodyType<ProviderInput>;
+export type UpdateMyProviderProfileMutationError = ErrorType<void>;
+
+/**
+ * @summary Update the signed-in provider's own profile
+ */
+export const useUpdateMyProviderProfile = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMyProviderProfile>>,
+    TError,
+    { data: BodyType<ProviderInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMyProviderProfile>>,
+  TError,
+  { data: BodyType<ProviderInput> },
+  TContext
+> => {
+  return useMutation(getUpdateMyProviderProfileMutationOptions(options));
 };

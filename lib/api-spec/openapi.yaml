@@ -191,11 +191,55 @@ paths:
           description: Validation error
         "404":
           description: Not found
+  /admin/providers:
+    get:
+      operationId: adminListProviders
+      tags: [admin]
+      summary: List all provider profiles
+      description: Returns all providers sorted by name. Requires admin or collaborator role.
+      responses:
+        "200":
+          description: List of providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Provider"
+                required: [providers]
+    post:
+      operationId: adminCreateProvider
+      tags: [admin]
+      summary: Create a new provider profile
+      description: Creates a new provider profile. Requires admin role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderInput"
+      responses:
+        "201":
+          description: Provider created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    $ref: "#/components/schemas/Provider"
+                required: [provider]
+        "400":
+          description: Validation error
   /admin/providers/active:
     get:
       operationId: adminGetActiveProvider
       tags: [admin]
-      summary: Get the active provider profile
+      summary: Get the first active provider profile (legacy)
+      description: Returns the most recently created active provider. Kept for backward compatibility.
       responses:
         "200":
           description: The active provider or null
@@ -212,7 +256,8 @@ paths:
     put:
       operationId: adminUpsertProvider
       tags: [admin]
-      summary: Create or update the active provider profile
+      summary: Upsert the active provider profile (legacy)
+      description: Updates the most recent provider row or creates one. Kept for backward compatibility.
       requestBody:
         required: true
         content:
@@ -232,6 +277,84 @@ paths:
                 required: [provider]
         "400":
           description: Validation error
+  /admin/providers/{id}:
+    put:
+      operationId: adminUpdateProvider
+      tags: [admin]
+      summary: Update a provider profile by ID
+      description: Updates a specific provider by their UUID. Requires admin role.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderInput"
+      responses:
+        "200":
+          description: Updated provider
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    $ref: "#/components/schemas/Provider"
+                required: [provider]
+        "400":
+          description: Validation error
+        "404":
+          description: Provider not found
+  /providers/me:
+    get:
+      operationId: getMyProviderProfile
+      tags: [admin]
+      summary: Get the signed-in provider's own profile
+      description: Returns the provider record linked to the currently authenticated provider user.
+      responses:
+        "200":
+          description: The provider's own profile or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    oneOf:
+                      - $ref: "#/components/schemas/Provider"
+                      - type: "null"
+                required: [provider]
+    put:
+      operationId: updateMyProviderProfile
+      tags: [admin]
+      summary: Update the signed-in provider's own profile
+      description: Allows a provider to update their own linked profile record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProviderInput"
+      responses:
+        "200":
+          description: Updated provider profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    $ref: "#/components/schemas/Provider"
+                required: [provider]
+        "400":
+          description: Validation error
+        "404":
+          description: No provider profile linked to this account
 components:
   schemas:
     RequestStatus:
@@ -354,6 +477,10 @@ components:
         updatedAt:
           type: string
           format: date-time
+        userId:
+          type: string
+          nullable: true
+          description: Linked user account ID (set when provider accepts an invite)
         fullName:
           type: string
         credentials:

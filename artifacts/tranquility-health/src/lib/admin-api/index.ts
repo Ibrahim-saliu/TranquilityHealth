@@ -51,6 +51,7 @@ export interface Provider {
   id: string;
   createdAt: string;
   updatedAt: string;
+  userId: string | null;
   fullName: string;
   credentials: string;
   licenseState: string;
@@ -275,6 +276,46 @@ export async function listAppointments(
 // Providers
 // ---------------------------------------------------------------------------
 
+/** List all provider profiles (admin + collaborator only). */
+export async function listProviders(): Promise<Provider[]> {
+  const data = await apiFetch<{ providers: Provider[] }>("/admin/providers");
+  return data.providers;
+}
+
+/** Create a new provider profile (admin only). */
+export async function createProvider(input: ProviderInput): Promise<Provider> {
+  const data = await apiFetch<{ provider: Provider }>("/admin/providers", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return data.provider;
+}
+
+/** Update an existing provider profile by ID (admin only). */
+export async function updateProvider(id: string, input: ProviderInput): Promise<Provider> {
+  const data = await apiFetch<{ provider: Provider }>(`/admin/providers/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  return data.provider;
+}
+
+/** Get the provider profile linked to the currently signed-in provider user. */
+export async function getMyProviderProfile(): Promise<Provider | null> {
+  const data = await apiFetch<{ provider: Provider | null }>("/providers/me");
+  return data.provider;
+}
+
+/** Update the currently signed-in provider's own profile. */
+export async function updateMyProviderProfile(input: ProviderInput): Promise<Provider> {
+  const data = await apiFetch<{ provider: Provider }>("/providers/me", {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  return data.provider;
+}
+
+/** Legacy — returns the first active provider. Still used by ProviderDashboard fallback. */
 export async function getActiveProvider(): Promise<Provider | null> {
   const data = await apiFetch<{ provider: Provider | null }>("/admin/providers/active");
   return data.provider;
