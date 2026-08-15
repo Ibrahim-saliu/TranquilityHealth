@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSearch } from "wouter";
+import { useSearch, Redirect } from "wouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   listRequests,
@@ -17,6 +17,7 @@ import {
   type RequestsPage,
 } from "@/lib/admin-api";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { useAuth } from "@/lib/auth/context";
 
 const ALL_STATUSES: RequestStatus[] = ["new", "under_review", "approved", "rejected", "invited"];
 const PAGE_SIZE = 20;
@@ -208,6 +209,7 @@ function Pagination({ page, totalPages, total, pageSize, onPage }: PaginationPro
 // ---------------------------------------------------------------------------
 export default function AdminRequestsPage() {
   const search = useSearch();
+  const { user } = useAuth();
   const initialStatus = new URLSearchParams(search).get("status") as RequestStatus | null;
 
   const [pageData, setPageData] = useState<RequestsPage | null>(null);
@@ -243,6 +245,10 @@ export default function AdminRequestsPage() {
   useEffect(() => {
     loadRequests(statusFilter, page);
   }, [statusFilter, page, loadRequests]);
+
+  if (user && user.role === "provider") {
+    return <Redirect to="/admin/provider-dashboard" />;
+  }
 
   function handleStatusUpdated(id: string, newStatus: RequestStatus) {
     setPageData((prev) =>

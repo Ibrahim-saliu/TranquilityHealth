@@ -17,7 +17,7 @@ export function RequirePatient({ children }: { children: ReactNode }) {
 // ---------------------------------------------------------------------------
 // RequireAdmin — allows admin and collaborator roles; redirects others
 // ---------------------------------------------------------------------------
-const ADMIN_ROLES = ["admin", "collaborator"] as const;
+const ADMIN_ROLES = ["admin", "collaborator", "provider"] as const;
 
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();

@@ -14,6 +14,7 @@ export default function AdminAcceptInvitePage({ token }: Props) {
 
   const [validating, setValidating] = useState(true);
   const [tokenEmail, setTokenEmail] = useState<string | null>(null);
+  const [tokenRole, setTokenRole] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
 
   const [password, setPassword] = useState("");
@@ -36,6 +37,7 @@ export default function AdminAcceptInvitePage({ token }: Props) {
           setTokenError(reasons[result.reason ?? ""] ?? "This invite link is not valid.");
         } else {
           setTokenEmail(result.email ?? null);
+          setTokenRole(result.role ?? null);
         }
       } catch {
         setTokenError("Unable to validate invite link. Please try again.");
@@ -63,7 +65,7 @@ export default function AdminAcceptInvitePage({ token }: Props) {
     try {
       await acceptAdminInvite(token, password);
       await refresh();
-      setLocation("/admin/dashboard");
+      setLocation(tokenRole === "provider" ? "/admin/provider-dashboard" : "/admin/dashboard");
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Account creation failed. Please try again.");
     } finally {
@@ -82,7 +84,9 @@ export default function AdminAcceptInvitePage({ token }: Props) {
             </span>
             <span className="text-2xl font-bold text-white tracking-tight">Tranquility Health</span>
           </div>
-          <p className="text-slate-400 text-sm">Admin portal setup</p>
+          <p className="text-slate-400 text-sm">
+            {tokenRole === "provider" ? "Provider portal setup" : "Admin portal setup"}
+          </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -109,13 +113,17 @@ export default function AdminAcceptInvitePage({ token }: Props) {
                   <ShieldCheck className="w-5 h-5 text-teal-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Set up your admin account</h2>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {tokenRole === "provider" ? "Set up your provider account" : "Set up your admin account"}
+                  </h2>
                   <p className="text-sm text-slate-500">{tokenEmail}</p>
                 </div>
               </div>
 
               <p className="text-sm text-slate-500 mb-6">
-                Choose a strong password to activate your admin account.
+                {tokenRole === "provider"
+                  ? "Choose a strong password to activate your provider account."
+                  : "Choose a strong password to activate your admin account."}
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -170,7 +178,7 @@ export default function AdminAcceptInvitePage({ token }: Props) {
                   disabled={submitting || !password || !confirmPassword}
                   className="w-full py-2.5 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md mt-2"
                 >
-                  {submitting ? "Creating account…" : "Activate admin account"}
+                  {submitting ? "Creating account…" : tokenRole === "provider" ? "Activate provider account" : "Activate admin account"}
                 </button>
               </form>
             </>

@@ -8,8 +8,9 @@ export type { UserRole };
 // TODO (Phase 3): Use for redirect-after-login routing.
 export const ROLE_ROUTE_PREFIXES: Record<UserRole, string> = {
   patient: "/app",
-  provider: "/app",
+  provider: "/admin",
   admin: "/admin",
+  collaborator: "/admin",
 };
 
 // TODO (Phase 3): Wire into route protection middleware.

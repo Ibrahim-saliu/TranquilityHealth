@@ -108,7 +108,8 @@ React + Vite SPA with full public website, admin dashboard, and Phase 3 patient 
 - Public routes (`/`, `/about`, `/services`, `/hours`, `/faq`, `/contact`, `/request-appointment`) — wrapped in `PublicLayout` (Navbar + Footer)
 - Auth routes: `/login` (Login page), `/invite/:token` (InviteAccept page) — standalone pages, no shared layout
 - Patient app routes (`/app/dashboard`, `/app/onboarding`, `/app/appointments`, `/app/session`) — wrapped in `AppLayout`, guarded by `RequirePatient`
-- Admin routes (`/admin/dashboard`, `/admin/requests`, `/admin/appointments`, `/admin/providers`) — wrapped in `AdminLayout`, guarded by `RequireAdmin`
+- Admin routes (`/admin/dashboard`, `/admin/requests`, `/admin/appointments`, `/admin/providers`, `/admin/team`) — wrapped in `AdminLayout`, guarded by `RequireAdmin` (allows admin, collaborator, provider)
+- Provider-scoped route (`/admin/provider-dashboard`) — wrapped in `AdminLayout`, only shows provider nav
 
 **Auth system (Phase 3):**
 - `src/lib/auth/context.tsx` — `AuthProvider` + `useAuth()` hook (fetches `GET /api/auth/me` on mount)
@@ -116,14 +117,26 @@ React + Vite SPA with full public website, admin dashboard, and Phase 3 patient 
 - Session via httpOnly cookie `th.sid` (express-session on the API server, 8h expiry)
 - Admin user: `admin@tranquilityhealth.com` (seeded in DB, password set at setup)
 
+**Roles:**
+- `admin`: Full access to all admin routes and actions
+- `collaborator`: Access to admin portal except team-management mutations
+- `provider`: Scoped portal access — dashboard at `/admin/provider-dashboard`, profile at `/admin/providers`; blocked from `/admin/team` and `/admin/requests`
+- `patient`: Access to patient app routes only (`/app/*`)
+
+**Provider invite flow:**
+- Admin uses "Invite a provider" form on Team page → POST `/api/admin/invite-provider`
+- Provider receives invite link `/admin/accept-invite/:token` → creates account with "provider" role
+- On login, providers are redirected to `/admin/provider-dashboard`
+- Provider nav shows only "Dashboard" and "My Profile" links
+
 **Key source files:**
-- `src/App.tsx` — router wrapping all routes with `AuthProvider`, 17 routes in four groups
-- `src/layouts/` — PublicLayout, AppLayout (with user email + sign out), AdminLayout (with user email + sign out)
+- `src/App.tsx` — router wrapping all routes with `AuthProvider`, 18 routes in four groups
+- `src/layouts/` — PublicLayout, AppLayout, AdminLayout (role-aware nav: provider vs admin links)
 - `src/components/public/` — Navbar, Footer, and all public section components
 - `src/pages/public/` — 9 public pages (7 marketing + Login + InviteAccept)
 - `src/pages/app/` — 4 patient app pages
-- `src/pages/admin/` — 4 admin pages
+- `src/pages/admin/` — 6 admin pages including ProviderDashboard
 - `src/lib/admin-api/index.ts` — typed admin API client (includes `credentials: "include"`)
-- `src/types/roles.ts` — UserRole type, ROLES constants
-- `src/lib/config/routes.ts` — ROUTES constants for all route paths
+- `src/types/roles.ts` — UserRole type (admin | collaborator | provider | patient), ROLES constants
+- `src/lib/config/routes.ts` — ROUTES constants for all route paths including providerDashboard
 - `src/lib/config/env.ts` — ENV flags, API_BASE_URL

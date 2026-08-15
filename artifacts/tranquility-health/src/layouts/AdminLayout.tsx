@@ -7,16 +7,31 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-const NAV_LINKS = [
+const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard", label: "Dashboard" },
   { href: "/admin/requests", label: "Requests" },
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/team", label: "Team" },
 ] as const;
 
+const PROVIDER_NAV_LINKS = [
+  { href: "/admin/provider-dashboard", label: "Dashboard" },
+  { href: "/admin/providers", label: "My Profile" },
+] as const;
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrator",
+  collaborator: "Collaborator",
+  provider: "Provider",
+};
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
+
+  const isProvider = user?.role === "provider";
+  const navLinks = isProvider ? PROVIDER_NAV_LINKS : ADMIN_NAV_LINKS;
+  const roleLabel = user ? (ROLE_LABELS[user.role] ?? "Staff") : "";
 
   async function handleLogout() {
     await logout();
@@ -33,14 +48,17 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </span>
             <span className="text-lg font-bold tracking-tight">Tranquility Health</span>
             <span className="text-xs bg-indigo-500/80 border border-indigo-400/40 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
-              Admin
+              {isProvider ? "Provider" : "Admin"}
             </span>
           </Link>
 
           <nav className="flex items-center gap-1 text-sm font-medium">
-            {NAV_LINKS.map(({ href, label }) => {
+            {navLinks.map(({ href, label }) => {
               const isActive =
-                location === href || (href !== "/admin/dashboard" && location.startsWith(href));
+                location === href ||
+                (href !== "/admin/dashboard" &&
+                  href !== "/admin/provider-dashboard" &&
+                  location.startsWith(href));
               return (
                 <Link
                   key={href}
@@ -56,14 +74,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               );
             })}
 
-            {/* Admin user info + role indicator + logout */}
             {user && (
               <div className="ml-4 flex items-center gap-2 border-l border-slate-700 pl-4">
                 <span className="flex items-center gap-1.5 text-slate-300 text-xs">
                   <User className="w-3.5 h-3.5" />
                   <span>{user.email}</span>
                   <span className="bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full">
-                    Administrator
+                    {roleLabel}
                   </span>
                 </span>
                 <button

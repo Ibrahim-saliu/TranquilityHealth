@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, Redirect } from "wouter";
 import {
   getRequestCounts,
   listRequests,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/admin-api";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ROUTES } from "@/lib/config/routes";
+import { useAuth } from "@/lib/auth/context";
 
 const STATUS_CARD_CONFIG: {
   status: RequestStatus;
@@ -70,6 +71,7 @@ function formatDate(iso: string) {
 }
 
 export default function AdminDashboardPage() {
+  const { user } = useAuth();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [recent, setRecent] = useState<AppointmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +91,10 @@ export default function AdminDashboardPage() {
     }
     load();
   }, []);
+
+  if (user?.role === "provider") {
+    return <Redirect to="/admin/provider-dashboard" />;
+  }
 
   const totalRequests = Object.values(counts).reduce((sum, n) => sum + n, 0);
 

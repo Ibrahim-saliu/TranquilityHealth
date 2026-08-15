@@ -20,11 +20,11 @@ router.get("/admin/accept-invite/:token/validate", async (req, res) => {
       res.status(400).json({ valid: false, reason: result.reason });
       return;
     }
-    if (!["admin", "collaborator"].includes(result.invite.role)) {
+    if (!["admin", "collaborator", "provider"].includes(result.invite.role)) {
       res.status(400).json({ valid: false, reason: "wrong_role" });
       return;
     }
-    res.json({ valid: true, email: result.invite.email });
+    res.json({ valid: true, email: result.invite.email, role: result.invite.role });
   } catch (_err) {
     res.status(500).json({ error: "Failed to validate invite" });
   }
@@ -54,13 +54,13 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
   }
 
   const { invite } = result;
-  if (!["admin", "collaborator"].includes(invite.role)) {
+  if (!["admin", "collaborator", "provider"].includes(invite.role)) {
     res.status(403).json({ error: "This invite link cannot be used to create a staff account" });
     return;
   }
 
   const email = invite.email.toLowerCase();
-  const role = invite.role as "admin" | "collaborator";
+  const role = invite.role as "admin" | "collaborator" | "provider";
 
   try {
     const [existingUser] = await db

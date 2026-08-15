@@ -31,6 +31,7 @@ import AdminAppointmentsPage from "@/pages/admin/Appointments";
 import AdminProvidersPage from "@/pages/admin/Providers";
 import AdminTeamPage from "@/pages/admin/Team";
 import AdminAcceptInvitePage from "@/pages/admin/AcceptInvite";
+import ProviderDashboardPage from "@/pages/admin/ProviderDashboard";
 
 import NotFoundPage from "@/pages/NotFound";
 
@@ -129,6 +130,11 @@ function Router() {
       <Route path="/admin/team">
         <RequireAdmin>
           <AdminLayout><AdminTeamPage /></AdminLayout>
+        </RequireAdmin>
+      </Route>
+      <Route path="/admin/provider-dashboard">
+        <RequireAdmin>
+          <AdminLayout><ProviderDashboardPage /></AdminLayout>
         </RequireAdmin>
       </Route>
 

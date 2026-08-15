@@ -145,13 +145,14 @@ export interface AdminUser {
 export interface PendingInvite {
   id: string;
   email: string;
+  role: string;
   createdAt: string;
   expiresAt: string;
   used: boolean;
 }
 
 export interface TeamData {
-  admins: AdminUser[];
+  members: AdminUser[];
   pendingInvites: PendingInvite[];
 }
 
@@ -161,6 +162,13 @@ export async function getTeam(): Promise<TeamData> {
 
 export async function inviteStaff(email: string): Promise<{ inviteUrl: string }> {
   return apiFetch<{ inviteUrl: string }>("/admin/invite-staff", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function inviteProvider(email: string): Promise<{ inviteUrl: string }> {
+  return apiFetch<{ inviteUrl: string }>("/admin/invite-provider", {
     method: "POST",
     body: JSON.stringify({ email }),
   });
@@ -186,7 +194,7 @@ export async function deleteCollaborator(userId: string): Promise<void> {
 
 export async function validateAdminInviteToken(
   token: string,
-): Promise<{ valid: boolean; email?: string; reason?: string }> {
+): Promise<{ valid: boolean; email?: string; role?: string; reason?: string }> {
   const res = await fetch(`${API_BASE_URL}/admin/accept-invite/${token}/validate`, {
     credentials: "include",
   });

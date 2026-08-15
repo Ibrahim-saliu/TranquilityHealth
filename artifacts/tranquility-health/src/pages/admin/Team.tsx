@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail, Link2, Trash2 } from "lucide-react";
+import { Redirect } from "wouter";
+import { Users, UserPlus, Clock, CheckCircle, Copy, Check, Mail, Link2, Trash2, Stethoscope } from "lucide-react";
 import {
   getTeam,
   inviteStaff,
+  inviteProvider,
   resendInvite,
   deleteCollaborator,
   type AdminUser,
@@ -117,11 +119,17 @@ function PendingInviteRow({ invite, onGetLink }: {
     }
   }
 
+  const isProviderInvite = invite.role === "provider";
+
   return (
     <div className="px-6 py-3.5">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
-          <Mail className="w-3.5 h-3.5 text-amber-600" />
+        <div className={`w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 ${isProviderInvite ? "bg-teal-50 border-teal-200" : "bg-amber-50 border-amber-200"}`}>
+          {isProviderInvite ? (
+            <Stethoscope className="w-3.5 h-3.5 text-teal-600" />
+          ) : (
+            <Mail className="w-3.5 h-3.5 text-amber-600" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-slate-900 truncate">{invite.email}</p>
@@ -130,10 +138,13 @@ function PendingInviteRow({ invite, onGetLink }: {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full border ${isProviderInvite ? "bg-teal-50 border-teal-200 text-teal-700" : "bg-amber-50 border-amber-200 text-amber-700"}`}>
+            {isProviderInvite ? "Provider" : "Collaborator"}
+          </span>
           <span className="text-[10px] font-semibold uppercase tracking-wide bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 rounded-full">
             Pending
           </span>
-          {!linkUrl && (
+          {!linkUrl && invite.role !== "provider" && (
             <button
               onClick={handleGetLink}
               disabled={loading}
@@ -165,11 +176,26 @@ function PendingInviteRow({ invite, onGetLink }: {
   );
 }
 
+const ROLE_BADGE: Record<string, { label: string; className: string }> = {
+  admin: {
+    label: "Admin",
+    className: "bg-indigo-50 border-indigo-200 text-indigo-700",
+  },
+  collaborator: {
+    label: "Collaborator",
+    className: "bg-slate-50 border-slate-200 text-slate-600",
+  },
+  provider: {
+    label: "Provider",
+    className: "bg-teal-50 border-teal-200 text-teal-700",
+  },
+};
+
 export default function AdminTeamPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [members, setMembers] = useState<AdminUser[]>([]);
   const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -179,14 +205,23 @@ export default function AdminTeamPage() {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteResult, setInviteResult] = useState<{ email: string; url: string } | null>(null);
 
+  const [providerEmail, setProviderEmail] = useState("");
+  const [invitingProvider, setInvitingProvider] = useState(false);
+  const [providerInviteError, setProviderInviteError] = useState<string | null>(null);
+  const [providerInviteResult, setProviderInviteResult] = useState<{ email: string; url: string } | null>(null);
+
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  if (user && user.role === "provider") {
+    return <Redirect to="/admin/provider-dashboard" />;
+  }
 
   async function loadTeam() {
     try {
       setError(null);
       const data = await getTeam();
-      setAdmins(data.admins);
+      setMembers(data.members);
       setPendingInvites(data.pendingInvites);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load team");
@@ -219,6 +254,26 @@ export default function AdminTeamPage() {
     }
   }
 
+  async function handleInviteProvider(e: React.FormEvent) {
+    e.preventDefault();
+    if (!providerEmail.trim()) return;
+
+    setInvitingProvider(true);
+    setProviderInviteError(null);
+    setProviderInviteResult(null);
+
+    try {
+      const result = await inviteProvider(providerEmail.trim());
+      setProviderInviteResult({ email: providerEmail.trim(), url: result.inviteUrl });
+      setProviderEmail("");
+      loadTeam();
+    } catch (err) {
+      setProviderInviteError(err instanceof Error ? err.message : "Failed to create provider invite");
+    } finally {
+      setInvitingProvider(false);
+    }
+  }
+
   async function handleResend(email: string): Promise<string> {
     const result = await resendInvite(email);
     return result.inviteUrl;
@@ -232,7 +287,7 @@ export default function AdminTeamPage() {
       await deleteCollaborator(member.id);
       loadTeam();
     } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : "Failed to remove collaborator");
+      setDeleteError(e instanceof Error ? e.message : "Failed to remove member");
     } finally {
       setDeletingId(null);
     }
@@ -245,7 +300,7 @@ export default function AdminTeamPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Team</h1>
-        <p className="mt-1 text-slate-500">Manage admin access for Tranquility Health staff.</p>
+        <p className="mt-1 text-slate-500">Manage staff access for Tranquility Health.</p>
       </div>
 
       {error && (
@@ -261,104 +316,145 @@ export default function AdminTeamPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Invite form — admin only */}
-        {isAdmin && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-teal-600" />
-            <h2 className="text-base font-semibold text-slate-900">Invite a collaborator</h2>
+      {/* Invite forms — admin only */}
+      {isAdmin && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Invite collaborator */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
+              <UserPlus className="w-4 h-4 text-indigo-600" />
+              <h2 className="text-base font-semibold text-slate-900">Invite a collaborator</h2>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-slate-500 mb-4">
+                Collaborators can review appointment requests and manage provider profiles.
+              </p>
+              <form onSubmit={handleInvite} className="flex gap-3">
+                <div className="relative flex-1">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="colleague@example.com"
+                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    disabled={inviting}
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={inviting || !inviteEmail.trim()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-700 hover:to-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  {inviting ? "Generating…" : "Generate link"}
+                </button>
+              </form>
+
+              {inviteError && (
+                <p className="mt-3 text-sm text-red-600">{inviteError}</p>
+              )}
+
+              {inviteResult && (
+                <InviteLink url={inviteResult.url} email={inviteResult.email} />
+              )}
+            </div>
           </div>
-          <div className="px-6 py-5">
-            <p className="text-sm text-slate-500 mb-4">
-              Enter their email address to generate a secure invite link. The link expires in 72 hours and can only be used once.
-            </p>
-            <form onSubmit={handleInvite} className="flex gap-3">
-              <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="colleague@example.com"
-                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                  disabled={inviting}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={inviting || !inviteEmail.trim()}
-                className="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-              >
-                {inviting ? "Generating…" : "Generate link"}
-              </button>
-            </form>
 
-            {inviteError && (
-              <p className="mt-3 text-sm text-red-600">{inviteError}</p>
-            )}
+          {/* Invite provider */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
+              <Stethoscope className="w-4 h-4 text-teal-600" />
+              <h2 className="text-base font-semibold text-slate-900">Invite a provider</h2>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-slate-500 mb-4">
+                Providers can log in to view and update their own profile and office hours.
+              </p>
+              <form onSubmit={handleInviteProvider} className="flex gap-3">
+                <div className="relative flex-1">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    type="email"
+                    value={providerEmail}
+                    onChange={(e) => setProviderEmail(e.target.value)}
+                    placeholder="provider@example.com"
+                    className="w-full pl-9 pr-3 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    disabled={invitingProvider}
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={invitingProvider || !providerEmail.trim()}
+                  className="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  {invitingProvider ? "Generating…" : "Generate link"}
+                </button>
+              </form>
 
-            {inviteResult && (
-              <InviteLink url={inviteResult.url} email={inviteResult.email} />
-            )}
+              {providerInviteError && (
+                <p className="mt-3 text-sm text-red-600">{providerInviteError}</p>
+              )}
+
+              {providerInviteResult && (
+                <InviteLink url={providerInviteResult.url} email={providerInviteResult.email} />
+              )}
+            </div>
           </div>
         </div>
-        )}
+      )}
 
-        {/* Current team members */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
-            <Users className="w-4 h-4 text-teal-600" />
-            <h2 className="text-base font-semibold text-slate-900">
-              Team members
-              {!loading && (
-                <span className="ml-2 text-xs font-normal text-slate-400">
-                  {admins.length} {admins.length === 1 ? "member" : "members"}
-                </span>
-              )}
-            </h2>
-          </div>
-          <div className="divide-y divide-slate-50">
-            {loading ? (
-              <div className="px-6 py-10 text-center text-slate-400 text-sm">Loading…</div>
-            ) : admins.length === 0 ? (
-              <div className="px-6 py-10 text-center text-slate-400 text-sm">No team members found.</div>
-            ) : (
-              admins.map((admin) => (
-                <div key={admin.id} className="px-6 py-3.5 flex items-center gap-3">
+      {/* Current team members */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-2">
+          <Users className="w-4 h-4 text-teal-600" />
+          <h2 className="text-base font-semibold text-slate-900">
+            Team members
+            {!loading && (
+              <span className="ml-2 text-xs font-normal text-slate-400">
+                {members.length} {members.length === 1 ? "member" : "members"}
+              </span>
+            )}
+          </h2>
+        </div>
+        <div className="divide-y divide-slate-50">
+          {loading ? (
+            <div className="px-6 py-10 text-center text-slate-400 text-sm">Loading…</div>
+          ) : members.length === 0 ? (
+            <div className="px-6 py-10 text-center text-slate-400 text-sm">No team members found.</div>
+          ) : (
+            members.map((member) => {
+              const badge = ROLE_BADGE[member.role] ?? { label: member.role, className: "bg-slate-50 border-slate-200 text-slate-600" };
+              const canDelete = isAdmin && member.role !== "admin";
+              return (
+                <div key={member.id} className="px-6 py-3.5 flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold uppercase flex-shrink-0">
-                    {admin.email[0]}
+                    {member.email[0]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate">{admin.email}</p>
-                    <p className="text-xs text-slate-400">Joined {formatDate(admin.createdAt)}</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{member.email}</p>
+                    <p className="text-xs text-slate-400">Joined {formatDate(member.createdAt)}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {admin.role === "admin" ? (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full">
-                        Admin
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide bg-slate-50 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
-                        Collaborator
-                      </span>
-                    )}
-                    {isAdmin && admin.role !== "admin" && (
+                    <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full border ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                    {canDelete && (
                       <button
-                        onClick={() => handleDelete(admin)}
-                        disabled={deletingId === admin.id}
+                        onClick={() => handleDelete(member)}
+                        disabled={deletingId === member.id}
                         className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40"
-                        title="Remove collaborator"
+                        title="Remove member"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -407,13 +503,18 @@ export default function AdminTeamPage() {
                     {invite.used ? "Accepted" : "Expired"} — sent {formatDate(invite.createdAt)}
                   </p>
                 </div>
-                <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
-                  invite.used
-                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                    : "bg-slate-50 border-slate-200 text-slate-500"
-                }`}>
-                  {invite.used ? "Accepted" : "Expired"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide bg-slate-50 border border-slate-200 text-slate-500 px-2 py-0.5 rounded-full">
+                    {invite.role === "provider" ? "Provider" : "Collaborator"}
+                  </span>
+                  <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
+                    invite.used
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                      : "bg-slate-50 border-slate-200 text-slate-500"
+                  }`}>
+                    {invite.used ? "Accepted" : "Expired"}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

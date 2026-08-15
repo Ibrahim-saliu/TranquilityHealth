@@ -9,10 +9,12 @@ import { generateInvite } from "../lib/invite";
 const router: IRouter = Router();
 
 // ---------------------------------------------------------------------------
-// All /admin/* routes require an authenticated session (admin or collaborator).
-// Specific admin-only actions add an inline requireAuth("admin") guard.
+// All /admin/* routes require at minimum an authenticated staff session.
+// Appointment-request and team-management routes add a stricter per-route
+// guard below (admin|collaborator only). Provider-role users can only
+// reach the providers/active profile endpoints.
 // ---------------------------------------------------------------------------
-router.use("/admin", requireAuth(["admin", "collaborator"]));
+router.use("/admin", requireAuth(["admin", "collaborator", "provider"]));
 
 // ---------------------------------------------------------------------------
 // Allowed status values for Phase 2
@@ -26,8 +28,9 @@ const statusSchema = z.enum(ALLOWED_STATUSES);
 // GET /admin/requests
 // List appointment requests with optional ?status= filter and pagination
 // Query params: status?, page (default 1), pageSize (default 20, max 100)
+// Restricted to admin and collaborator — providers cannot access request data.
 // ---------------------------------------------------------------------------
-router.get("/admin/requests", async (req, res) => {
+router.get("/admin/requests", requireAuth(["admin", "collaborator"]), async (req, res) => {
   const statusFilter = req.query.status as string | undefined;
 
   if (statusFilter && !ALLOWED_STATUSES.includes(statusFilter as RequestStatus)) {
@@ -67,8 +70,9 @@ router.get("/admin/requests", async (req, res) => {
 // ---------------------------------------------------------------------------
 // GET /admin/requests/counts
 // Returns counts per status for the dashboard
+// Restricted to admin and collaborator — providers cannot access request data.
 // ---------------------------------------------------------------------------
-router.get("/admin/requests/counts", async (_req, res) => {
+router.get("/admin/requests/counts", requireAuth(["admin", "collaborator"]), async (_req, res) => {
   try {
     const rows = await db
       .select({
@@ -91,8 +95,9 @@ router.get("/admin/requests/counts", async (_req, res) => {
 // ---------------------------------------------------------------------------
 // GET /admin/requests/:id
 // Fetch a single appointment request by id
+// Restricted to admin and collaborator — providers cannot access request data.
 // ---------------------------------------------------------------------------
-router.get("/admin/requests/:id", async (req, res) => {
+router.get("/admin/requests/:id", requireAuth(["admin", "collaborator"]), async (req, res) => {
   const { id } = req.params;
   try {
     const [row] = await db
@@ -114,12 +119,13 @@ router.get("/admin/requests/:id", async (req, res) => {
 // PATCH /admin/requests/:id/status
 // Update the status of an appointment request.
 // When status === "invited", auto-generate an invite token and log the link.
+// Restricted to admin and collaborator — providers cannot mutate request data.
 // ---------------------------------------------------------------------------
 const updateStatusSchema = z.object({
   status: statusSchema,
 });
 
-router.patch("/admin/requests/:id/status", async (req, res) => {
+router.patch("/admin/requests/:id/status", requireAuth(["admin", "collaborator"]), async (req, res) => {
   const { id } = req.params;
 
   const parsed = updateStatusSchema.safeParse(req.body);
@@ -281,11 +287,13 @@ router.put("/admin/providers/active", async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // GET /admin/team
-// List all admin and collaborator users, plus pending collaborator invites
+// List all admin, collaborator, and provider users, plus pending staff invites.
+// Providers are blocked client-side; this guard ensures only admin/collaborator
+// can fetch team data.
 // ---------------------------------------------------------------------------
-router.get("/admin/team", async (req, res) => {
+router.get("/admin/team", requireAuth(["admin", "collaborator"]), async (req, res) => {
   try {
-    const admins = await db
+    const members = await db
       .select({
         id: usersTable.id,
         email: usersTable.email,
@@ -293,22 +301,29 @@ router.get("/admin/team", async (req, res) => {
         createdAt: usersTable.createdAt,
       })
       .from(usersTable)
-      .where(or(eq(usersTable.role, "admin"), eq(usersTable.role, "collaborator")))
+      .where(
+        or(
+          eq(usersTable.role, "admin"),
+          eq(usersTable.role, "collaborator"),
+          eq(usersTable.role, "provider"),
+        ),
+      )
       .orderBy(usersTable.createdAt);
 
     const pendingInvites = await db
       .select({
         id: inviteTokensTable.id,
         email: inviteTokensTable.email,
+        role: inviteTokensTable.role,
         createdAt: inviteTokensTable.createdAt,
         expiresAt: inviteTokensTable.expiresAt,
         used: inviteTokensTable.used,
       })
       .from(inviteTokensTable)
-      .where(eq(inviteTokensTable.role, "collaborator"))
+      .where(or(eq(inviteTokensTable.role, "collaborator"), eq(inviteTokensTable.role, "provider")))
       .orderBy(desc(inviteTokensTable.createdAt));
 
-    res.json({ admins, pendingInvites });
+    res.json({ members, pendingInvites });
   } catch (_err) {
     res.status(500).json({ error: "Failed to load team" });
   }
@@ -352,6 +367,47 @@ router.post("/admin/invite-staff", requireAuth("admin"), async (req, res) => {
     res.status(201).json({ inviteUrl });
   } catch (_err) {
     res.status(500).json({ error: "Failed to create invite" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/invite-provider  [admin only]
+// Invite a new provider-role user. Returns the raw token so the caller can share the link.
+// ---------------------------------------------------------------------------
+const inviteProviderSchema = z.object({
+  email: z.string().email("Valid email required"),
+});
+
+router.post("/admin/invite-provider", requireAuth("admin"), async (req, res) => {
+  const parsed = inviteProviderSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? "Invalid request" });
+    return;
+  }
+
+  const { email } = parsed.data;
+
+  try {
+    const [existingUser] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.email, email.toLowerCase()));
+
+    if (existingUser) {
+      res.status(409).json({ error: "An account with this email already exists" });
+      return;
+    }
+
+    const rawToken = await generateInvite(email.toLowerCase(), "provider");
+
+    const baseUrl = process.env["APP_BASE_URL"] ?? "";
+    const inviteUrl = baseUrl
+      ? `${baseUrl}/admin/accept-invite/${rawToken}`
+      : `/admin/accept-invite/${rawToken}`;
+
+    res.status(201).json({ inviteUrl });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to create provider invite" });
   }
 });
 

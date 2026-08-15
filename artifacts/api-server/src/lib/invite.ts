@@ -14,7 +14,7 @@ function hashToken(raw: string): string {
 // ---------------------------------------------------------------------------
 export async function generateInvite(
   email: string,
-  role: "admin" | "collaborator" | "patient" = "admin",
+  role: "admin" | "collaborator" | "patient" | "provider" = "admin",
   appointmentRequestId?: string,
 ): Promise<string> {
   const rawToken = crypto.randomBytes(32).toString("hex");

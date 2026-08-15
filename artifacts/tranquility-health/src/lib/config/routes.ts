@@ -23,6 +23,7 @@ export const ROUTES = {
   // Requires admin role — Phase 3
   admin: {
     dashboard: "/admin/dashboard",
+    providerDashboard: "/admin/provider-dashboard",
     requests: "/admin/requests",
     appointments: "/admin/appointments",
     providers: "/admin/providers",

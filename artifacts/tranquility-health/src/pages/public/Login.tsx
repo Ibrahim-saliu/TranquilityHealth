@@ -36,9 +36,11 @@ export default function LoginPage() {
 
       setUser(data.user);
 
-      // Redirect based on role — admin and collaborator go to admin portal
+      // Redirect based on role
       if (data.user.role === "admin" || data.user.role === "collaborator") {
         navigate("/admin/dashboard");
+      } else if (data.user.role === "provider") {
+        navigate("/admin/provider-dashboard");
       } else {
         navigate("/app/dashboard");
       }
