@@ -45,9 +45,6 @@ export default function AboutPage() {
               <div className="w-40 h-48 rounded-xl overflow-hidden shadow-lg ring-4 ring-white">
                 <img src="/dr-oke.png" alt="Dr. Oluwole Oke, MSN, CRNA" className="w-full h-full object-cover object-top" />
               </div>
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold border border-teal-200">
-                Licensed in TX &amp; Maryland
-              </span>
             </div>
             {/* Bio */}
             <div className="flex-1">
