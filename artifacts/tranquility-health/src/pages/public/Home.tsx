@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
+import { HeroBackground } from "@/components/public/HeroBackground";
 import { useState, useEffect, useRef } from "react";
 // Lucide icons removed — replaced with AI-illustrated images
 
@@ -131,14 +132,9 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-stone-900 via-teal-900 to-violet-900 py-24 px-4 overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute inset-0 opacity-25">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-300 blur-3xl -translate-y-1/2 translate-x-1/4 animate-blob" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-violet-400 blur-3xl translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000" />
-          <div className="absolute top-1/2 left-1/3 w-[350px] h-[350px] rounded-full bg-emerald-300/30 blur-3xl" />
-        </div>
-        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+      <section className="relative bg-stone-950 py-24 px-4 overflow-hidden">
+        <HeroBackground />
+        <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-5xl font-bold text-white leading-tight">
               Mental health care,
