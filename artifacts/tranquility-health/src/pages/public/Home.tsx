@@ -119,7 +119,7 @@ const testimonials = [
     stars: 5,
   },
   {
-    quote: "Getting my medication managed through Tranquility Health has been seamless. No insurance hassle, I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
+    quote: "Getting my medication managed through Tranquility Health has been seamless. Simple billing, no surprises — I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
     name: "Rachel T.",
     location: "Baltimore, MD",
     stars: 5,
@@ -182,13 +182,13 @@ export default function HomePage() {
             <p className="mt-6 text-xl text-slate-300 leading-relaxed">
               Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
             </p>
-            {/* Cash-pay callout */}
+            {/* Payment / insurance callout */}
             <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
               <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                   <Coins className="w-3 h-3 text-teal-200" strokeWidth={1.75} />
                 </span>
-                No insurance required
+                Insurance accepted
               </span>
               <span className="w-px h-4 bg-white/20 hidden sm:block" />
               <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">

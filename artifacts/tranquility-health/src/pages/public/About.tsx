@@ -63,7 +63,7 @@ export default function AboutPage() {
                 Dr. Okafor has spent over a decade working alongside patients navigating depression, anxiety, mood disorders, and complex psychiatric conditions. She founded Tranquility Health after seeing how many Texans were going without care simply because of scheduling barriers and the cost of traditional psychiatric visits.
               </p>
               <p className="text-slate-600 leading-relaxed text-sm">
-                "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no confusing insurance bills, just honest, evidence-based care on a schedule that actually works for you."
+                "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no waiting-room anxiety — just honest, evidence-based care on a schedule that actually works for you, with insurance welcome."
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {["Medication Management", "Psychotherapy Supervision", "CBT", "DBT", "Motivational Interviewing"].map((tag) => (

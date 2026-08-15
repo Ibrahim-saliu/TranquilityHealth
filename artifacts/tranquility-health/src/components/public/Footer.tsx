@@ -21,7 +21,7 @@ export function Footer() {
               Compassionate telehealth care for anxiety, depression, mood disorders, and more. Accessible from wherever you are.
             </p>
             <p className="mt-3 text-xs text-slate-500">
-              Telehealth · Cash pay · No insurance required
+              Telehealth · Insurance accepted · HSA/FSA welcome
             </p>
           </div>
 

@@ -35,7 +35,7 @@ export default function HipaaNoticePage() {
           </SubSection>
 
           <SubSection heading="Payment">
-            <p>We may use your PHI to process payment for services rendered, including providing a Superbill to you for potential insurance reimbursement. As a cash-pay practice, we do not bill insurance companies directly.</p>
+            <p>We may use your PHI to process payment for services rendered, including billing your insurance, processing direct payments, and providing a Superbill to you for potential out-of-network reimbursement.</p>
           </SubSection>
 
           <SubSection heading="Healthcare Operations">

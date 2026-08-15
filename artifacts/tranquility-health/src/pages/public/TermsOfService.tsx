@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
 
         <Section title="1. About Tranquility Health">
           <p>
-            Tranquility Health provides telehealth-based psychiatric medication management and psychotherapy services. We are a cash-pay practice and do not accept insurance. Our licensed providers are authorized to practice in the states of <strong>Texas</strong> and <strong>Maryland</strong>.
+            Tranquility Health provides telehealth-based psychiatric medication management and psychotherapy services. We accept insurance and also welcome patients who prefer to pay directly. Our licensed providers are authorized to practice in the states of <strong>Texas</strong> and <strong>Maryland</strong>.
           </p>
           <p>
             Our services are intended for adults 18 years of age and older residing in Texas or Maryland. We cannot provide services to individuals located outside these states at the time of their appointment.
@@ -44,9 +44,9 @@ export default function TermsOfServicePage() {
           </ul>
         </Section>
 
-        <Section title="4. Cash-Pay and Fees">
+        <Section title="4. Payment and Fees">
           <p>
-            Tranquility Health is a cash-pay practice. Payment is due at the time of service. We do not bill insurance directly, and we are not responsible for reimbursement by your insurance carrier. A Superbill (receipt for out-of-network reimbursement) may be provided upon request.
+            Tranquility Health accepts insurance and direct payment. Payment or co-pay is due at the time of service. For patients paying directly or seeking out-of-network reimbursement, a Superbill may be provided upon request. We are not responsible for reimbursement determinations made by your insurance carrier.
           </p>
           <p>
             Fees for specific services are provided at the time of scheduling. We reserve the right to update our fees with reasonable notice.

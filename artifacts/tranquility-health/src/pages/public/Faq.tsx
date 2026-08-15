@@ -33,9 +33,9 @@ const faqCategories = [
     category: "Payments & Insurance",
     items: [
       {
-        question: "How does payment work? Do you accept insurance?",
+        question: "Do you accept insurance?",
         answer:
-          "Tranquility Health is a cash-pay practice. We do not bill insurance directly. All services are paid out of pocket at the time of your appointment. We accept major credit and debit cards. If you have an HSA or FSA account, those funds can typically be used for mental health services. We can provide a superbill upon request that you may submit to your insurer for potential out-of-network reimbursement.",
+          "Yes — Tranquility Health accepts insurance. We also welcome patients who prefer to pay directly: we accept major credit and debit cards, and HSA/FSA funds can typically be used for mental health services. If you'd like to seek out-of-network reimbursement from your insurer, we can provide a Superbill upon request. Our care team is happy to walk you through your options when you schedule.",
       },
     ],
   },
