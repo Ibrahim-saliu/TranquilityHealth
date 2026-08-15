@@ -43,26 +43,26 @@ export default function AboutPage() {
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
               <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg ring-4 ring-white">
-                <img src="/clinician-portrait.png" alt="Dr. Maya Okafor, PMHNP-BC" className="w-full h-full object-cover object-top" />
+                <img src="/dr-oke.jpeg" alt="Dr. Oluwole Oke, MSN, CRNA" className="w-full h-full object-cover object-top" />
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold border border-teal-200">
-                Licensed in Texas &amp; Maryland
+                Licensed in Maryland &amp; Arizona
               </span>
             </div>
             {/* Bio */}
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-slate-900">Dr. Maya Okafor, PMHNP-BC</h3>
+              <h3 className="text-xl font-bold text-slate-900">Dr. Oluwole Oke, MSN, CRNA</h3>
               <p className="text-sm text-teal-700 font-medium mt-1 mb-4">
-                Psychiatric Mental Health Nurse Practitioner · Board Certified
+                Certified Registered Nurse Anesthetist · Mental Health Care
               </p>
               <p className="text-slate-600 leading-relaxed text-sm mb-3">
-                Dr. Okafor has spent over a decade working alongside patients navigating depression, anxiety, mood disorders, and complex psychiatric conditions. She founded Tranquility Health after seeing how many Texans were going without care simply because of scheduling barriers and the cost of traditional psychiatric visits.
+                Dr. Oluwole Mojeed Oke is the founder of Tranquility Comprehensive Health and CEO of Woseglobal Anesthesia Services LLC. A graduate of Prince George's Community College who launched his nursing career at MedStar Washington Hospital, he brings decades of clinical expertise to compassionate mental health care. He is an active mentor and community health advocate across Maryland and Arizona.
               </p>
               <p className="text-slate-600 leading-relaxed text-sm">
                 "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no waiting-room anxiety — just honest, evidence-based care on a schedule that actually works for you, with insurance welcome."
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {["Medication Management", "Psychotherapy Supervision", "CBT", "DBT", "Motivational Interviewing"].map((tag) => (
+                {["Medication Management", "Mental Health Care", "Anesthesia Services", "Community Health", "Motivational Interviewing"].map((tag) => (
                   <span key={tag} className="inline-block bg-white border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
                     {tag}
                   </span>
