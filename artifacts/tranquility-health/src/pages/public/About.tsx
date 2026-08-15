@@ -42,11 +42,11 @@ export default function AboutPage() {
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
-              <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg ring-4 ring-white">
-                <img src="/dr-oke.jpeg" alt="Dr. Oluwole Oke, MSN, CRNA" className="w-full h-full object-cover object-top" />
+              <div className="w-40 h-48 rounded-xl overflow-hidden shadow-lg ring-4 ring-white">
+                <img src="/dr-oke.png" alt="Dr. Oluwole Oke, MSN, CRNA" className="w-full h-full object-cover object-top" />
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold border border-teal-200">
-                Licensed in Maryland &amp; Arizona
+                Licensed in TX &amp; Maryland
               </span>
             </div>
             {/* Bio */}
