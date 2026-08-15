@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Brain, CloudRain, Zap, ArrowUpDown, Moon, Layers } from "lucide-react";
+// Lucide condition icons replaced with AI-illustrated images
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { PageHeader } from "@/components/public/PageHeader";
@@ -9,37 +9,37 @@ const conditions = [
   {
     name: "Depression",
     description: "Persistent low mood, loss of energy, or difficulty finding pleasure in daily activities.",
-    Icon: CloudRain,
+    iconSrc: "/icons/icon-depression.png",
     gradient: "from-teal-500 to-teal-600",
   },
   {
     name: "Anxiety",
     description: "Excessive worry, nervousness, or fear that interferes with everyday life and relationships.",
-    Icon: Zap,
+    iconSrc: "/icons/icon-anxiety.png",
     gradient: "from-violet-500 to-violet-600",
   },
   {
     name: "Mood Disorders",
     description: "Conditions like bipolar disorder that cause significant shifts in mood, energy, and behavior.",
-    Icon: ArrowUpDown,
+    iconSrc: "/icons/icon-mood-disorder.png",
     gradient: "from-indigo-500 to-indigo-600",
   },
   {
     name: "Sleep Disorders",
     description: "Chronic difficulty falling asleep, staying asleep, or getting restorative rest.",
-    Icon: Moon,
+    iconSrc: "/icons/icon-sleep.png",
     gradient: "from-indigo-600 to-slate-700",
   },
   {
     name: "Personality Disorders",
     description: "Enduring patterns of inner experience and behavior that differ markedly from cultural norms.",
-    Icon: Layers,
+    iconSrc: "/icons/icon-personality.png",
     gradient: "from-teal-400 to-emerald-600",
   },
   {
     name: "Schizophrenia",
     description: "A complex condition affecting how a person thinks, feels, and perceives reality.",
-    Icon: Brain,
+    iconSrc: "/icons/icon-schizophrenia.png",
     gradient: "from-violet-600 to-indigo-700",
   },
 ];
@@ -59,10 +59,8 @@ export default function ServicesPage() {
           {/* Service card — Medication Management */}
           <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:border-teal-200 transition-all duration-300">
             <div className="flex items-start gap-5 mb-6">
-              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-md">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
+              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white shadow-lg ring-1 ring-slate-100/80 flex items-center justify-center p-3">
+                <img src="/icons/icon-medication.png" alt="" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">Medication Management</h2>
@@ -90,8 +88,8 @@ export default function ServicesPage() {
                     key={c.name}
                     className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl hover:border-teal-200 hover:bg-teal-50/50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200"
                   >
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br ${c.gradient} flex items-center justify-center shadow-sm`}>
-                      <c.Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
+                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center p-1.5">
+                      <img src={c.iconSrc} alt="" className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-900">{c.name}</p>
@@ -106,8 +104,8 @@ export default function ServicesPage() {
           {/* Service card — Psychotherapy */}
           <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
             <div className="flex items-start gap-5">
-              <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-md">
-                <Brain className="w-7 h-7 text-white" strokeWidth={1.5} />
+              <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white shadow-lg ring-1 ring-slate-100/80 flex items-center justify-center p-3">
+                <img src="/icons/icon-therapy.png" alt="" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-slate-900">Psychotherapy</h2>

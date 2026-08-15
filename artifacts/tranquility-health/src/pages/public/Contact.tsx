@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Mail, Phone, Clock } from "lucide-react";
+// Lucide contact icons replaced with AI-illustrated images
 import { ROUTES } from "@/lib/config/routes";
 import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";
@@ -8,8 +8,7 @@ import { WEEKLY_SCHEDULE, PHONE_HOURS_SUMMARY } from "@/lib/config/schedule";
 
 const contactItems = [
   {
-    Icon: Mail,
-    gradient: "from-teal-500 to-teal-600",
+    iconSrc: "/icons/icon-mail.png",
     label: "Email",
     content: (
       <a href="mailto:hello@tranquilityhealth.com" className="text-teal-600 hover:text-teal-700 hover:underline text-sm">
@@ -18,8 +17,7 @@ const contactItems = [
     ),
   },
   {
-    Icon: Phone,
-    gradient: "from-indigo-500 to-indigo-600",
+    iconSrc: "/icons/icon-phone.png",
     label: "Phone",
     content: (
       <>
@@ -29,8 +27,7 @@ const contactItems = [
     ),
   },
   {
-    Icon: Clock,
-    gradient: "from-violet-500 to-violet-600",
+    iconSrc: "/icons/icon-clock.png",
     label: "Response time",
     content: <p className="text-slate-600 text-sm">Typically within one business day.</p>,
   },
@@ -50,13 +47,13 @@ export default function ContactPage() {
 
           {/* Row 1: 3 contact method cards */}
           <div className="grid sm:grid-cols-3 gap-4">
-            {contactItems.map(({ Icon, gradient, label, content }) => (
+            {contactItems.map(({ iconSrc, label, content }) => (
               <div
                 key={label}
                 className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200 flex items-start gap-4"
               >
-                <div className={`flex-shrink-0 w-10 h-10 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center shadow-sm`}>
-                  <Icon className="w-4 h-4 text-white" strokeWidth={1.5} />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center p-2">
+                  <img src={iconSrc} alt="" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{label}</p>

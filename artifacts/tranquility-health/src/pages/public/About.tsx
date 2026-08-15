@@ -1,30 +1,26 @@
-import { Heart, Shield, FlaskConical, Users } from "lucide-react";
+// Lucide value icons replaced with AI-illustrated images
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";
 
 const values = [
   {
-    Icon: Users,
-    gradient: "from-teal-500 to-teal-600",
+    iconSrc: "/icons/icon-accessibility.png",
     title: "Accessibility",
     description: "Quality mental health care should not depend on geography, transportation, or scheduling luck. We built for accessibility from the ground up.",
   },
   {
-    Icon: FlaskConical,
-    gradient: "from-indigo-500 to-indigo-600",
+    iconSrc: "/icons/icon-evidence.png",
     title: "Evidence-Based Practice",
     description: "Our clinicians use therapies with strong research backing, including CBT, DBT, and motivational interviewing, tailored to each patient's needs.",
   },
   {
-    Icon: Heart,
-    gradient: "from-violet-500 to-violet-600",
+    iconSrc: "/icons/icon-compassion.png",
     title: "Genuine Compassion",
     description: "We know it takes courage to ask for help. Every interaction at Tranquility Health is designed to make that step feel safe.",
   },
   {
-    Icon: Shield,
-    gradient: "from-teal-400 to-indigo-500",
+    iconSrc: "/icons/icon-privacy.png",
     title: "Privacy First",
     description: "Your health information belongs to you. Our platform is built with HIPAA-conscious practices at every layer.",
   },
@@ -89,8 +85,8 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="bg-white rounded-2xl p-8 border border-amber-100 shadow-sm">
-            <div className="w-11 h-11 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-xl flex items-center justify-center mb-5 shadow-md">
-              <Heart className="w-5 h-5 text-white" strokeWidth={1.5} />
+            <div className="w-14 h-14 rounded-2xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center mb-5 p-2.5">
+              <img src="/icons/icon-compassion.png" alt="" className="w-full h-full object-contain" />
             </div>
             <p className="text-slate-900 font-semibold text-lg mb-3">What we treat</p>
             <ul className="space-y-2">
@@ -133,8 +129,8 @@ export default function AboutPage() {
           <div className="grid sm:grid-cols-2 gap-6">
             {values.map((v) => (
               <div key={v.title} className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-teal-100 transition-all duration-200">
-                <div className={`w-11 h-11 bg-gradient-to-br ${v.gradient} rounded-xl flex items-center justify-center mb-4 shadow-sm`}>
-                  <v.Icon className="w-5 h-5 text-white" strokeWidth={1.5} />
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center mb-4 p-2.5">
+                  <img src={v.iconSrc} alt="" className="w-full h-full object-contain" />
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-2">{v.title}</h3>
                 <p className="text-slate-500 text-sm leading-relaxed">{v.description}</p>

@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { useState, useEffect, useRef } from "react";
-import { ShieldCheck, Lock, Video, Coins, Wallet, CreditCard } from "lucide-react";
+// Lucide icons removed — replaced with AI-illustrated images
 
 // ─── Scroll-reveal hook ────────────────────────────────────────────────────
 function useScrollReveal(threshold = 0.12) {
@@ -50,62 +50,32 @@ const HERO_WORDS = ["anywhere", "at home", "on your schedule"];
 
 const features = [
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
-      </svg>
-    ),
-    gradient: "from-teal-500 to-teal-600",
+    iconSrc: "/icons/icon-video-call.png",
     title: "Video Appointments",
     description: "Secure, HIPAA-conscious video sessions with licensed clinicians from the comfort of your home.",
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-      </svg>
-    ),
-    gradient: "from-indigo-500 to-indigo-600",
+    iconSrc: "/icons/icon-medication.png",
     title: "Medication Management",
     description: "Expert psychiatric medication evaluation and ongoing management for depression, anxiety, mood disorders, and more.",
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-      </svg>
-    ),
-    gradient: "from-violet-500 to-violet-600",
+    iconSrc: "/icons/icon-therapy.png",
     title: "Psychotherapy",
     description: "Individual counseling sessions using evidence-based approaches tailored to your needs and goals.",
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-    ),
-    gradient: "from-teal-400 to-indigo-500",
+    iconSrc: "/icons/icon-sleep-mood.png",
     title: "Sleep & Mood Disorders",
     description: "Specialized care for sleep disorders, mood disorders, personality disorders, and schizophrenia.",
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-    gradient: "from-emerald-500 to-teal-600",
+    iconSrc: "/icons/icon-new-patient.png",
     title: "New Patient Friendly",
     description: "First time seeking mental health care? We'll walk you through every step of the process.",
   },
   {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    gradient: "from-indigo-400 to-violet-600",
+    iconSrc: "/icons/icon-scheduling.png",
     title: "Flexible Scheduling",
     description: "Evening and weekend availability designed to work around your schedule, not the other way around.",
   },
@@ -161,11 +131,12 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900 py-24 px-4 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-stone-900 via-teal-900 to-violet-900 py-24 px-4 overflow-hidden">
         {/* Background blobs */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-400 blur-3xl -translate-y-1/2 translate-x-1/4 animate-blob" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-indigo-500 blur-3xl translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000" />
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-teal-300 blur-3xl -translate-y-1/2 translate-x-1/4 animate-blob" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-violet-400 blur-3xl translate-y-1/3 -translate-x-1/4 animate-blob animation-delay-2000" />
+          <div className="absolute top-1/2 left-1/3 w-[350px] h-[350px] rounded-full bg-emerald-300/30 blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -183,24 +154,24 @@ export default function HomePage() {
               Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
             </p>
             {/* Payment / insurance callout */}
-            <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-xl px-4 py-3">
-              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                  <Coins className="w-3 h-3 text-teal-200" strokeWidth={1.75} />
+            <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-2xl px-5 py-3">
+              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                  <img src="/icons/icon-shield-check.png" alt="" className="w-full h-full object-contain" />
                 </span>
                 Insurance accepted
               </span>
               <span className="w-px h-4 bg-white/20 hidden sm:block" />
-              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                  <Wallet className="w-3 h-3 text-teal-200" strokeWidth={1.75} />
+              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                  <img src="/icons/icon-scheduling.png" alt="" className="w-full h-full object-contain" />
                 </span>
                 Cash pay
               </span>
               <span className="w-px h-4 bg-white/20 hidden sm:block" />
-              <span className="flex items-center gap-1.5 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                  <CreditCard className="w-3 h-3 text-teal-200" strokeWidth={1.75} />
+              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                  <img src="/icons/icon-lock.png" alt="" className="w-full h-full object-contain" />
                 </span>
                 HSA / FSA accepted
               </span>
@@ -234,31 +205,25 @@ export default function HomePage() {
       </section>
 
       {/* Trust bar */}
-      <section className="bg-gradient-to-r from-teal-600 to-indigo-700 py-5">
-        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-8 text-white/90 text-sm font-medium overflow-x-auto">
-          <span className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-              <ShieldCheck className="w-4 h-4 text-white" />
+      <section className="bg-gradient-to-r from-emerald-600 to-teal-700 py-5">
+        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-10 overflow-x-auto">
+          {[
+            { src: "/icons/icon-shield-check.png", label: "Licensed Clinicians" },
+            { src: "/icons/icon-lock.png",          label: "HIPAA-Conscious Platform" },
+            { src: "/icons/icon-telehealth.png",    label: "Telehealth Appointments" },
+          ].map(({ src, label }) => (
+            <span key={label} className="flex items-center gap-2.5 text-white/90 text-sm font-medium flex-shrink-0">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 p-1.5">
+                <img src={src} alt="" className="w-full h-full object-contain" />
+              </span>
+              {label}
             </span>
-            Licensed Clinicians
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-              <Lock className="w-4 h-4 text-white" />
-            </span>
-            HIPAA-Conscious Platform
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20">
-              <Video className="w-4 h-4 text-white" />
-            </span>
-            Telehealth Appointments
-          </span>
+          ))}
         </div>
       </section>
 
       {/* Features grid */}
-      <section className="py-20 px-4 bg-slate-50">
+      <section className="py-20 px-4 bg-gradient-to-b from-stone-50 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900">Why patients choose Tranquility Health</h2>
@@ -278,8 +243,8 @@ export default function HomePage() {
                   transitionDelay: `${i * 80}ms`,
                 }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center text-white mb-4 shadow-sm`}>
-                  {f.icon}
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center mb-4 p-2.5">
+                  <img src={f.iconSrc} alt="" className="w-full h-full object-contain" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-2">{f.title}</h3>
                 <p className="text-slate-500 text-sm leading-relaxed">{f.description}</p>
@@ -422,7 +387,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-slate-50 overflow-hidden">
+      <section className="py-20 bg-stone-50 overflow-hidden">
         <div className="text-center mb-12 px-4">
           <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
           <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">

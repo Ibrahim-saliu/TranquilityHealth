@@ -11,11 +11,11 @@ interface SectionWrapperProps {
 
 const variantClasses: Record<SectionVariant, string> = {
   white: "bg-white",
-  slate: "bg-slate-50",
+  slate: "bg-stone-50",
   dark: "bg-slate-900",
   "gradient-subtle": "bg-gradient-to-br from-teal-50 to-indigo-50",
-  warm: "bg-emerald-50",
-  amber: "bg-amber-50",
+  warm: "bg-gradient-to-b from-emerald-50 to-teal-50/30",
+  amber: "bg-gradient-to-b from-amber-50 to-orange-50/20",
 };
 
 export function SectionWrapper({
