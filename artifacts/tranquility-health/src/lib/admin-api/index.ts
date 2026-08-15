@@ -212,6 +212,66 @@ export async function acceptAdminInvite(
 }
 
 // ---------------------------------------------------------------------------
+// Appointments
+// ---------------------------------------------------------------------------
+
+export type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
+export type AppointmentType = "medication_management" | "psychotherapy" | "initial_evaluation";
+export type AppointmentView = "upcoming" | "past" | "all";
+
+export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
+  scheduled: "Scheduled",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  no_show: "No Show",
+};
+
+export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
+  scheduled: "bg-teal-100 text-teal-800",
+  completed: "bg-green-100 text-green-800",
+  cancelled: "bg-slate-100 text-slate-600",
+  no_show: "bg-red-100 text-red-700",
+};
+
+export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
+  medication_management: "Medication Mgmt",
+  psychotherapy: "Psychotherapy",
+  initial_evaluation: "Initial Evaluation",
+};
+
+export interface Appointment {
+  id: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  appointmentType: AppointmentType;
+  status: AppointmentStatus;
+  notes: string | null;
+  createdAt: string;
+  patientId: string;
+  patientName: string | null;
+  providerId: string;
+  providerName: string | null;
+  providerCredentials: string | null;
+}
+
+export interface AppointmentsPage {
+  appointments: Appointment[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export async function listAppointments(
+  view: AppointmentView = "all",
+  page = 1,
+  pageSize = 50,
+): Promise<AppointmentsPage> {
+  const params = new URLSearchParams({ view, page: String(page), pageSize: String(pageSize) });
+  return apiFetch<AppointmentsPage>(`/admin/appointments?${params.toString()}`);
+}
+
+// ---------------------------------------------------------------------------
 // Providers
 // ---------------------------------------------------------------------------
 

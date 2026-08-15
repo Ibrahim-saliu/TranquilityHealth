@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { eq, desc, sql, count, or } from "drizzle-orm";
-import { db, appointmentRequestsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
+import { eq, desc, asc, gte, lt, sql, count, or } from "drizzle-orm";
+import { db, appointmentRequestsTable, appointmentsTable, patientsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
 import { requireAuth } from "../lib/session";
 import { generateInvite } from "../lib/invite";
@@ -481,6 +481,82 @@ router.delete("/admin/team/:userId", requireAuth("admin"), async (req, res) => {
     res.status(204).send();
   } catch (_err) {
     res.status(500).json({ error: "Failed to remove collaborator" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/admin/appointments
+// List scheduled appointments joined with patient and provider info.
+// Query params:
+//   view: "upcoming" | "past" | "all" (default "all")
+//   page: number (default 1)
+//   pageSize: number (default 50, max 200)
+// Restricted to admin and collaborator.
+// ---------------------------------------------------------------------------
+router.get("/admin/appointments", requireAuth(["admin", "collaborator"]), async (req, res) => {
+  const view = (req.query.view ?? "all") as string;
+  if (!["upcoming", "past", "all"].includes(view)) {
+    res.status(400).json({ error: "Invalid view — must be upcoming, past, or all" });
+    return;
+  }
+
+  const pageRaw = parseInt(String(req.query.page ?? "1"), 10);
+  const pageSizeRaw = parseInt(String(req.query.pageSize ?? "50"), 10);
+  const page = isNaN(pageRaw) || pageRaw < 1 ? 1 : pageRaw;
+  const pageSize = isNaN(pageSizeRaw) || pageSizeRaw < 1 ? 50 : Math.min(pageSizeRaw, 200);
+  const offset = (page - 1) * pageSize;
+  const now = new Date();
+
+  const viewFilter =
+    view === "upcoming"
+      ? gte(appointmentsTable.scheduledAt, now)
+      : view === "past"
+        ? lt(appointmentsTable.scheduledAt, now)
+        : undefined;
+
+  const orderBy =
+    view === "past"
+      ? desc(appointmentsTable.scheduledAt)
+      : asc(appointmentsTable.scheduledAt);
+
+  try {
+    const baseQ = db
+      .select({
+        id: appointmentsTable.id,
+        scheduledAt: appointmentsTable.scheduledAt,
+        durationMinutes: appointmentsTable.durationMinutes,
+        appointmentType: appointmentsTable.appointmentType,
+        status: appointmentsTable.status,
+        notes: appointmentsTable.notes,
+        createdAt: appointmentsTable.createdAt,
+        patientId: appointmentsTable.patientId,
+        patientName: patientsTable.fullName,
+        providerId: appointmentsTable.providerId,
+        providerName: providersTable.fullName,
+        providerCredentials: providersTable.credentials,
+      })
+      .from(appointmentsTable)
+      .leftJoin(patientsTable, eq(appointmentsTable.patientId, patientsTable.id))
+      .leftJoin(providersTable, eq(appointmentsTable.providerId, providersTable.id));
+
+    const countQ = db
+      .select({ total: count() })
+      .from(appointmentsTable);
+
+    const [rows, countRows] = await Promise.all([
+      (viewFilter ? baseQ.where(viewFilter) : baseQ)
+        .orderBy(orderBy)
+        .limit(pageSize)
+        .offset(offset),
+      viewFilter ? countQ.where(viewFilter) : countQ,
+    ]);
+
+    const total = countRows[0]?.total ?? 0;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    res.json({ appointments: rows, total, page, pageSize, totalPages });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load appointments" });
   }
 });
 

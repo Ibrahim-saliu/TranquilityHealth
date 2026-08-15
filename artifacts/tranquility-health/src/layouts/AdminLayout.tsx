@@ -10,8 +10,10 @@ interface AdminLayoutProps {
 const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard", label: "Dashboard" },
   { href: "/admin/requests", label: "Requests" },
+  { href: "/admin/appointments", label: "Appointments" },
   { href: "/admin/providers", label: "Providers" },
   { href: "/admin/team", label: "Team" },
+  { href: "/admin/provider-dashboard", label: "Provider View" },
 ] as const;
 
 const PROVIDER_NAV_LINKS = [
