@@ -1,14 +1,22 @@
 import { pgTable, text, integer, timestamp, check } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { patientsTable } from "./patients";
+import { providersTable } from "./providers";
 
 export const appointmentsTable = pgTable("appointments", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 
-  // FK refs (soft — no hard FK constraint so providers/patients can exist independently)
-  patientId: text("patient_id").notNull(),
-  providerId: text("provider_id").notNull(),
+  // Enforced foreign keys — an appointment must reference a real patient and
+  // provider. "restrict" prevents deleting either while appointments exist,
+  // which is the safe default for clinical records.
+  patientId: text("patient_id")
+    .notNull()
+    .references(() => patientsTable.id, { onDelete: "restrict" }),
+  providerId: text("provider_id")
+    .notNull()
+    .references(() => providersTable.id, { onDelete: "restrict" }),
 
   scheduledAt: timestamp("scheduled_at").notNull(),
   durationMinutes: integer("duration_minutes").notNull().default(50),
