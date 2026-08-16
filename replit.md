@@ -97,7 +97,7 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 
 ### `artifacts/tranquility-health` (`@workspace/tranquility-health`)
 
-**Tranquility Health** — HIPAA-conscious telehealth MVP (Texas cash-pay clinic).
+**Tranquility Health** — HIPAA-conscious telehealth MVP (mental health practice licensed in Texas and Maryland; insurance accepted).
 React + Vite SPA with full public website, admin dashboard, and Phase 3 patient auth + invite system.
 
 - Served at `/` (preview path root)

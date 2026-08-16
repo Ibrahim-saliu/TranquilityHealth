@@ -37,28 +37,28 @@ export default function AboutPage() {
       {/* Provider Profile */}
       <SectionWrapper variant="white">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Your Clinician</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Our Founder</h2>
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
               <div className="w-40 h-48 rounded-xl overflow-hidden shadow-lg ring-4 ring-white">
-                <img src="/dr-oke.png" alt="Dr. Oluwole Oke, MSN, CRNA" className="w-full h-full object-cover object-top" />
+                <img src="/dr-oke.png" alt="Oluwole Oke, MSN, CRNA — Founder of Tranquility Health" className="w-full h-full object-cover object-top" />
               </div>
             </div>
             {/* Bio */}
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-slate-900">Dr. Oluwole Oke, MSN, CRNA</h3>
+              <h3 className="text-xl font-bold text-slate-900">Oluwole Oke, MSN, CRNA</h3>
               <p className="text-sm text-teal-700 font-medium mt-1 mb-4">
-                Certified Registered Nurse Anesthetist · Mental Health Care
+                Founder, Tranquility Health
               </p>
               <p className="text-slate-600 leading-relaxed text-sm mb-3">
-                Dr. Oluwole Mojeed Oke is the founder of Tranquility Comprehensive Health and CEO of Woseglobal Anesthesia Services LLC. A graduate of Prince George's Community College who launched his nursing career at MedStar Washington Hospital, he brings decades of clinical expertise to compassionate mental health care. He is an active mentor and community health advocate across Maryland and Arizona.
+                Oluwole Mojeed Oke is the founder of Tranquility Health and CEO of Woseglobal Anesthesia Services LLC. A graduate of Prince George's Community College who launched his nursing career at MedStar Washington Hospital, he is an active mentor and community health advocate. He founded Tranquility Health to make compassionate mental health care easier to reach, delivered by a team of licensed mental health clinicians.
               </p>
               <p className="text-slate-600 leading-relaxed text-sm">
                 "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no waiting-room anxiety — just honest, evidence-based care on a schedule that actually works for you, with insurance welcome."
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {["Medication Management", "Mental Health Care", "Anesthesia Services", "Community Health", "Motivational Interviewing"].map((tag) => (
+                {["Founder & CEO", "MSN, CRNA", "Community Health Advocate", "Mentorship"].map((tag) => (
                   <span key={tag} className="inline-block bg-white border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
                     {tag}
                   </span>

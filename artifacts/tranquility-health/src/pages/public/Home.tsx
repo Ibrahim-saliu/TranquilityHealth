@@ -1,51 +1,10 @@
 import { Link } from "wouter";
+import { useEffect, useState } from "react";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { VideoHero } from "@/components/public/VideoHero";
-import { useState, useEffect, useRef } from "react";
+import { Reveal } from "@/components/public/Reveal";
 
-// Scroll-reveal hook
-function useScrollReveal(threshold = 0.12) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return { ref, isVisible };
-}
-
-// Count-up hook
-function useCountUp(target: number, duration = 1600, shouldStart = false) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!shouldStart) return;
-    let frame = 0;
-    const totalFrames = Math.round(duration / 16);
-    const timer = setInterval(() => {
-      frame++;
-      const progress = frame / totalFrames;
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.min(Math.round(eased * target), target));
-      if (frame >= totalFrames) clearInterval(timer);
-    }, 16);
-    return () => clearInterval(timer);
-  }, [shouldStart, target, duration]);
-  return count;
-}
-
-// Data
 const HERO_WORDS = ["anywhere", "at home", "on your schedule"];
 
 const features = [
@@ -57,7 +16,7 @@ const features = [
   {
     iconSrc: "/icons/icon-medication.png",
     title: "Medication Management",
-    description: "Expert psychiatric medication evaluation and ongoing management for depression, anxiety, mood disorders, and more.",
+    description: "Psychiatric medication evaluation and ongoing management for depression, anxiety, mood disorders, and more.",
   },
   {
     iconSrc: "/icons/icon-therapy.png",
@@ -81,24 +40,24 @@ const features = [
   },
 ];
 
-const testimonials = [
+const steps = [
   {
-    quote: "I was nervous about doing therapy over video, but honestly it's been so much easier than going in-person. My provider is incredibly thoughtful and really listens. I look forward to every session.",
-    name: "Jamie M.",
-    location: "Austin, TX",
-    stars: 5,
+    step: "1",
+    gradient: "from-teal-500 to-teal-600",
+    title: "Submit a request",
+    body: "Fill out our short appointment request form. No account needed. Just your contact info and a bit about what you're looking for.",
   },
   {
-    quote: "Getting my medication managed through Tranquility Health has been seamless. Simple billing, no surprises — I know exactly what I'm paying, and I can be seen from home. It's been genuinely life-changing.",
-    name: "Rachel T.",
-    location: "Baltimore, MD",
-    stars: 5,
+    step: "2",
+    gradient: "from-teal-500 to-indigo-600",
+    title: "We reach out",
+    body: "Our care coordinator will contact you within one business day to schedule your first appointment and answer any questions.",
   },
   {
-    quote: "I finally found a practice that fits my schedule. Evening and Saturday slots mean I don't have to take time off work. The intake process was simple and the care coordinator was so helpful.",
-    name: "Andre K.",
-    location: "Bethesda, MD",
-    stars: 5,
+    step: "3",
+    gradient: "from-indigo-500 to-violet-600",
+    title: "Meet your clinician",
+    body: "Attend your video appointment from anywhere. Your clinician will work with you to build a personalized care plan.",
   },
 ];
 
@@ -117,16 +76,6 @@ export default function HomePage() {
     }, 2800);
     return () => clearInterval(interval);
   }, []);
-
-  // Scroll-reveal refs
-  const { ref: featuresRef, isVisible: featuresVisible } = useScrollReveal();
-  const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal();
-  const { ref: statsRef, isVisible: statsVisible } = useScrollReveal();
-  const { ref: ctaRef, isVisible: ctaVisible } = useScrollReveal();
-
-  // Count-up values (triggered when stats section enters view)
-  const patientsCount = useCountUp(500, 1600, statsVisible);
-  const sessionsCount = useCountUp(98, 1600, statsVisible);
 
   return (
     <div>
@@ -165,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* Trust bar */}
-      <section className="bg-gradient-to-r from-emerald-600 to-teal-700 py-5">
+      <section className="bg-gradient-to-r from-teal-600 to-teal-700 py-5">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center items-center gap-x-8 gap-y-3 overflow-x-auto">
           {[
             { src: "/icons/icon-shield-check.png", label: "Licensed Clinicians" },
@@ -192,34 +141,27 @@ export default function HomePage() {
               We combine clinical expertise with technology to make quality mental health care genuinely accessible.
             </p>
           </div>
-          <div ref={featuresRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f, i) => (
-              <div
-                key={f.title}
-                className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200 group"
-                style={{
-                  opacity: featuresVisible ? 1 : 0,
-                  transform: featuresVisible ? "translateY(0)" : "translateY(24px)",
-                  transition: `opacity 0.6s ease, transform 0.6s ease`,
-                  transitionDelay: `${i * 80}ms`,
-                }}
-              >
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center mb-4 p-2.5">
-                  <img src={f.iconSrc} alt="" className="w-full h-full object-contain" />
+              <Reveal key={f.title} delay={i * 80}>
+                <div className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200 h-full">
+                  <div className="w-14 h-14 rounded-2xl bg-white shadow-md ring-1 ring-slate-100/80 flex items-center justify-center mb-4 p-2.5">
+                    <img src={f.iconSrc} alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{f.title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{f.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">{f.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{f.description}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* Editorial — Designed for real life */}
-      <section className="py-20 px-4 bg-amber-50">
+      <section className="py-20 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-amber-700/70 mb-4">Designed for real life</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-700/80 mb-4">Designed for real life</p>
             <h2 className="text-4xl font-bold text-slate-900 leading-tight">
               Getting care shouldn't feel like a second job.
             </h2>
@@ -233,7 +175,7 @@ export default function HomePage() {
                 "Same-week availability for new patients",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700">
-                  <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                  <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-teal-600 flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
@@ -253,160 +195,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stat counters */}
-      <section className="py-16 px-4 bg-gradient-to-br from-slate-900 via-teal-900 to-indigo-900">
-        <div ref={statsRef} className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {[
-            {
-              value: `${patientsCount}+`,
-              label: "Patients served",
-              delay: 0,
-            },
-            {
-              value: `${sessionsCount}%`,
-              label: "Patient satisfaction",
-              delay: 100,
-            },
-            {
-              value: "< 3 min",
-              label: "To request an appointment",
-              delay: 200,
-            },
-            {
-              value: "Same week",
-              label: "Appointments available",
-              delay: 300,
-            },
-          ].map(({ value, label, delay }) => (
-            <div
-              key={label}
-              style={{
-                opacity: statsVisible ? 1 : 0,
-                transform: statsVisible ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.7s ease, transform 0.7s ease",
-                transitionDelay: `${delay}ms`,
-              }}
-            >
-              <p className="text-4xl font-bold bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent">
-                {value}
-              </p>
-              <p className="mt-2 text-sm text-slate-400">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* How it works */}
-      <section className="py-20 px-4 bg-emerald-50">
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-slate-900">How it works</h2>
             <p className="mt-3 text-lg text-slate-500">Getting started takes less than 3 minutes.</p>
           </div>
-          <div ref={stepsRef} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "1",
-                gradient: "from-teal-500 to-teal-600",
-                title: "Submit a request",
-                body: "Fill out our short appointment request form. No account needed. Just your contact info and a bit about what you're looking for.",
-              },
-              {
-                step: "2",
-                gradient: "from-teal-500 to-indigo-600",
-                title: "We reach out",
-                body: "Our care coordinator will contact you within one business day to schedule your first appointment and answer any questions.",
-              },
-              {
-                step: "3",
-                gradient: "from-indigo-500 to-violet-600",
-                title: "Meet your clinician",
-                body: "Attend your video appointment from anywhere. Your clinician will work with you to build a personalized care plan.",
-              },
-            ].map(({ step, gradient, title, body }, i) => (
-              <div
-                key={step}
-                className="flex gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm"
-                style={{
-                  opacity: stepsVisible ? 1 : 0,
-                  transform: stepsVisible ? "translateY(0)" : "translateY(28px)",
-                  transition: "opacity 0.65s ease, transform 0.65s ease",
-                  transitionDelay: `${i * 120}ms`,
-                }}
-              >
-                <div className={`flex-shrink-0 w-11 h-11 bg-gradient-to-br ${gradient} text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm`}>
-                  {step}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 text-base mb-2">{title}</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">{body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-slate-50 overflow-hidden">
-        <div className="text-center mb-12 px-4">
-          <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
-          <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">
-            Real words from real patients.
-          </p>
-        </div>
-        {/* Marquee track */}
-        <div className="relative">
-          <div className="flex gap-6 animate-marquee w-max">
-            {[...testimonials, ...testimonials].map((t, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm p-7 flex flex-col w-[340px] flex-shrink-0"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.stars }).map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118L10 15.347l-3.37 2.448c-.784.57-1.838-.197-1.539-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.643 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
-                    </svg>
-                  ))}
-                </div>
-                <blockquote className="text-slate-600 text-sm leading-relaxed flex-1">
-                  "{t.quote}"
-                </blockquote>
-                <div className="mt-5 flex items-center gap-3 pt-5 border-t border-slate-100">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                    {t.name.charAt(0)}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map(({ step, gradient, title, body }, i) => (
+              <Reveal key={step} delay={i * 120}>
+                <div className="flex gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm h-full">
+                  <div className={`flex-shrink-0 w-11 h-11 bg-gradient-to-br ${gradient} text-white rounded-full flex items-center justify-center font-bold text-lg shadow-sm`}>
+                    {step}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{t.name}</p>
-                    <p className="text-xs text-slate-400">{t.location}</p>
+                    <h3 className="font-semibold text-slate-900 text-base mb-2">{title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{body}</p>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10" />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4">
-        <div
-          ref={ctaRef}
-          style={{
-            opacity: ctaVisible ? 1 : 0,
-            transform: ctaVisible ? "translateY(0) scale(1)" : "translateY(16px) scale(0.98)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
-          }}
-        >
-          <div className="max-w-4xl mx-auto">
-            <CtaBlock
-              heading="Ready to take the first step?"
-              subtext="Requesting an appointment takes less than 3 minutes. No commitment, no account required."
-            />
-          </div>
-        </div>
+      <section className="py-16 px-4 bg-slate-50">
+        <Reveal className="max-w-4xl mx-auto">
+          <CtaBlock
+            heading="Ready to take the first step?"
+            subtext="Requesting an appointment takes less than 3 minutes. No commitment, no account required."
+          />
+        </Reveal>
       </section>
     </div>
   );
