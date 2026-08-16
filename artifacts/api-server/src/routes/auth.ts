@@ -67,9 +67,18 @@ router.post("/auth/login", async (req, res) => {
       actorId: user.id,
     });
 
-    // Admin accounts have no patients record — name stays null
-    res.json({
-      user: { id: user.id, email: user.email, role: user.role, name: null },
+    // Persist the session to the store before responding, so the client's very
+    // next request is guaranteed to find it. express-session normally saves on
+    // response end, but making it explicit removes any doubt with an async store.
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        res.status(500).json({ error: "Login failed" });
+        return;
+      }
+      // Admin accounts have no patients record — name stays null
+      res.json({
+        user: { id: user.id, email: user.email, role: user.role, name: null },
+      });
     });
   } catch (_err) {
     res.status(500).json({ error: "Login failed" });

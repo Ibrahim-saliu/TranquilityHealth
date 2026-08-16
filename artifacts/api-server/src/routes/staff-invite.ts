@@ -120,7 +120,13 @@ router.post("/admin/accept-invite/:token", async (req, res) => {
     req.session.userId = user.id;
     req.session.role = user.role;
 
-    res.status(201).json({ user: { id: user.id, email: user.email, role: user.role } });
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        res.status(500).json({ error: "Account creation failed" });
+        return;
+      }
+      res.status(201).json({ user: { id: user.id, email: user.email, role: user.role } });
+    });
   } catch (_err) {
     res.status(500).json({ error: "Account creation failed" });
   }

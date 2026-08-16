@@ -107,13 +107,20 @@ router.post("/invite/:token/accept", async (req, res) => {
       metadata: { email, patientId: patient.id },
     });
 
-    // Auto-login: set session
+    // Auto-login: set session, then persist before responding so the client's
+    // next request finds it (explicit save for the async Postgres store).
     req.session.userId = user.id;
     req.session.role = user.role;
 
-    // Patient name is null at account creation — set during onboarding (Phase 4)
-    res.status(201).json({
-      user: { id: user.id, email: user.email, role: user.role, name: null },
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        res.status(500).json({ error: "Account creation failed" });
+        return;
+      }
+      // Patient name is null at account creation — set during onboarding
+      res.status(201).json({
+        user: { id: user.id, email: user.email, role: user.role, name: null },
+      });
     });
   } catch (_err) {
     res.status(500).json({ error: "Account creation failed" });
