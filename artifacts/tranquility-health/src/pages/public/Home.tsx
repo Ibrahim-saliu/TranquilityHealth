@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
-import { HeroBackground } from "@/components/public/HeroBackground";
+import { VideoHero } from "@/components/public/VideoHero";
 import { useState, useEffect, useRef } from "react";
 // Lucide icons removed — replaced with AI-illustrated images
 
@@ -131,71 +131,59 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative bg-stone-950 py-24 px-4 overflow-hidden">
-        <HeroBackground />
-        <div className="relative z-10 max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-5xl font-bold text-white leading-tight">
-              Mental health care,
-              <br />
-              <span
-                className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent inline-block transition-all duration-300"
-                style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? "translateY(0)" : "translateY(6px)" }}
-              >
-                {HERO_WORDS[wordIdx]}
+      {/* Hero — full-bleed video background, centered content */}
+      <section className="relative bg-stone-950 min-h-screen flex items-center px-4 overflow-hidden">
+        <VideoHero />
+        <div className="relative z-10 w-full max-w-4xl mx-auto text-center py-32">
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+            Mental health care,
+            <br />
+            <span
+              className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent inline-block transition-all duration-300"
+              style={{ opacity: fadeIn ? 1 : 0, transform: fadeIn ? "translateY(0)" : "translateY(6px)" }}
+            >
+              {HERO_WORDS[wordIdx]}
+            </span>
+          </h1>
+          <p className="mt-6 text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto">
+            Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
+          </p>
+          {/* Payment / insurance callout */}
+          <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-2xl px-5 py-3">
+            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                <img src="/icons/icon-shield-check.png" alt="" className="w-full h-full object-contain" />
               </span>
-            </h1>
-            <p className="mt-6 text-xl text-slate-300 leading-relaxed">
-              Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
-            </p>
-            {/* Payment / insurance callout */}
-            <div className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-2xl px-5 py-3">
-              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                  <img src="/icons/icon-shield-check.png" alt="" className="w-full h-full object-contain" />
-                </span>
-                Insurance accepted
+              Insurance accepted
+            </span>
+            <span className="w-px h-4 bg-white/20 hidden sm:block" />
+            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                <img src="/icons/icon-scheduling.png" alt="" className="w-full h-full object-contain" />
               </span>
-              <span className="w-px h-4 bg-white/20 hidden sm:block" />
-              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                  <img src="/icons/icon-scheduling.png" alt="" className="w-full h-full object-contain" />
-                </span>
-                Cash pay
+              Cash pay
+            </span>
+            <span className="w-px h-4 bg-white/20 hidden sm:block" />
+            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
+                <img src="/icons/icon-lock.png" alt="" className="w-full h-full object-contain" />
               </span>
-              <span className="w-px h-4 bg-white/20 hidden sm:block" />
-              <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                  <img src="/icons/icon-lock.png" alt="" className="w-full h-full object-contain" />
-                </span>
-                HSA / FSA accepted
-              </span>
-            </div>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link
-                href={ROUTES.public.requestAppointment}
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-teal-400 to-teal-500 text-white font-semibold rounded-xl hover:from-teal-500 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal-500/30 text-base"
-              >
-                Request Appointment
-              </Link>
-              <Link
-                href={ROUTES.public.services}
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-white/10 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/20 transition-all backdrop-blur-sm text-base"
-              >
-                Learn About Services
-              </Link>
-            </div>
+              HSA / FSA accepted
+            </span>
           </div>
-          <div className="hidden md:flex items-center justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-400/30 to-indigo-500/30 rounded-3xl blur-xl scale-110" />
-              <img
-                src="/hero.png"
-                alt="Person relaxing at home during a telehealth session"
-                className="relative w-96 h-80 object-cover rounded-3xl shadow-2xl ring-1 ring-white/10"
-              />
-            </div>
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href={ROUTES.public.requestAppointment}
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-teal-400 to-teal-500 text-white font-semibold rounded-xl hover:from-teal-500 hover:to-teal-600 transition-all shadow-lg hover:shadow-teal-500/30 text-base"
+            >
+              Request Appointment
+            </Link>
+            <Link
+              href={ROUTES.public.services}
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-white/10 border border-white/25 text-white font-semibold rounded-xl hover:bg-white/20 transition-all backdrop-blur-sm text-base"
+            >
+              Learn About Services
+            </Link>
           </div>
         </div>
       </section>
