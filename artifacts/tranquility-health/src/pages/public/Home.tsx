@@ -135,7 +135,7 @@ export default function HomePage() {
       <section className="relative bg-stone-950 min-h-screen flex items-center px-4 overflow-hidden">
         <VideoHero />
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center py-32">
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight" style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.4)" }}>
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
             Mental health care,
             <br />
             <span

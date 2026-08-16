@@ -1,17 +1,19 @@
 /**
- * VideoHero — three AI-generated cinematic telehealth clips as a full-bleed
- * background behind the hero text.
+ * VideoHero — cinematic full-bleed video background behind the hero text.
  *
- * Clip 1: patient at home, South Asian male doctor on laptop screen
- * Clip 2: patient in a park, African American female doctor on tablet
- * Clip 3: patient walking a dog with earbuds, African American male doctor
- *         visible as a picture-in-picture inset in the scene
+ * Two video slots (A and B) are permanently mounted — neither is ever remounted.
+ * Cross-fading works by transitioning their opacity while both elements stay in the DOM.
+ * This eliminates the flash/restart glitch that occurs when React unmounts and remounts
+ * a video element during clip transitions.
  *
- * Desktop: clips cycle with a 1.5 s opacity cross-fade between them.
- * Mobile:  only Clip 1 plays, looping, to avoid excess bandwidth.
+ * Desktop lifecycle:
+ *   Slot A  → plays clip 0, fades out → loads clip 2 (hidden)
+ *   Slot B  → preloaded with clip 1, fades in when A ends → loads clip 0 (hidden) → ...
  *
- * Overlay is intentionally light so the footage shows through clearly while
- * white hero text stays legible.
+ * Mobile: only slot A, looping clip 0 (saves bandwidth, no cycling).
+ *
+ * Overlay is ~55 % opaque so the footage reads clearly through it while
+ * white text stays sharp without needing text-shadow.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -22,99 +24,137 @@ const CLIPS = [
   "/videos/hero-3.mp4",
 ];
 
-const FADE_DURATION_MS = 1500;
+const FADE_MS = 1500;
 
 export function VideoHero() {
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [nextIdx, setNextIdx] = useState<number | null>(null);
-  const [isFading, setIsFading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const transitionRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Detect mobile breakpoint
+  // Src for each permanent slot (changed only when the slot is hidden)
+  const [aSrc, setASrc] = useState(CLIPS[0]);
+  const [bSrc, setBSrc] = useState(CLIPS[1]);
+
+  // Opacity for cross-fading
+  const [aOpacity, setAOpacity] = useState(1);
+  const [bOpacity, setBOpacity] = useState(0);
+
+  const videoA = useRef<HTMLVideoElement>(null);
+  const videoB = useRef<HTMLVideoElement>(null);
+
+  // Which slot is currently the "active" (visible) primary
+  const activeSlot = useRef<"a" | "b">("a");
+  // Next clip index to assign to the hidden slot after each transition
+  const nextClipIdx = useRef(2);
+  // Guard against double-triggering a transition
+  const isFading = useRef(false);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Mobile detection
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 768px)");
     setIsMobile(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    return () => {
+      mq.removeEventListener("change", handler);
+      if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    };
   }, []);
 
-  // When nextIdx is set: give DOM one frame to mount the next video at opacity 0,
-  // then trigger the cross-fade. After FADE_DURATION_MS, swap active ↔ next.
-  useEffect(() => {
-    if (nextIdx === null) return;
+  // Called when a slot's clip finishes playing
+  function handleEnded(slot: "a" | "b") {
+    // Only the active slot drives transitions; ignore events from the hidden slot
+    if (slot !== activeSlot.current || isFading.current || isMobile) return;
+    isFading.current = true;
 
-    const raf = requestAnimationFrame(() => {
-      setIsFading(true);
-    });
+    // Bring the standby slot to the beginning and start it playing
+    const standby = slot === "a" ? videoB.current : videoA.current;
+    if (standby) {
+      standby.currentTime = 0;
+      standby.play().catch(() => {/* autoplay policy — muted video should always pass */});
+    }
 
-    transitionRef.current = setTimeout(() => {
-      setActiveIdx(nextIdx);
-      setNextIdx(null);
-      setIsFading(false);
-    }, FADE_DURATION_MS + 50); // small buffer so CSS transition finishes first
+    // Kick off the opacity cross-fade
+    if (slot === "a") {
+      setAOpacity(0);
+      setBOpacity(1);
+    } else {
+      setBOpacity(0);
+      setAOpacity(1);
+    }
 
-    return () => {
-      cancelAnimationFrame(raf);
-      if (transitionRef.current) clearTimeout(transitionRef.current);
-    };
-  }, [nextIdx]);
+    // After the CSS transition completes: swap active slot and queue next clip
+    fadeTimer.current = setTimeout(() => {
+      activeSlot.current = slot === "a" ? "b" : "a";
 
-  function handleEnded() {
-    // Ignore if mobile (loops) or mid-transition
-    if (isMobile || nextIdx !== null) return;
-    setNextIdx((activeIdx + 1) % CLIPS.length);
+      const ni = nextClipIdx.current;
+      nextClipIdx.current = (ni + 1) % CLIPS.length;
+
+      // Load the queued clip into the now-hidden slot.
+      // Because the slot has no autoPlay, changing src only preloads — it does not play.
+      if (slot === "a") setASrc(CLIPS[ni]);
+      else setBSrc(CLIPS[ni]);
+
+      isFading.current = false;
+    }, FADE_MS + 120);
   }
 
-  const transition = `opacity ${FADE_DURATION_MS}ms ease-in-out`;
+  const transition = `opacity ${FADE_MS}ms ease-in-out`;
 
-  // Pre-load background: dark teal gradient so the frame before the video renders
-  // looks intentional rather than a plain black flash.
   return (
+    // Dark teal gradient: the placeholder colour shown during the first video frame load.
+    // Matches the video palette so there is no jarring black flash on page load or refresh.
     <div
       className="absolute inset-0 overflow-hidden"
-      style={{ background: "linear-gradient(135deg,#0d1f2d 0%,#0f3433 45%,#1a1030 100%)" }}
+      style={{ background: "linear-gradient(135deg,#0c1c2b 0%,#0e3030 50%,#18102c 100%)" }}
     >
-      {/* Active clip — fades out when a transition begins */}
-      <video
-        key={`active-${activeIdx}`}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: isFading ? 0 : 1, transition, zIndex: 1 }}
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        loop={isMobile}
-        onEnded={handleEnded}
-      >
-        <source src={CLIPS[isMobile ? 0 : activeIdx]} type="video/mp4" />
-      </video>
-
-      {/* Incoming clip — fades in during the transition, then becomes active */}
-      {nextIdx !== null && (
+      {isMobile ? (
+        // ── Mobile: single looping clip, no cycling ──────────────────────────
         <video
-          key={`next-${nextIdx}`}
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: isFading ? 1 : 0, transition, zIndex: 2 }}
+          src={CLIPS[0]}
           autoPlay
           muted
           playsInline
-          preload="auto"
-        >
-          <source src={CLIPS[nextIdx]} type="video/mp4" />
-        </video>
+          loop
+        />
+      ) : (
+        // ── Desktop: two permanent slots, cross-fade on clip end ──────────────
+        <>
+          {/* Slot A — starts as the active/visible clip */}
+          <video
+            ref={videoA}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: aOpacity, transition, zIndex: 1 }}
+            src={aSrc}
+            autoPlay          // starts playing clip 0 on mount
+            muted
+            playsInline
+            preload="auto"
+            onEnded={() => handleEnded("a")}
+          />
+
+          {/* Slot B — preloaded and waiting; played explicitly when A ends */}
+          <video
+            ref={videoB}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: bOpacity, transition, zIndex: 1 }}
+            src={bSrc}
+            muted
+            playsInline
+            preload="auto"    // buffers clip 1 while A is playing
+            onEnded={() => handleEnded("b")}
+          />
+        </>
       )}
 
-      {/* Overlay: stronger at top/bottom edges, lighter in the middle so the
-          footage reads through. Text legibility comes from text-shadow on the
-          headline rather than a heavy blanket opacity here. */}
+      {/* Overlay — ~55 % opaque so footage is clearly visible and white text
+          stays sharp without needing any text-shadow on the headline */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 10,
           background:
-            "linear-gradient(to bottom, rgba(10,18,26,0.60) 0%, rgba(10,18,26,0.30) 40%, rgba(10,18,26,0.30) 60%, rgba(10,18,26,0.60) 100%)",
+            "linear-gradient(to bottom, rgba(8,14,22,0.68) 0%, rgba(8,14,22,0.52) 35%, rgba(8,14,22,0.52) 65%, rgba(8,14,22,0.68) 100%)",
         }}
       />
     </div>
