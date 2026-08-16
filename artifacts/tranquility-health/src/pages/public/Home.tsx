@@ -135,7 +135,7 @@ export default function HomePage() {
       <section className="relative bg-stone-950 min-h-screen flex items-center px-4 overflow-hidden">
         <VideoHero />
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center py-32">
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight" style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.4)" }}>
             Mental health care,
             <br />
             <span
@@ -148,29 +148,6 @@ export default function HomePage() {
           <p className="mt-6 text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto">
             Tranquility Health provides compassionate, evidence-based medication management and psychotherapy for depression, anxiety, mood disorders, and more. Delivered via secure video appointments that fit your life.
           </p>
-          {/* Payment / insurance callout */}
-          <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-2xl px-5 py-3">
-            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                <img src="/icons/icon-shield-check.png" alt="" className="w-full h-full object-contain" />
-              </span>
-              Insurance accepted
-            </span>
-            <span className="w-px h-4 bg-white/20 hidden sm:block" />
-            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                <img src="/icons/icon-scheduling.png" alt="" className="w-full h-full object-contain" />
-              </span>
-              Cash pay
-            </span>
-            <span className="w-px h-4 bg-white/20 hidden sm:block" />
-            <span className="flex items-center gap-2 text-sm text-teal-100 font-medium">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center p-1">
-                <img src="/icons/icon-lock.png" alt="" className="w-full h-full object-contain" />
-              </span>
-              HSA / FSA accepted
-            </span>
-          </div>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href={ROUTES.public.requestAppointment}
@@ -190,11 +167,29 @@ export default function HomePage() {
 
       {/* Trust bar */}
       <section className="bg-gradient-to-r from-emerald-600 to-teal-700 py-5">
-        <div className="max-w-7xl mx-auto px-4 flex justify-center gap-10 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center items-center gap-x-8 gap-y-3 overflow-x-auto">
+          {/* Credentials */}
           {[
             { src: "/icons/icon-shield-check.png", label: "Licensed Clinicians" },
             { src: "/icons/icon-lock.png",          label: "HIPAA-Conscious Platform" },
             { src: "/icons/icon-telehealth.png",    label: "Telehealth Appointments" },
+          ].map(({ src, label }) => (
+            <span key={label} className="flex items-center gap-2.5 text-white/90 text-sm font-medium flex-shrink-0">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 p-1.5">
+                <img src={src} alt="" className="w-full h-full object-contain" />
+              </span>
+              {label}
+            </span>
+          ))}
+
+          {/* Divider — hidden on small screens where items wrap */}
+          <span className="hidden lg:block w-px h-5 bg-white/30 flex-shrink-0" />
+
+          {/* Payment options */}
+          {[
+            { src: "/icons/icon-shield-check.png", label: "Insurance accepted" },
+            { src: "/icons/icon-scheduling.png",   label: "Cash pay" },
+            { src: "/icons/icon-lock.png",          label: "HSA / FSA accepted" },
           ].map(({ src, label }) => (
             <span key={label} className="flex items-center gap-2.5 text-white/90 text-sm font-medium flex-shrink-0">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 p-1.5">

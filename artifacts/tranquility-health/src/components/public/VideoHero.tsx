@@ -69,8 +69,13 @@ export function VideoHero() {
 
   const transition = `opacity ${FADE_DURATION_MS}ms ease-in-out`;
 
+  // Pre-load background: dark teal gradient so the frame before the video renders
+  // looks intentional rather than a plain black flash.
   return (
-    <div className="absolute inset-0 overflow-hidden bg-stone-950">
+    <div
+      className="absolute inset-0 overflow-hidden"
+      style={{ background: "linear-gradient(135deg,#0d1f2d 0%,#0f3433 45%,#1a1030 100%)" }}
+    >
       {/* Active clip — fades out when a transition begins */}
       <video
         key={`active-${activeIdx}`}
@@ -79,6 +84,7 @@ export function VideoHero() {
         autoPlay
         muted
         playsInline
+        preload="auto"
         loop={isMobile}
         onEnded={handleEnded}
       >
@@ -94,25 +100,22 @@ export function VideoHero() {
           autoPlay
           muted
           playsInline
+          preload="auto"
         >
           <source src={CLIPS[nextIdx]} type="video/mp4" />
         </video>
       )}
 
-      {/* Lightweight overlay — reveals the footage while keeping text readable.
-          z-index 10 sits above both video layers. */}
+      {/* Overlay: stronger at top/bottom edges, lighter in the middle so the
+          footage reads through. Text legibility comes from text-shadow on the
+          headline rather than a heavy blanket opacity here. */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 10,
           background:
-            "linear-gradient(to bottom, rgba(12,20,28,0.52) 0%, rgba(12,20,28,0.18) 45%, rgba(12,20,28,0.52) 100%)",
+            "linear-gradient(to bottom, rgba(10,18,26,0.60) 0%, rgba(10,18,26,0.30) 40%, rgba(10,18,26,0.30) 60%, rgba(10,18,26,0.60) 100%)",
         }}
-      />
-      {/* Brand teal tint — very subtle so footage colours read through */}
-      <div
-        className="absolute inset-0 pointer-events-none mix-blend-multiply"
-        style={{ zIndex: 11, backgroundColor: "rgba(13,44,44,0.12)" }}
       />
     </div>
   );
