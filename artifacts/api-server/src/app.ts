@@ -93,7 +93,11 @@ app.use(
     store: new PgSession({
       pool,
       tableName: "user_sessions",
-      createTableIfMissing: true,
+      // We create the table ourselves in ensureSessionTable() below.
+      // connect-pg-simple's own creation reads a table.sql file relative to its
+      // module dir, which does not survive esbuild bundling (__dirname points at
+      // the bundle) — so leaving this on silently fails and no session persists.
+      createTableIfMissing: false,
     }),
     secret: sessionSecret,
     resave: false,
@@ -108,5 +112,25 @@ app.use(
 );
 
 app.use("/api", router);
+
+/**
+ * Ensure the Postgres session table exists. We do this explicitly (rather than
+ * connect-pg-simple's createTableIfMissing) because that path reads a bundled
+ * table.sql off disk, which breaks once the server is bundled by esbuild. The
+ * DDL matches the schema connect-pg-simple expects (sid / sess / expire) and is
+ * idempotent, so it is safe to run on every startup. Call this before listen().
+ */
+export async function ensureSessionTable(): Promise<void> {
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS "user_sessions" (
+       "sid" varchar NOT NULL COLLATE "default" PRIMARY KEY,
+       "sess" json NOT NULL,
+       "expire" timestamp(6) NOT NULL
+     );`,
+  );
+  await pool.query(
+    `CREATE INDEX IF NOT EXISTS "IDX_user_sessions_expire" ON "user_sessions" ("expire");`,
+  );
+}
 
 export default app;
