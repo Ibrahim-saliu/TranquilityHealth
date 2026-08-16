@@ -7,11 +7,11 @@ import { Link } from "wouter";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="text-center max-w-md">
         <p className="text-8xl font-black text-teal-100">404</p>
-        <h1 className="text-3xl font-bold text-gray-900 -mt-6">Page not found</h1>
-        <p className="mt-4 text-gray-500 text-sm">
+        <h1 className="text-3xl font-bold text-slate-900 -mt-6">Page not found</h1>
+        <p className="mt-4 text-slate-500 text-sm">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <Link

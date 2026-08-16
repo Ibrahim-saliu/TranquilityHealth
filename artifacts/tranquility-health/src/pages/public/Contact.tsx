@@ -41,7 +41,7 @@ export default function ContactPage() {
         badge="Get in touch"
       />
 
-      <SectionWrapper variant="warm">
+      <SectionWrapper variant="brand">
         <div className="max-w-4xl mx-auto px-4 space-y-6">
 
           {/* Row 1: 3 contact method cards */}
@@ -135,7 +135,7 @@ export default function ContactPage() {
       </SectionWrapper>
 
       {/* Office Hours */}
-      <SectionWrapper variant="amber">
+      <SectionWrapper variant="tint">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-3xl font-bold text-slate-900">Office Hours</h2>

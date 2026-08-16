@@ -10,8 +10,8 @@ export default function AppointmentsPage() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
-          <p className="mt-1 text-gray-500">View and manage your upcoming sessions.</p>
+          <h1 className="text-3xl font-bold text-slate-900">My Appointments</h1>
+          <p className="mt-1 text-slate-500">View and manage your upcoming sessions.</p>
         </div>
         <button
           disabled
@@ -22,14 +22,14 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Tabs placeholder */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200">
+      <div className="flex gap-4 mb-6 border-b border-slate-200">
         {["Upcoming", "Past", "Cancelled"].map((tab, idx) => (
           <button
             key={tab}
             className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
               idx === 0
                 ? "border-teal-600 text-teal-700"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
             {tab}
@@ -38,10 +38,10 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Empty state */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-12 text-center">
         <p className="text-5xl mb-4">🗓️</p>
-        <h3 className="text-lg font-semibold text-gray-900">No appointments yet</h3>
-        <p className="mt-2 text-sm text-gray-500">
+        <h3 className="text-lg font-semibold text-slate-900">No appointments yet</h3>
+        <p className="mt-2 text-sm text-slate-500">
           Your upcoming sessions will appear here.
         </p>
       </div>

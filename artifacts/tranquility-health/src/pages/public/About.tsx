@@ -69,7 +69,7 @@ export default function AboutPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="amber">
+      <SectionWrapper variant="tint">
         <div className="max-w-4xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-start">
           <div>
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Mission</h2>
@@ -97,7 +97,7 @@ export default function AboutPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="warm">
+      <SectionWrapper variant="brand">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
           <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
@@ -109,7 +109,7 @@ export default function AboutPage() {
               { role: "Psychiatric NPs", detail: "Evaluation, diagnosis, and medication management", gradient: "from-indigo-500 to-indigo-600" },
               { role: "Care Coordinators", detail: "Scheduling, follow-up, and patient support", gradient: "from-violet-500 to-violet-600" },
             ].map((r) => (
-              <div key={r.role} className="bg-white rounded-2xl p-6 border border-emerald-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div key={r.role} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div className={`w-2 h-8 bg-gradient-to-b ${r.gradient} rounded-full mb-4`} />
                 <p className="text-sm font-semibold text-slate-900">{r.role}</p>
                 <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{r.detail}</p>

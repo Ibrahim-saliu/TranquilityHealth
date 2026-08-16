@@ -18,26 +18,26 @@ export default function OnboardingPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Welcome to Tranquility Health</h1>
-        <p className="mt-2 text-gray-500">
+        <h1 className="text-3xl font-bold text-slate-900">Welcome to Tranquility Health</h1>
+        <p className="mt-2 text-slate-500">
           Let's get you set up. Complete the steps below to start your care journey.
         </p>
       </div>
 
       {/* Onboarding steps */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         {steps.map((step, idx) => (
           <div
             key={step.label}
-            className="flex items-center gap-4 p-5 border-b border-gray-100 last:border-b-0"
+            className="flex items-center gap-4 p-5 border-b border-slate-100 last:border-b-0"
           >
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-400">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-400">
               {idx + 1}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-700">{step.label}</p>
+              <p className="text-sm font-medium text-slate-700">{step.label}</p>
             </div>
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
               Pending
             </span>
           </div>

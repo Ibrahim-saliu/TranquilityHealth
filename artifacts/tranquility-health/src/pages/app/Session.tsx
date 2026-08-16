@@ -12,18 +12,18 @@ export default function SessionPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Your Session</h1>
-        <p className="mt-2 text-gray-500">
+        <h1 className="text-3xl font-bold text-slate-900">Your Session</h1>
+        <p className="mt-2 text-slate-500">
           Secure, private telehealth session.
         </p>
       </div>
 
       {/* Video call area placeholder */}
-      <div className="bg-gray-900 rounded-2xl overflow-hidden shadow-xl aspect-video flex items-center justify-center mb-6">
+      <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-xl aspect-video flex items-center justify-center mb-6">
         <div className="text-center text-white">
           <p className="text-5xl mb-4">🎥</p>
           <h2 className="text-2xl font-semibold">Video Session</h2>
-          <p className="mt-3 text-gray-400 text-sm">
+          <p className="mt-3 text-slate-400 text-sm">
             Your provider will start the call at your appointment time.
           </p>
           <button
@@ -46,7 +46,7 @@ export default function SessionPage() {
           <button
             key={ctrl.label}
             disabled
-            className="flex flex-col items-center gap-1 px-5 py-3 bg-gray-100 rounded-xl text-gray-500 opacity-50 cursor-not-allowed"
+            className="flex flex-col items-center gap-1 px-5 py-3 bg-slate-100 rounded-xl text-slate-500 opacity-50 cursor-not-allowed"
           >
             <span className="text-xl">{ctrl.icon}</span>
             <span className="text-xs font-medium">{ctrl.label}</span>

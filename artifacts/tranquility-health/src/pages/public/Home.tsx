@@ -131,7 +131,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero — full-bleed video background, centered content */}
-      <section className="relative bg-stone-950 min-h-screen flex items-center px-4 overflow-hidden">
+      <section className="relative bg-slate-950 min-h-screen flex items-center px-4 overflow-hidden">
         <VideoHero />
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center py-32">
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
@@ -184,7 +184,7 @@ export default function HomePage() {
       </section>
 
       {/* Features grid */}
-      <section className="py-20 px-4 bg-gradient-to-b from-stone-50 to-white">
+      <section className="py-20 px-4 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900">Why patients choose Tranquility Health</h2>
@@ -348,7 +348,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-stone-50 overflow-hidden">
+      <section className="py-20 bg-slate-50 overflow-hidden">
         <div className="text-center mb-12 px-4">
           <h2 className="text-3xl font-bold text-slate-900">What our patients say</h2>
           <p className="mt-4 text-lg text-slate-500 max-w-xl mx-auto">

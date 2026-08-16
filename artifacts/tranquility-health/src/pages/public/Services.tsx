@@ -33,7 +33,7 @@ const conditions = [
     name: "Personality Disorders",
     description: "Enduring patterns of inner experience and behavior that differ markedly from cultural norms.",
     iconSrc: "/icons/icon-personality.png",
-    gradient: "from-teal-400 to-emerald-600",
+    gradient: "from-teal-400 to-teal-600",
   },
   {
     name: "Schizophrenia",
@@ -125,9 +125,9 @@ export default function ServicesPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="warm" tight>
+      <SectionWrapper variant="brand" tight>
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white border border-emerald-100 rounded-2xl p-7 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
