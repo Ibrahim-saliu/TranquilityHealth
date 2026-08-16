@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Heart, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Heart, Eye, EyeOff, ShieldCheck, X } from "lucide-react";
 import { validateAdminInviteToken, acceptAdminInvite } from "@/lib/admin-api";
 import { useAuth } from "@/lib/auth/context";
 
@@ -95,7 +95,7 @@ export default function AdminAcceptInvitePage({ token }: Props) {
           ) : tokenError ? (
             <div className="text-center py-4">
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-red-500 text-xl">✕</span>
+                <X className="w-6 h-6 text-red-500" strokeWidth={2.5} />
               </div>
               <h2 className="text-lg font-bold text-slate-900 mb-2">Invite not valid</h2>
               <p className="text-slate-500 text-sm">{tokenError}</p>

@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
+import { CalendarDays } from "lucide-react";
 import {
   listAppointments,
   APPOINTMENT_STATUS_LABELS,
@@ -153,7 +154,7 @@ export default function AdminAppointmentsPage() {
             ) : appointments.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-20 text-center text-slate-400">
-                  <p className="text-5xl mb-4">🗓️</p>
+                  <CalendarDays className="w-10 h-10 mx-auto mb-4 text-slate-300" strokeWidth={1.5} />
                   <p className="text-base font-medium text-slate-500">No appointments yet</p>
                   <p className="text-sm mt-1 text-slate-400">
                     {view === "upcoming"

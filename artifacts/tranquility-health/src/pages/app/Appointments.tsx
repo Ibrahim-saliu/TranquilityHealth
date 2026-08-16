@@ -5,6 +5,8 @@
  * state until appointment data and scheduling actions are wired to the API.
  */
 
+import { CalendarDays } from "lucide-react";
+
 export default function AppointmentsPage() {
   return (
     <div>
@@ -39,7 +41,7 @@ export default function AppointmentsPage() {
 
       {/* Empty state */}
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-12 text-center">
-        <p className="text-5xl mb-4">🗓️</p>
+        <CalendarDays className="w-10 h-10 mx-auto mb-4 text-slate-300" strokeWidth={1.5} />
         <h3 className="text-lg font-semibold text-slate-900">No appointments yet</h3>
         <p className="mt-2 text-sm text-slate-500">
           Your upcoming sessions will appear here.
