@@ -168,28 +168,11 @@ export default function HomePage() {
       {/* Trust bar */}
       <section className="bg-gradient-to-r from-emerald-600 to-teal-700 py-5">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center items-center gap-x-8 gap-y-3 overflow-x-auto">
-          {/* Credentials */}
           {[
             { src: "/icons/icon-shield-check.png", label: "Licensed Clinicians" },
             { src: "/icons/icon-lock.png",          label: "HIPAA-Conscious Platform" },
             { src: "/icons/icon-telehealth.png",    label: "Telehealth Appointments" },
-          ].map(({ src, label }) => (
-            <span key={label} className="flex items-center gap-2.5 text-white/90 text-sm font-medium flex-shrink-0">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 p-1.5">
-                <img src={src} alt="" className="w-full h-full object-contain" />
-              </span>
-              {label}
-            </span>
-          ))}
-
-          {/* Divider — hidden on small screens where items wrap */}
-          <span className="hidden lg:block w-px h-5 bg-white/30 flex-shrink-0" />
-
-          {/* Payment options */}
-          {[
-            { src: "/icons/icon-shield-check.png", label: "Insurance accepted" },
-            { src: "/icons/icon-scheduling.png",   label: "Cash pay" },
-            { src: "/icons/icon-lock.png",          label: "HSA / FSA accepted" },
+            { src: "/icons/icon-scheduling.png",    label: "Flexible Payment Options" },
           ].map(({ src, label }) => (
             <span key={label} className="flex items-center gap-2.5 text-white/90 text-sm font-medium flex-shrink-0">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 p-1.5">
