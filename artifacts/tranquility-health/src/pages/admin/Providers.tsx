@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { CheckCircle, Plus, X } from "lucide-react";
+import { CheckCircle, Plus, X, Stethoscope } from "lucide-react";
 import {
   listProviders,
   createProvider,
@@ -406,7 +406,7 @@ export default function AdminProvidersPage() {
         </div>
       ) : providers.length === 0 ? (
         <div className="text-center py-20 text-slate-400">
-          <p className="text-4xl mb-3">👩‍⚕️</p>
+          <Stethoscope className="w-10 h-10 mx-auto mb-3 text-slate-300" strokeWidth={1.5} />
           <p className="text-base font-medium text-slate-500">No providers yet</p>
           {isAdmin && (
             <p className="text-sm mt-1">

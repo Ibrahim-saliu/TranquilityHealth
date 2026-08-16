@@ -1,7 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import pinoHttp from "pino-http";
+import { pool } from "@workspace/db";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -32,8 +34,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------------------------------------------------------------------------
-// Session middleware — MemoryStore (MVP).
-// TODO (Phase 4): Replace MemoryStore with connect-pg-simple for production.
+// Session middleware — persisted to Postgres so sessions survive restarts and
+// can be shared across multiple server instances.
 // ---------------------------------------------------------------------------
 const isProduction = process.env["NODE_ENV"] === "production";
 
@@ -56,9 +58,16 @@ if (!SESSION_SECRET) {
 }
 const sessionSecret = SESSION_SECRET ?? "tranquility-dev-only-secret-do-not-use-in-prod";
 
+const PgSession = connectPgSimple(session);
+
 app.use(
   session({
     name: "th.sid",
+    store: new PgSession({
+      pool,
+      tableName: "user_sessions",
+      createTableIfMissing: true,
+    }),
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,

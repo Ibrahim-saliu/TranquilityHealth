@@ -97,7 +97,7 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 
 ### `artifacts/tranquility-health` (`@workspace/tranquility-health`)
 
-**Tranquility Health** — HIPAA-conscious telehealth MVP (Texas cash-pay clinic).
+**Tranquility Health** — HIPAA-conscious telehealth MVP (mental health practice licensed in Texas and Maryland; insurance accepted).
 React + Vite SPA with full public website, admin dashboard, and Phase 3 patient auth + invite system.
 
 - Served at `/` (preview path root)
@@ -140,3 +140,13 @@ React + Vite SPA with full public website, admin dashboard, and Phase 3 patient 
 - `src/types/roles.ts` — UserRole type (admin | collaborator | provider | patient), ROLES constants
 - `src/lib/config/routes.ts` — ROUTES constants for all route paths including providerDashboard
 - `src/lib/config/env.ts` — ENV flags, API_BASE_URL
+
+**Testing (Vitest + Testing Library):**
+- `pnpm --filter @workspace/tranquility-health run test` — watch mode
+- `pnpm --filter @workspace/tranquility-health run test:run` — single run (CI)
+- Config: `vitest.config.ts` (jsdom env, `@` alias, `src/test/setup.ts` registers
+  jest-dom matchers). Test files live next to the code as `*.test.ts(x)` and are
+  excluded from the app's `tsc` typecheck.
+- Current coverage: schedule formatting + open/closed logic (`useOpenStatus`, with
+  fake timers pinned to CST), auth route guards (`RequireAdmin`/`RequirePatient`),
+  the `cn` class helper, and the scroll-reveal primitives.

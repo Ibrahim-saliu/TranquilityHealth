@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type SectionVariant = "white" | "slate" | "dark" | "gradient-subtle" | "warm" | "amber";
+type SectionVariant = "white" | "slate" | "dark" | "gradient-subtle" | "brand" | "tint";
 
 interface SectionWrapperProps {
   children: ReactNode;
@@ -9,13 +9,16 @@ interface SectionWrapperProps {
   variant?: SectionVariant;
 }
 
+// Section backgrounds are kept to a single brand family — white and slate for
+// the neutral rhythm, a dark band for contrast, and two faint teal/indigo washes
+// for the occasional accent. No competing warm hues.
 const variantClasses: Record<SectionVariant, string> = {
   white: "bg-white",
-  slate: "bg-stone-50",
+  slate: "bg-slate-50",
   dark: "bg-slate-900",
   "gradient-subtle": "bg-gradient-to-br from-teal-50 to-indigo-50",
-  warm: "bg-gradient-to-b from-emerald-50 to-teal-50/30",
-  amber: "bg-gradient-to-b from-amber-50 to-orange-50/20",
+  brand: "bg-gradient-to-b from-teal-50/70 to-white",
+  tint: "bg-gradient-to-b from-indigo-50/50 to-white",
 };
 
 export function SectionWrapper({

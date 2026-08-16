@@ -13,14 +13,14 @@ export const ROUTES = {
     termsOfService: "/terms-of-service",
     hipaaNotice: "/hipaa-notice",
   },
-  // Requires auth — Phase 3
+  // Patient app — requires an authenticated patient session
   app: {
     dashboard: "/app/dashboard",
     onboarding: "/app/onboarding",
     appointments: "/app/appointments",
     session: "/app/session",
   },
-  // Requires admin role — Phase 3
+  // Staff portal — requires an admin, collaborator, or provider session
   admin: {
     dashboard: "/admin/dashboard",
     providerDashboard: "/admin/provider-dashboard",
@@ -29,10 +29,4 @@ export const ROUTES = {
     providers: "/admin/providers",
     team: "/admin/team",
   },
-} as const;
-
-// TODO (Phase 3): Use in route protection middleware.
-export const ROUTE_PREFIXES = {
-  APP: "/app",
-  ADMIN: "/admin",
 } as const;

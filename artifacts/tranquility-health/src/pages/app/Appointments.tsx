@@ -1,21 +1,19 @@
 /**
  * Appointments — /app/appointments
  *
- * Patient-facing appointment management page.
- * Phase 0: Placeholder with anticipated UI structure.
- *
- * TODO (future phase): Display upcoming and past appointments from DB.
- * TODO (future phase): Allow patients to cancel or reschedule.
- * TODO (Phase 3): Load from Appointment model with proper auth guard.
+ * Patient-facing view of upcoming, past, and cancelled visits. Renders an empty
+ * state until appointment data and scheduling actions are wired to the API.
  */
+
+import { CalendarDays } from "lucide-react";
 
 export default function AppointmentsPage() {
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Appointments</h1>
-          <p className="mt-1 text-gray-500">View and manage your upcoming sessions.</p>
+          <h1 className="text-3xl font-bold text-slate-900">My Appointments</h1>
+          <p className="mt-1 text-slate-500">View and manage your upcoming sessions.</p>
         </div>
         <button
           disabled
@@ -26,14 +24,14 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Tabs placeholder */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200">
+      <div className="flex gap-4 mb-6 border-b border-slate-200">
         {["Upcoming", "Past", "Cancelled"].map((tab, idx) => (
           <button
             key={tab}
             className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
               idx === 0
                 ? "border-teal-600 text-teal-700"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
             {tab}
@@ -42,18 +40,11 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Empty state */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
-        <p className="text-5xl mb-4">🗓️</p>
-        <h3 className="text-lg font-semibold text-gray-900">No appointments yet</h3>
-        <p className="mt-2 text-sm text-gray-500">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-12 text-center">
+        <CalendarDays className="w-10 h-10 mx-auto mb-4 text-slate-300" strokeWidth={1.5} />
+        <h3 className="text-lg font-semibold text-slate-900">No appointments yet</h3>
+        <p className="mt-2 text-sm text-slate-500">
           Your upcoming sessions will appear here.
-          {/* TODO (Phase 3): Fetch from Appointment model */}
-        </p>
-      </div>
-
-      <div className="mt-8 p-4 bg-teal-50 rounded-lg border border-teal-100">
-        <p className="text-teal-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder. Real appointment data coming in future phases.
         </p>
       </div>
     </div>

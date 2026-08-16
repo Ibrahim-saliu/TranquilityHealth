@@ -108,7 +108,7 @@ export function VideoHero() {
       style={{ background: "linear-gradient(135deg,#0c1c2b 0%,#0e3030 50%,#18102c 100%)" }}
     >
       {isMobile ? (
-        // ── Mobile: single looping clip, no cycling ──────────────────────────
+        // Mobile: single looping clip, no cycling
         <video
           className="absolute inset-0 w-full h-full object-cover"
           src={CLIPS[0]}
@@ -118,7 +118,7 @@ export function VideoHero() {
           loop
         />
       ) : (
-        // ── Desktop: two permanent slots, cross-fade on clip end ──────────────
+        // Desktop: two permanent slots, cross-fade on clip end
         <>
           {/* Slot A — starts as the active/visible clip */}
           <video

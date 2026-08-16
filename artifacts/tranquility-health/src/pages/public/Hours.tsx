@@ -13,7 +13,7 @@ export default function HoursPage() {
         badge="Central Time (CST)"
       />
 
-      <SectionWrapper variant="warm">
+      <SectionWrapper variant="brand">
         <div className="max-w-3xl mx-auto px-4">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-slate-500">Current status</p>
@@ -56,7 +56,7 @@ export default function HoursPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="amber" tight>
+      <SectionWrapper variant="tint" tight>
         <div className="max-w-3xl mx-auto px-4 space-y-4">
           <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl hover:shadow-xl hover:-translate-y-1 hover:border-teal-200 transition-all duration-200">
             <p className="text-amber-800 text-sm font-semibold mb-1">Holiday Schedule</p>

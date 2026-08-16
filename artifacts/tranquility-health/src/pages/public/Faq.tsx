@@ -85,7 +85,7 @@ export default function FaqPage() {
         badge="Common Questions"
       />
 
-      <SectionWrapper variant="warm" tight>
+      <SectionWrapper variant="brand" tight>
         <div className="max-w-3xl mx-auto px-4">
           <div className="rounded-2xl overflow-hidden shadow-sm">
             <img src="/faq-header.png" alt="A calm space for your questions" className="w-full h-52 object-cover" />
@@ -93,7 +93,7 @@ export default function FaqPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="warm">
+      <SectionWrapper variant="brand">
         <div className="max-w-3xl mx-auto px-4 space-y-10">
           {faqCategories.map((group) => (
             <div key={group.category}>
@@ -110,7 +110,7 @@ export default function FaqPage() {
         </div>
       </SectionWrapper>
 
-      <SectionWrapper variant="amber" tight>
+      <SectionWrapper variant="tint" tight>
         <div className="max-w-3xl mx-auto px-4 text-center">
           <p className="text-slate-500 text-sm">
             Didn't find your answer?{" "}

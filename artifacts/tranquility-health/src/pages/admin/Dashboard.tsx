@@ -1,7 +1,6 @@
 /**
  * AdminDashboard — /admin/dashboard
  * Shows live request counts by status and a recent-requests list.
- * TODO (Phase 3): Add admin role guard.
  */
 
 import { useEffect, useState } from "react";
@@ -28,28 +27,28 @@ const STATUS_CARD_CONFIG: {
   {
     status: "new",
     label: "New",
-    gradient: "from-teal-50 to-cyan-50",
+    gradient: "from-teal-50 to-teal-100",
     numColor: "text-teal-700",
     border: "border-teal-200",
   },
   {
     status: "under_review",
     label: "Under Review",
-    gradient: "from-amber-50 to-yellow-50",
+    gradient: "from-amber-50 to-amber-100",
     numColor: "text-amber-700",
     border: "border-amber-200",
   },
   {
     status: "approved",
     label: "Approved",
-    gradient: "from-emerald-50 to-green-50",
+    gradient: "from-emerald-50 to-emerald-100",
     numColor: "text-emerald-700",
     border: "border-emerald-200",
   },
   {
     status: "rejected",
     label: "Rejected",
-    gradient: "from-red-50 to-rose-50",
+    gradient: "from-red-50 to-red-100",
     numColor: "text-red-700",
     border: "border-red-200",
   },
