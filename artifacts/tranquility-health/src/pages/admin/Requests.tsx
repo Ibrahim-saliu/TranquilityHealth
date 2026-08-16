@@ -1,7 +1,6 @@
 /**
  * AdminRequests — /admin/requests
  * Filterable, paginated table of appointment requests with an inline detail panel.
- * TODO (Phase 3): Add admin role guard.
  */
 
 import { useEffect, useState, useCallback } from "react";

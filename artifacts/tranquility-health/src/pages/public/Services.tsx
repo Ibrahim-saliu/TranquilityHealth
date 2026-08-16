@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-// Lucide condition icons replaced with AI-illustrated images
 import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { PageHeader } from "@/components/public/PageHeader";

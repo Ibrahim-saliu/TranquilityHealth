@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-// Lucide contact icons replaced with AI-illustrated images
 import { ROUTES } from "@/lib/config/routes";
 import { OpenStatusBadge } from "@/components/public/OpenStatusBadge";
 import { PageHeader } from "@/components/public/PageHeader";

@@ -1,7 +1,6 @@
 /**
  * AdminDashboard — /admin/dashboard
  * Shows live request counts by status and a recent-requests list.
- * TODO (Phase 3): Add admin role guard.
  */
 
 import { useEffect, useState } from "react";

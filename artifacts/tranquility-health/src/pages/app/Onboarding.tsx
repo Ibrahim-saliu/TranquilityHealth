@@ -1,17 +1,9 @@
 /**
  * Onboarding — /app/onboarding
  *
- * Patient onboarding flow. Guides new patients through setup steps.
- * Phase 0: Placeholder showing onboarding step structure.
- *
- * TODO (future phase): Implement multi-step onboarding:
- *   1. Verify contact information
- *   2. Insurance / payment method setup
- *   3. Consent forms (ConsentRecord in DB)
- *   4. Mental health intake questionnaire
- *   5. Provider matching / preference selection
- *
- * TODO (Phase 3): Save progress to DB — create Patient record upon completion.
+ * Guides a new patient through the steps required before their first visit:
+ * contact verification, payment setup, consent, intake, and provider selection.
+ * The steps below are presented statically until the intake flow is built out.
  */
 
 const steps = [
@@ -47,16 +39,9 @@ export default function OnboardingPage() {
             </div>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
               Pending
-              {/* TODO (Phase 3): Replace with real status from DB */}
             </span>
           </div>
         ))}
-      </div>
-
-      <div className="mt-8 p-4 bg-teal-50 rounded-lg border border-teal-100">
-        <p className="text-teal-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder onboarding flow. Full implementation coming in future phases.
-        </p>
       </div>
     </div>
   );

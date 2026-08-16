@@ -1,4 +1,3 @@
-// Lucide value icons replaced with AI-illustrated images
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { PageHeader } from "@/components/public/PageHeader";
 import { SectionWrapper } from "@/components/public/SectionWrapper";

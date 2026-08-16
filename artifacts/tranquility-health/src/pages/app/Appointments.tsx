@@ -1,12 +1,8 @@
 /**
  * Appointments — /app/appointments
  *
- * Patient-facing appointment management page.
- * Phase 0: Placeholder with anticipated UI structure.
- *
- * TODO (future phase): Display upcoming and past appointments from DB.
- * TODO (future phase): Allow patients to cancel or reschedule.
- * TODO (Phase 3): Load from Appointment model with proper auth guard.
+ * Patient-facing view of upcoming, past, and cancelled visits. Renders an empty
+ * state until appointment data and scheduling actions are wired to the API.
  */
 
 export default function AppointmentsPage() {
@@ -47,13 +43,6 @@ export default function AppointmentsPage() {
         <h3 className="text-lg font-semibold text-gray-900">No appointments yet</h3>
         <p className="mt-2 text-sm text-gray-500">
           Your upcoming sessions will appear here.
-          {/* TODO (Phase 3): Fetch from Appointment model */}
-        </p>
-      </div>
-
-      <div className="mt-8 p-4 bg-teal-50 rounded-lg border border-teal-100">
-        <p className="text-teal-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder. Real appointment data coming in future phases.
         </p>
       </div>
     </div>

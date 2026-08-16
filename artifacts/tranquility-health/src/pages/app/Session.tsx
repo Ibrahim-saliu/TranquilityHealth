@@ -1,14 +1,11 @@
 /**
  * Session — /app/session
  *
- * Patient telehealth session page. This is where video calls will take place.
- * Phase 0: Placeholder showing the anticipated session interface.
+ * Patient telehealth session page — the room where a video visit takes place.
+ * The video experience is not wired up yet; this renders the session shell.
  *
- * TODO (future phase): Integrate secure video call SDK (e.g., Daily.co, Twilio Video).
- * TODO (Phase 3): Verify patient has an active appointment before showing video.
- * TODO (Phase 3): Log session start/end as AuditLog events.
- * HIPAA NOTE: All session data must be transmitted over encrypted channels.
- *             Video recordings are NOT permitted without explicit written consent.
+ * When the call SDK is integrated, it must run over encrypted channels only,
+ * gate entry on an active appointment, and never record without written consent.
  */
 
 export default function SessionPage() {
@@ -27,9 +24,7 @@ export default function SessionPage() {
           <p className="text-5xl mb-4">🎥</p>
           <h2 className="text-2xl font-semibold">Video Session</h2>
           <p className="mt-3 text-gray-400 text-sm">
-            Secure video call will appear here.
-            <br />
-            {/* TODO (future phase): Mount video SDK component here */}
+            Your provider will start the call at your appointment time.
           </p>
           <button
             disabled
@@ -57,12 +52,6 @@ export default function SessionPage() {
             <span className="text-xs font-medium">{ctrl.label}</span>
           </button>
         ))}
-      </div>
-
-      <div className="mt-10 p-4 bg-teal-50 rounded-lg border border-teal-100">
-        <p className="text-teal-800 text-sm font-medium">
-          📋 Phase 0 — Placeholder. Secure video integration coming in future phases.
-        </p>
       </div>
     </div>
   );

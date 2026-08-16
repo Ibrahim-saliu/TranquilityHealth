@@ -1,5 +1,5 @@
-// User role definitions — patient, provider, admin.
-// TODO (Phase 3): Roles will be derived from JWT claims or session data.
+// User role definitions. The authoritative role comes from the server session
+// (GET /api/auth/me); these constants keep the client's role checks in sync.
 
 export type UserRole = "patient" | "provider" | "admin" | "collaborator";
 

@@ -3,9 +3,8 @@ import { ROUTES } from "@/lib/config/routes";
 import { CtaBlock } from "@/components/public/CtaBlock";
 import { VideoHero } from "@/components/public/VideoHero";
 import { useState, useEffect, useRef } from "react";
-// Lucide icons removed — replaced with AI-illustrated images
 
-// ─── Scroll-reveal hook ────────────────────────────────────────────────────
+// Scroll-reveal hook
 function useScrollReveal(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -27,7 +26,7 @@ function useScrollReveal(threshold = 0.12) {
   return { ref, isVisible };
 }
 
-// ─── Count-up hook ─────────────────────────────────────────────────────────
+// Count-up hook
 function useCountUp(target: number, duration = 1600, shouldStart = false) {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -46,7 +45,7 @@ function useCountUp(target: number, duration = 1600, shouldStart = false) {
   return count;
 }
 
-// ─── Data ──────────────────────────────────────────────────────────────────
+// Data
 const HERO_WORDS = ["anywhere", "at home", "on your schedule"];
 
 const features = [
@@ -104,7 +103,7 @@ const testimonials = [
 ];
 
 export default function HomePage() {
-  // ── Rotating hero word ──────────────────────────────────────────────────
+  // Rotating hero word
   const [wordIdx, setWordIdx] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
 
@@ -119,13 +118,13 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // ── Scroll-reveal refs ──────────────────────────────────────────────────
+  // Scroll-reveal refs
   const { ref: featuresRef, isVisible: featuresVisible } = useScrollReveal();
   const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal();
   const { ref: statsRef, isVisible: statsVisible } = useScrollReveal();
   const { ref: ctaRef, isVisible: ctaVisible } = useScrollReveal();
 
-  // ── Count-up values (triggered when stats section enters view) ──────────
+  // Count-up values (triggered when stats section enters view)
   const patientsCount = useCountUp(500, 1600, statsVisible);
   const sessionsCount = useCountUp(98, 1600, statsVisible);
 
