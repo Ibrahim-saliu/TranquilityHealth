@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
+import { LeafMark } from "@/components/public/LeafMark";
 
 const navLinks = [
   { label: "Home", href: ROUTES.public.home },
@@ -16,9 +17,9 @@ export function Navbar() {
   return (
     <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href={ROUTES.public.home} className="flex items-center gap-2">
-          <img src="/icon.png" alt="Tranquility Health" className="w-8 h-8 rounded-lg object-cover" />
-          <span className="bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent font-bold text-xl tracking-tight">
+        <Link href={ROUTES.public.home} className="flex items-center gap-2.5">
+          <LeafMark className="w-7 h-7 text-teal-700" />
+          <span className="font-serif font-semibold text-xl tracking-tight text-slate-900">
             Tranquility Health
           </span>
         </Link>
@@ -42,7 +43,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href={ROUTES.public.requestAppointment}
-            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-teal-600 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
+            className="inline-flex items-center px-4 py-2 bg-teal-700 text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors shadow-sm hover:shadow-md"
           >
             Book Appointment
           </Link>

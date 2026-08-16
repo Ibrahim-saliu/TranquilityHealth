@@ -114,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* Trust bar */}
-      <section className="bg-gradient-to-r from-teal-600 to-teal-700 py-5">
+      <section className="bg-teal-700 py-5">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center items-center gap-x-8 gap-y-3 overflow-x-auto">
           {[
             { src: "/icons/icon-shield-check.png", label: "Licensed Clinicians" },
