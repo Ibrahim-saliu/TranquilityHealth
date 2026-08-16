@@ -29,7 +29,21 @@ app.use(
   }),
 );
 
-app.use(cors({ credentials: true, origin: true }));
+// CORS — when the SPA is served from a different origin than the API (e.g. two
+// separate Replit URLs), the browser needs credentialed CORS. Lock to an
+// allowlist when CORS_ORIGINS is set (comma-separated); otherwise reflect the
+// request origin. An allowlist is strongly recommended once cross-site cookies
+// are enabled (see SESSION_COOKIE_SAMESITE below).
+const corsOrigins = process.env["CORS_ORIGINS"]
+  ?.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    credentials: true,
+    origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -39,9 +53,13 @@ app.use(express.urlencoded({ extended: true }));
 // ---------------------------------------------------------------------------
 const isProduction = process.env["NODE_ENV"] === "production";
 
-// Trust the first proxy hop (Replit's TLS-terminating reverse proxy) so that
-// Express reads X-Forwarded-For correctly and secure cookies are set reliably.
-if (isProduction) {
+// Trust the first proxy hop so Express reads X-Forwarded-Proto/For correctly —
+// required before it will set a Secure cookie behind Replit's TLS-terminating
+// proxy. On Replit the app runs behind that proxy even in dev, so key off the
+// Replit env, not just NODE_ENV.
+const behindProxy =
+  isProduction || !!process.env["REPL_ID"] || process.env["TRUST_PROXY"] === "1";
+if (behindProxy) {
   app.set("trust proxy", 1);
 }
 
@@ -60,6 +78,15 @@ const sessionSecret = SESSION_SECRET ?? "tranquility-dev-only-secret-do-not-use-
 
 const PgSession = connectPgSimple(session);
 
+// Cross-site cookie behavior. Default "lax" (fine when the SPA and API share an
+// origin). When they're on different origins — e.g. two Replit URLs — set
+// SESSION_COOKIE_SAMESITE=none so the browser will attach the session cookie to
+// cross-site requests. "none" is only honored by browsers alongside Secure, so
+// it forces the Secure flag on (which is why trust-proxy above must be set).
+const cookieSameSite =
+  (process.env["SESSION_COOKIE_SAMESITE"] as "lax" | "strict" | "none" | undefined) ?? "lax";
+const cookieSecure = cookieSameSite === "none" ? true : isProduction;
+
 app.use(
   session({
     name: "th.sid",
@@ -73,10 +100,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "strict",
-      // In production (Replit deployment), requests arrive over HTTPS via proxy.
-      // In development, allow the cookie over HTTP.
-      secure: isProduction,
+      sameSite: cookieSameSite,
+      secure: cookieSecure,
       maxAge: 8 * 60 * 60 * 1000, // 8 hours
     },
   }),
