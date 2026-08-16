@@ -7,6 +7,16 @@ import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 const port = Number(process.env.PORT) || 5173;
 const basePath = process.env.BASE_PATH || "/";
 
+// Proxy /api to the API server so the browser always talks to a single origin
+// (the app's own). In production Replit's application router already routes
+// /api to the API service; this makes dev/preview behave the same way, which
+// keeps the session cookie same-origin (no SameSite=None / CORS needed).
+// Points at the API service's local port (8080); override with API_PROXY_TARGET.
+const apiProxyTarget = process.env.API_PROXY_TARGET || "http://localhost:8080";
+const apiProxy = {
+  "/api": { target: apiProxyTarget, changeOrigin: true },
+};
+
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -43,6 +53,7 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    proxy: apiProxy,
     fs: {
       strict: true,
       deny: ["**/.*"],
@@ -52,5 +63,6 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    proxy: apiProxy,
   },
 });
