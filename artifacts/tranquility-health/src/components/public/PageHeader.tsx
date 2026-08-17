@@ -7,11 +7,9 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, centered = false, badge }: PageHeaderProps) {
   return (
-    <section className="relative bg-gradient-to-br from-slate-900 via-teal-900 to-violet-900 py-20 px-4 overflow-hidden">
-      <div className="absolute inset-0 opacity-25 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[560px] h-[560px] rounded-full bg-teal-300 blur-3xl -translate-y-1/2 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-[420px] h-[420px] rounded-full bg-violet-400 blur-3xl translate-y-1/3 -translate-x-1/4" />
-        <div className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-indigo-400/40 blur-3xl -translate-x-1/2 -translate-y-1/2" />
+    <section className="relative bg-slate-900 py-20 px-4 overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.18] pointer-events-none">
+        <div className="absolute top-1/2 right-0 w-[520px] h-[520px] rounded-full bg-teal-500 blur-3xl -translate-y-1/2 translate-x-1/3" />
       </div>
       <div className={`relative max-w-4xl mx-auto ${centered ? "text-center" : ""}`}>
         {badge && (

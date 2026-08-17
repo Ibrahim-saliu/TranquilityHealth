@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { ROUTES } from "@/lib/config/routes";
+import { LeafMark } from "@/components/public/LeafMark";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,13 +10,9 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <span className="text-white font-bold text-lg">Tranquility Health</span>
+            <div className="flex items-center gap-2.5 mb-4">
+              <LeafMark className="w-7 h-7 text-teal-400" />
+              <span className="text-white font-serif font-semibold text-lg">Tranquility Health</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
               Compassionate telehealth care for anxiety, depression, mood disorders, and more. Accessible from wherever you are.
