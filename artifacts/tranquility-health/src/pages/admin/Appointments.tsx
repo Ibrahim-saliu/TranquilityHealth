@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Plus } from "lucide-react";
 import {
   listAppointments,
   APPOINTMENT_STATUS_LABELS,
@@ -15,6 +15,7 @@ import {
   type Appointment,
   type AppointmentView,
 } from "@/lib/admin-api";
+import { ScheduleAppointmentDialog } from "@/components/admin/ScheduleAppointmentDialog";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -66,6 +67,7 @@ export default function AdminAppointmentsPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
   const load = useCallback(async (v: AppointmentView) => {
     setLoading(true);
@@ -88,17 +90,35 @@ export default function AdminAppointmentsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Appointments</h1>
           <p className="mt-1 text-slate-500">
             All scheduled sessions across providers and patients.
           </p>
         </div>
-        <span className="mt-1 text-sm text-slate-400 tabular-nums">
-          {loading ? "Loading…" : `${total} total`}
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-400 tabular-nums">
+            {loading ? "Loading…" : `${total} total`}
+          </span>
+          <button
+            onClick={() => setScheduleOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-700 text-white text-sm font-semibold rounded-lg hover:bg-teal-800 transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" strokeWidth={2.2} />
+            Schedule appointment
+          </button>
+        </div>
       </div>
+
+      <ScheduleAppointmentDialog
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        onCreated={() => {
+          setView("upcoming");
+          load("upcoming");
+        }}
+      />
 
       {/* Filter tabs */}
       <div className="mb-6 flex gap-1 border-b border-slate-200">

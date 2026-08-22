@@ -11,6 +11,7 @@ import {
   updateRequestStatus,
   REQUEST_STATUS_LABELS,
   SERVICE_LABELS,
+  formatPreferredTime,
   type AppointmentRequest,
   type RequestStatus,
   type RequestsPage,
@@ -112,7 +113,7 @@ function DetailPanel({ request, onClose, onStatusUpdated }: DetailPanelProps) {
             </div>
             <div className="flex gap-2">
               <dt className="w-32 text-slate-400 shrink-0">Preferred time</dt>
-              <dd className="text-slate-700">{request.preferredTime}</dd>
+              <dd className="text-slate-700">{formatPreferredTime(request.preferredTime)}</dd>
             </div>
             <div className="flex gap-2">
               <dt className="w-32 text-slate-400 shrink-0">New patient?</dt>
@@ -328,7 +329,7 @@ export default function AdminRequestsPage() {
                   <td className="px-5 py-3 text-slate-600">
                     {SERVICE_LABELS[r.serviceInterest] ?? r.serviceInterest}
                   </td>
-                  <td className="px-5 py-3 text-slate-600">{r.preferredTime}</td>
+                  <td className="px-5 py-3 text-slate-600">{formatPreferredTime(r.preferredTime)}</td>
                   <td className="px-5 py-3 text-slate-500 whitespace-nowrap">
                     {new Date(r.createdAt).toLocaleDateString("en-US", {
                       month: "short",

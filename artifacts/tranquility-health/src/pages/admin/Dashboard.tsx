@@ -9,6 +9,7 @@ import {
   getRequestCounts,
   listRequests,
   SERVICE_LABELS,
+  formatPreferredTime,
   type AppointmentRequest,
   type RequestStatus,
 } from "@/lib/admin-api";
@@ -139,7 +140,7 @@ export default function AdminDashboardPage() {
                   <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-5 py-3 font-medium text-slate-900">{r.fullName}</td>
                     <td className="px-5 py-3 text-slate-600">{SERVICE_LABELS[r.serviceInterest] ?? r.serviceInterest}</td>
-                    <td className="px-5 py-3 text-slate-600">{r.preferredTime}</td>
+                    <td className="px-5 py-3 text-slate-600">{formatPreferredTime(r.preferredTime)}</td>
                     <td className="px-5 py-3 text-slate-500 tabular-nums">{formatDate(r.createdAt)}</td>
                     <td className="px-5 py-3">
                       <StatusBadge status={r.status} />
