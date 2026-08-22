@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, date, timestamp } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
 
 export const patientsTable = pgTable("patients", {
@@ -10,10 +10,13 @@ export const patientsTable = pgTable("patients", {
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
 
-  // Collected during onboarding — nullable until Phase 4
+  // Collected during onboarding — nullable until the patient completes it.
   fullName: text("full_name"),
+  dateOfBirth: date("date_of_birth"), // PHI
+  phone: text("phone"), // PHI
+  address: text("address"), // PHI
 
-  // "pending" | "complete" — extended in Phase 4
+  // "pending" | "complete"
   onboardingStatus: text("onboarding_status").notNull().default("pending"),
 });
 

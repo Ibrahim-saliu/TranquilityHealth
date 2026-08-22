@@ -711,4 +711,101 @@ router.get("/admin/appointments", requireAuth(["admin", "collaborator"]), async 
   }
 });
 
+// ---------------------------------------------------------------------------
+// GET /admin/patients
+// Lightweight list of patient accounts, for pickers (e.g. scheduling).
+// Restricted to admin and collaborator.
+// ---------------------------------------------------------------------------
+router.get("/admin/patients", requireAuth(["admin", "collaborator"]), async (_req, res) => {
+  try {
+    const rows = await db
+      .select({
+        id: patientsTable.id,
+        fullName: patientsTable.fullName,
+        email: usersTable.email,
+        onboardingStatus: patientsTable.onboardingStatus,
+      })
+      .from(patientsTable)
+      .leftJoin(usersTable, eq(patientsTable.userId, usersTable.id))
+      .orderBy(asc(patientsTable.fullName));
+
+    res.json({ patients: rows });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to load patients" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/appointments
+// Schedule an appointment for a patient with a provider. This is the write
+// path the patient-facing appointments view depends on.
+// Restricted to admin and collaborator.
+// ---------------------------------------------------------------------------
+const createAppointmentSchema = z.object({
+  patientId: z.string().min(1, "Patient is required"),
+  providerId: z.string().min(1, "Provider is required"),
+  scheduledAt: z.string().datetime({ message: "A valid date/time is required" }),
+  appointmentType: z.enum(["medication_management", "psychotherapy", "initial_evaluation"]),
+  durationMinutes: z.number().int().positive().max(240).optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async (req, res) => {
+  const parsed = createAppointmentSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      error: "Validation failed",
+      issues: parsed.error.issues.map((i) => ({ field: i.path.join("."), message: i.message })),
+    });
+    return;
+  }
+
+  const { patientId, providerId, scheduledAt, appointmentType, durationMinutes, notes } = parsed.data;
+
+  try {
+    // Confirm both sides exist so we can return clear errors instead of an FK failure.
+    const [patient] = await db
+      .select({ id: patientsTable.id })
+      .from(patientsTable)
+      .where(eq(patientsTable.id, patientId));
+    if (!patient) {
+      res.status(404).json({ error: "Patient not found" });
+      return;
+    }
+
+    const [provider] = await db
+      .select({ id: providersTable.id })
+      .from(providersTable)
+      .where(eq(providersTable.id, providerId));
+    if (!provider) {
+      res.status(404).json({ error: "Provider not found" });
+      return;
+    }
+
+    const [appointment] = await db
+      .insert(appointmentsTable)
+      .values({
+        patientId,
+        providerId,
+        scheduledAt: new Date(scheduledAt),
+        appointmentType,
+        durationMinutes: durationMinutes ?? 50,
+        notes: notes ?? null,
+        status: "scheduled",
+      })
+      .returning();
+
+    await writeAuditLog({
+      action: "APPOINTMENT_SCHEDULED",
+      entityType: "appointment",
+      entityId: appointment.id,
+      metadata: { patientId, providerId, appointmentType },
+    });
+
+    res.status(201).json({ appointment });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to schedule appointment" });
+  }
+});
+
 export default router;

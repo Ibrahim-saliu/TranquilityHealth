@@ -15,11 +15,11 @@ export const REQUEST_STATUS_LABELS: Record<RequestStatus, string> = {
 };
 
 export const REQUEST_STATUS_COLORS: Record<RequestStatus, string> = {
-  new: "bg-blue-100 text-blue-800",
+  new: "bg-teal-100 text-teal-800",
   under_review: "bg-amber-100 text-amber-800",
   approved: "bg-emerald-100 text-emerald-800",
   rejected: "bg-red-100 text-red-800",
-  invited: "bg-purple-100 text-purple-800",
+  invited: "bg-slate-100 text-slate-700",
 };
 
 export type ServiceInterest = "therapy" | "medication" | "not_sure";
@@ -29,6 +29,20 @@ export const SERVICE_LABELS: Record<ServiceInterest, string> = {
   medication: "Medication Management",
   not_sure: "Not sure yet",
 };
+
+// Preferred-time slugs come from the public intake form's select. Map them to
+// readable labels; unknown values fall back to a title-cased slug.
+export const PREFERRED_TIME_LABELS: Record<string, string> = {
+  weekday_evenings: "Weekday evenings (Mon–Thu, 5–9 PM)",
+  friday_morning: "Friday morning (8 AM–1 PM)",
+  friday_afternoon: "Friday afternoon (3–7 PM)",
+  saturday_morning: "Saturday morning (8 AM–12 PM)",
+  saturday_afternoon: "Saturday afternoon (12–4 PM)",
+};
+
+export function formatPreferredTime(value: string): string {
+  return PREFERRED_TIME_LABELS[value] ?? value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export interface AppointmentRequest {
   id: string;
@@ -270,6 +284,37 @@ export async function listAppointments(
 ): Promise<AppointmentsPage> {
   const params = new URLSearchParams({ view, page: String(page), pageSize: String(pageSize) });
   return apiFetch<AppointmentsPage>(`/admin/appointments?${params.toString()}`);
+}
+
+export interface PatientOption {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  onboardingStatus: string;
+}
+
+/** List patient accounts, for pickers (admin + collaborator only). */
+export async function listPatients(): Promise<PatientOption[]> {
+  const data = await apiFetch<{ patients: PatientOption[] }>("/admin/patients");
+  return data.patients;
+}
+
+export interface CreateAppointmentInput {
+  patientId: string;
+  providerId: string;
+  scheduledAt: string; // ISO 8601
+  appointmentType: AppointmentType;
+  durationMinutes?: number;
+  notes?: string;
+}
+
+/** Schedule an appointment (admin + collaborator only). */
+export async function createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
+  const data = await apiFetch<{ appointment: Appointment }>("/admin/appointments", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return data.appointment;
 }
 
 // ---------------------------------------------------------------------------
