@@ -134,6 +134,10 @@ export function ScheduleAppointmentDialog({ open, onClose, onCreated }: Schedule
                 </option>
               ))}
             </select>
+            <p className="mt-1.5 text-xs text-slate-400">
+              Only patients who have accepted their invite and created an account appear here — not
+              everyone on the Requests list. Invite a request from the Requests page first.
+            </p>
           </div>
 
           <div>

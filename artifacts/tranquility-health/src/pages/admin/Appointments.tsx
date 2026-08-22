@@ -195,7 +195,11 @@ export default function AdminAppointmentsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-700">
-                    {appt.patientName ?? (
+                    {appt.patientName ? (
+                      appt.patientName
+                    ) : appt.patientEmail ? (
+                      <span className="text-slate-600">{appt.patientEmail}</span>
+                    ) : (
                       <span className="text-slate-400 italic">Unknown patient</span>
                     )}
                   </td>
