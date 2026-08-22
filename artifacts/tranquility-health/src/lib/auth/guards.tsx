@@ -15,6 +15,21 @@ export function RequirePatient({ children }: { children: ReactNode }) {
 }
 
 // ---------------------------------------------------------------------------
+// RequirePatientOnboarded — patient session that has finished onboarding.
+// Unfinished patients are sent to the onboarding flow so the rest of the app
+// never renders against a half-set-up account.
+// ---------------------------------------------------------------------------
+export function RequirePatientOnboarded({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <AuthLoadingScreen />;
+  if (!user) return <Redirect to="/login" />;
+  if (user.role !== "patient") return <Redirect to="/" />;
+  if (user.onboardingStatus !== "complete") return <Redirect to="/app/onboarding" />;
+  return <>{children}</>;
+}
+
+// ---------------------------------------------------------------------------
 // RequireAdmin — allows admin and collaborator roles; redirects others
 // ---------------------------------------------------------------------------
 const ADMIN_ROLES = ["admin", "collaborator", "provider"] as const;

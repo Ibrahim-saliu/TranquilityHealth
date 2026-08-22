@@ -117,9 +117,10 @@ router.post("/invite/:token/accept", async (req, res) => {
         res.status(500).json({ error: "Account creation failed" });
         return;
       }
-      // Patient name is null at account creation — set during onboarding
+      // Name is null and onboarding is pending at account creation — both are
+      // set when the patient completes onboarding.
       res.status(201).json({
-        user: { id: user.id, email: user.email, role: user.role, name: null },
+        user: { id: user.id, email: user.email, role: user.role, name: null, onboardingStatus: "pending" },
       });
     });
   } catch (_err) {
