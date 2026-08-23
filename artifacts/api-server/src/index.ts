@@ -20,9 +20,20 @@ if (Number.isNaN(port) || port <= 0) {
 async function start(): Promise<void> {
   // Bring the database schema up to date before serving traffic. The
   // migrations folder is copied next to the bundled server at build time.
+  // A migration failure must stop startup — serving against an incompatible
+  // schema is worse — and must be unmistakable in the deploy logs.
   const migrationsFolder = fileURLToPath(new URL("./migrations", import.meta.url));
   logger.info("Running database migrations");
-  await runMigrations(pool, migrationsFolder);
+  try {
+    await runMigrations(pool, migrationsFolder);
+    logger.info("Database migrations up to date");
+  } catch (err) {
+    logger.fatal(
+      { err },
+      "DATABASE MIGRATION FAILED — server will not start. Fix the migration/database state and redeploy; do not retry blindly.",
+    );
+    process.exit(1);
+  }
 
   // Make sure the session table exists before we accept any requests —
   // otherwise every session write fails and authenticated calls 401.

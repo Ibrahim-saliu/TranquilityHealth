@@ -14,4 +14,5 @@ export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";
-export { runMigrations } from "./migrator";
+export { runMigrations, decideBaseline, BASELINE_TABLES } from "./migrator";
+export type { BaselineDecision } from "./migrator";

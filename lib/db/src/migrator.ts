@@ -7,6 +7,44 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 const BASELINE_TAG = "0000_baseline";
 const BASELINE_WHEN = 1787527281351;
 
+// Every table the baseline migration creates. Used to tell a fresh database
+// (none present) from a fully push-created one (all present) from a partially
+// initialized one (some present) — which we refuse to auto-baseline.
+export const BASELINE_TABLES = [
+  "appointment_requests",
+  "appointments",
+  "providers",
+  "audit_logs",
+  "users",
+  "patients",
+  "consent_records",
+  "invite_tokens",
+] as const;
+
+export type BaselineDecision =
+  | { action: "fresh" }
+  | { action: "baseline" }
+  | { action: "partial"; present: string[]; missing: string[] };
+
+/**
+ * Decide how to treat a database given which baseline tables already exist.
+ * Pure so it can be unit-tested without a database.
+ *  - none present → fresh install; let the migrator build from 0000
+ *  - all present  → previously created (e.g. via push); mark 0000 applied
+ *  - some present → inconsistent; caller must refuse rather than guess
+ */
+export function decideBaseline(existingTables: Iterable<string>): BaselineDecision {
+  const set = existingTables instanceof Set ? existingTables : new Set(existingTables);
+  const present = BASELINE_TABLES.filter((t) => set.has(t));
+  if (present.length === 0) return { action: "fresh" };
+  if (present.length === BASELINE_TABLES.length) return { action: "baseline" };
+  return {
+    action: "partial",
+    present,
+    missing: BASELINE_TABLES.filter((t) => !set.has(t)),
+  };
+}
+
 /**
  * Apply any pending migrations in `migrationsFolder`, idempotently.
  *
@@ -16,6 +54,9 @@ const BASELINE_WHEN = 1787527281351;
  *                                   applies only later migrations, so it never
  *                                   tries to re-create existing tables
  *  - already-migrated database    → no-op
+ *
+ * A partially initialized database (some but not all baseline tables) throws,
+ * rather than silently skipping the baseline and failing later.
  */
 export async function runMigrations(pool: Pool, migrationsFolder: string): Promise<void> {
   await selfBaselineIfNeeded(pool);
@@ -24,15 +65,26 @@ export async function runMigrations(pool: Pool, migrationsFolder: string): Promi
 }
 
 async function selfBaselineIfNeeded(pool: Pool): Promise<void> {
-  // If the app schema doesn't exist yet, this is a fresh database — let the
-  // migrator build it from the baseline. Nothing to baseline.
-  const { rows: reg } = await pool.query<{ reg: string | null }>(
-    "select to_regclass('public.users') as reg",
+  // Which of the expected baseline tables currently exist?
+  const { rows } = await pool.query<{ table_name: string }>(
+    `select table_name from information_schema.tables
+      where table_schema = 'public' and table_name = any($1::text[])`,
+    [[...BASELINE_TABLES]],
   );
-  if (reg[0]?.reg == null) return;
+  const decision = decideBaseline(rows.map((r) => r.table_name));
 
-  // App tables exist. Ensure the drizzle bookkeeping table exists (same shape
-  // the migrator uses) so we can inspect and seed it.
+  if (decision.action === "fresh") return; // migrator builds everything from 0000
+
+  if (decision.action === "partial") {
+    throw new Error(
+      `Database is partially initialized: found ${decision.present.length}/${BASELINE_TABLES.length} ` +
+        `baseline tables (missing: ${decision.missing.join(", ")}). Refusing to auto-baseline. ` +
+        `Resolve the database state manually before deploying.`,
+    );
+  }
+
+  // decision.action === "baseline": all app tables exist. Ensure the drizzle
+  // bookkeeping table exists (same shape the migrator uses) so we can seed it.
   await pool.query('create schema if not exists "drizzle"');
   await pool.query(
     'create table if not exists "drizzle"."__drizzle_migrations" ' +
@@ -45,8 +97,8 @@ async function selfBaselineIfNeeded(pool: Pool): Promise<void> {
   if (Number(cnt[0]?.n ?? 0) > 0) return; // already tracked — leave it alone
 
   // Tables exist but nothing is recorded: this database predates migrations
-  // (it was created with `drizzle-kit push`). Mark the baseline as applied so
-  // the migrator skips re-creating existing tables and applies only what's new.
+  // (created with `drizzle-kit push`). Mark the baseline as applied so the
+  // migrator skips re-creating existing tables and applies only what's new.
   await pool.query(
     'insert into "drizzle"."__drizzle_migrations" (hash, created_at) values ($1, $2)',
     [BASELINE_TAG, BASELINE_WHEN],
