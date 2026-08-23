@@ -9,6 +9,7 @@ import { useEffect, useState, useCallback } from "react";
 import { CalendarDays, Plus } from "lucide-react";
 import {
   listAppointments,
+  cancelAppointment,
   APPOINTMENT_STATUS_LABELS,
   APPOINTMENT_STATUS_COLORS,
   APPOINTMENT_TYPE_LABELS,
@@ -68,6 +69,7 @@ export default function AdminAppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const load = useCallback(async (v: AppointmentView) => {
     setLoading(true);
@@ -86,6 +88,23 @@ export default function AdminAppointmentsPage() {
   useEffect(() => {
     load(view);
   }, [view, load]);
+
+  const handleCancel = useCallback(
+    async (appt: Appointment) => {
+      if (!window.confirm("Cancel this appointment? The patient's slot will be released.")) return;
+      setCancellingId(appt.id);
+      setError(null);
+      try {
+        await cancelAppointment(appt.id);
+        await load(view);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to cancel appointment");
+      } finally {
+        setCancellingId(null);
+      }
+    },
+    [view, load],
+  );
 
   return (
     <div>
@@ -157,6 +176,9 @@ export default function AdminAppointmentsPage() {
                   {col}
                 </th>
               ))}
+              <th className="px-6 py-4 text-right text-slate-500 font-semibold text-xs uppercase tracking-wide">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -164,7 +186,7 @@ export default function AdminAppointmentsPage() {
               // Skeleton rows
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  {Array.from({ length: 5 }).map((__, j) => (
+                  {Array.from({ length: 6 }).map((__, j) => (
                     <td key={j} className="px-6 py-4">
                       <div className="h-4 bg-slate-100 rounded w-3/4" />
                     </td>
@@ -173,7 +195,7 @@ export default function AdminAppointmentsPage() {
               ))
             ) : appointments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-20 text-center text-slate-400">
+                <td colSpan={6} className="px-6 py-20 text-center text-slate-400">
                   <CalendarDays className="w-10 h-10 mx-auto mb-4 text-slate-300" strokeWidth={1.5} />
                   <p className="text-base font-medium text-slate-500">No appointments yet</p>
                   <p className="text-sm mt-1 text-slate-400">
@@ -222,6 +244,19 @@ export default function AdminAppointmentsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <ApptStatusBadge status={appt.status} />
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    {appt.status === "scheduled" ? (
+                      <button
+                        onClick={() => handleCancel(appt)}
+                        disabled={cancellingId === appt.id}
+                        className="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {cancellingId === appt.id ? "Cancelling…" : "Cancel"}
+                      </button>
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )}
                   </td>
                 </tr>
               ))

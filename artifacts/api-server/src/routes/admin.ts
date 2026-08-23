@@ -8,6 +8,10 @@ import { generateInvite } from "../lib/invite";
 
 const router: IRouter = Router();
 
+// Thrown inside the scheduling transaction when an overlapping appointment is
+// found, so the rollback and the 409 response are driven from one place.
+class AppointmentOverlapError extends Error {}
+
 // ---------------------------------------------------------------------------
 // All /admin/* routes require at minimum an authenticated staff session.
 // Appointment-request and team-management routes add a stricter per-route
@@ -800,38 +804,47 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
       return;
     }
 
-    // Double-booking guard: reject if this provider already has a non-cancelled
-    // appointment whose time window overlaps the requested one. Two intervals
-    // [s1,e1) and [s2,e2) overlap iff s1 < e2 AND s2 < e1.
-    const [conflict] = await db
-      .select({ id: appointmentsTable.id })
-      .from(appointmentsTable)
-      .where(
-        and(
-          eq(appointmentsTable.providerId, providerId),
-          sql`${appointmentsTable.status} <> 'cancelled'`,
-          lt(appointmentsTable.scheduledAt, endAt),
-          sql`${appointmentsTable.scheduledAt} + (${appointmentsTable.durationMinutes} * interval '1 minute') > ${startAt}`,
-        ),
-      )
-      .limit(1);
-    if (conflict) {
-      res.status(409).json({ error: "This provider already has an appointment during that time." });
-      return;
-    }
+    // Double-booking guard. The overlap check and the insert must be atomic:
+    // two concurrent requests could each pass a standalone SELECT and then both
+    // insert (a read-then-write race). We serialize writers for the same
+    // provider with a transaction-scoped advisory lock, so a competing booking
+    // for that provider waits until this transaction commits and then sees the
+    // row. Bookings for different providers don't contend (distinct lock keys).
+    // Two intervals [s1,e1) and [s2,e2) overlap iff s1 < e2 AND s2 < e1.
+    const appointment = await db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${providerId}))`);
 
-    const [appointment] = await db
-      .insert(appointmentsTable)
-      .values({
-        patientId,
-        providerId,
-        scheduledAt: startAt,
-        appointmentType,
-        durationMinutes: duration,
-        notes: notes ?? null,
-        status: "scheduled",
-      })
-      .returning();
+      const [conflict] = await tx
+        .select({ id: appointmentsTable.id })
+        .from(appointmentsTable)
+        .where(
+          and(
+            eq(appointmentsTable.providerId, providerId),
+            sql`${appointmentsTable.status} <> 'cancelled'`,
+            lt(appointmentsTable.scheduledAt, endAt),
+            sql`${appointmentsTable.scheduledAt} + (${appointmentsTable.durationMinutes} * interval '1 minute') > ${startAt}`,
+          ),
+        )
+        .limit(1);
+      if (conflict) {
+        // Signalled out of the transaction and mapped to a 409 below.
+        throw new AppointmentOverlapError();
+      }
+
+      const [row] = await tx
+        .insert(appointmentsTable)
+        .values({
+          patientId,
+          providerId,
+          scheduledAt: startAt,
+          appointmentType,
+          durationMinutes: duration,
+          notes: notes ?? null,
+          status: "scheduled",
+        })
+        .returning();
+      return row;
+    });
 
     await writeAuditLog({
       action: "APPOINTMENT_SCHEDULED",
@@ -842,8 +855,74 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
     });
 
     res.status(201).json({ appointment });
-  } catch (_err) {
+  } catch (err) {
+    if (err instanceof AppointmentOverlapError) {
+      res.status(409).json({ error: "This provider already has an appointment during that time." });
+      return;
+    }
     res.status(500).json({ error: "Failed to schedule appointment" });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/appointments/:id/cancel
+// Cancel a scheduled appointment. Cancellation is a soft state change (status
+// -> "cancelled") so the record and its history survive. A completed or
+// already-cancelled appointment can't be cancelled again.
+// Restricted to admin and collaborator.
+// ---------------------------------------------------------------------------
+const cancelAppointmentSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
+
+router.post("/admin/appointments/:id/cancel", requireAuth(["admin", "collaborator"]), async (req, res) => {
+  const id = String(req.params.id);
+
+  const parsed = cancelAppointmentSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid cancellation reason" });
+    return;
+  }
+
+  try {
+    const [existing] = await db
+      .select({ id: appointmentsTable.id, status: appointmentsTable.status })
+      .from(appointmentsTable)
+      .where(eq(appointmentsTable.id, id));
+
+    if (!existing) {
+      res.status(404).json({ error: "Appointment not found" });
+      return;
+    }
+    if (existing.status === "cancelled") {
+      res.status(409).json({ error: "This appointment is already cancelled." });
+      return;
+    }
+    if (existing.status === "completed") {
+      res.status(409).json({ error: "A completed appointment can't be cancelled." });
+      return;
+    }
+
+    const [updated] = await db
+      .update(appointmentsTable)
+      .set({ status: "cancelled", updatedAt: new Date() })
+      .where(eq(appointmentsTable.id, id))
+      .returning();
+
+    await writeAuditLog({
+      action: "APPOINTMENT_CANCELLED",
+      entityType: "appointment",
+      entityId: id,
+      actorId: getCurrentUser(req)?.userId,
+      metadata: {
+        previousStatus: existing.status,
+        ...(parsed.data.reason ? { reason: parsed.data.reason } : {}),
+      },
+    });
+
+    res.json({ appointment: updated });
+  } catch (_err) {
+    res.status(500).json({ error: "Failed to cancel appointment" });
   }
 });
 
