@@ -76,28 +76,29 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 
 #### Schema changes & migrations
 
-Deploys apply **versioned migrations**, not `push`. Workflow:
+Deploys apply **versioned migrations**, not `push`. The API server runs
+`runMigrations()` automatically at startup (before it accepts traffic), so a
+deploy always brings the schema up to date before serving. The build copies
+`lib/db/migrations/` next to the bundled server (`dist/migrations`).
 
-1. Edit the schema under `src/schema/`.
-2. `pnpm --filter @workspace/db run generate` — writes a new timestamped SQL file into `migrations/`. Commit it.
-3. On deploy, run `pnpm --filter @workspace/db run migrate` (idempotent — already-applied migrations are skipped).
+Workflow for a schema change:
+
+1. Edit the schema under `lib/db/src/schema/`.
+2. `pnpm --filter @workspace/db run generate` — writes a new timestamped SQL file into `migrations/`. Commit it (SQL + `meta/`).
+3. Deploy. The server applies it on boot. (Or apply manually with `pnpm --filter @workspace/db run migrate`.)
 
 Local dev can still use `pnpm --filter @workspace/db run push` / `push-force` for fast iteration, but anything shipped must have a committed migration.
 
-**One-time baseline (existing database only).** The current database was created with `push`, so its tables already exist. Before the first `migrate` run against it, mark the baseline migration as already applied so the runner doesn't try to re-create existing tables (the runner compares each migration's journal timestamp against the newest recorded `created_at`):
+**Startup migration is safe on any starting state** — `runMigrations()`
+(`lib/db/src/migrator.ts`) self-baselines:
 
-```sql
-CREATE SCHEMA IF NOT EXISTS "drizzle";
-CREATE TABLE IF NOT EXISTS "drizzle"."__drizzle_migrations" (
-  id SERIAL PRIMARY KEY,
-  hash text NOT NULL,
-  created_at bigint
-);
-INSERT INTO "drizzle"."__drizzle_migrations" (hash, created_at)
-VALUES ('0000_baseline', 1787527281351);
-```
+- **Fresh/empty DB** → applies `0000_baseline` and everything after.
+- **Existing DB created with `push`** (our current case) → detects that the app
+  tables already exist but nothing is recorded, marks `0000_baseline` as applied
+  so it doesn't try to re-create them, then applies only newer migrations.
+- **Already-migrated DB** → no-op.
 
-A brand-new (empty) database needs no baseline — `migrate` applies `0000_baseline` and everything after it from scratch.
+No manual baseline step is required.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

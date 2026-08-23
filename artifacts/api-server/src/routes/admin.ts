@@ -885,29 +885,35 @@ router.post("/admin/appointments/:id/cancel", requireAuth(["admin", "collaborato
   }
 
   try {
-    const [existing] = await db
-      .select({ id: appointmentsTable.id, status: appointmentsTable.status })
-      .from(appointmentsTable)
-      .where(eq(appointmentsTable.id, id));
-
-    if (!existing) {
-      res.status(404).json({ error: "Appointment not found" });
-      return;
-    }
-    if (existing.status === "cancelled") {
-      res.status(409).json({ error: "This appointment is already cancelled." });
-      return;
-    }
-    if (existing.status === "completed") {
-      res.status(409).json({ error: "A completed appointment can't be cancelled." });
-      return;
-    }
-
+    // Only a scheduled appointment can be cancelled. Do it as a single atomic
+    // conditional update (WHERE status = 'scheduled') so two concurrent cancels
+    // can't both succeed and write duplicate audit entries — exactly one update
+    // returns a row, the loser returns none.
     const [updated] = await db
       .update(appointmentsTable)
       .set({ status: "cancelled", updatedAt: new Date() })
-      .where(eq(appointmentsTable.id, id))
+      .where(and(eq(appointmentsTable.id, id), eq(appointmentsTable.status, "scheduled")))
       .returning();
+
+    if (!updated) {
+      // Distinguish "doesn't exist" from "not in a cancellable state".
+      const [existing] = await db
+        .select({ status: appointmentsTable.status })
+        .from(appointmentsTable)
+        .where(eq(appointmentsTable.id, id));
+      if (!existing) {
+        res.status(404).json({ error: "Appointment not found" });
+        return;
+      }
+      if (existing.status === "cancelled") {
+        res.status(409).json({ error: "This appointment is already cancelled." });
+        return;
+      }
+      res.status(409).json({
+        error: `Only a scheduled appointment can be cancelled (this one is ${existing.status}).`,
+      });
+      return;
+    }
 
     await writeAuditLog({
       action: "APPOINTMENT_CANCELLED",
@@ -915,7 +921,7 @@ router.post("/admin/appointments/:id/cancel", requireAuth(["admin", "collaborato
       entityId: id,
       actorId: getCurrentUser(req)?.userId,
       metadata: {
-        previousStatus: existing.status,
+        previousStatus: "scheduled",
         ...(parsed.data.reason ? { reason: parsed.data.reason } : {}),
       },
     });

@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+import { pool, runMigrations } from "@workspace/db";
 import app, { ensureSessionTable } from "./app";
 import { logger } from "./lib/logger";
 
@@ -16,6 +18,12 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 async function start(): Promise<void> {
+  // Bring the database schema up to date before serving traffic. The
+  // migrations folder is copied next to the bundled server at build time.
+  const migrationsFolder = fileURLToPath(new URL("./migrations", import.meta.url));
+  logger.info("Running database migrations");
+  await runMigrations(pool, migrationsFolder);
+
   // Make sure the session table exists before we accept any requests —
   // otherwise every session write fails and authenticated calls 401.
   await ensureSessionTable();

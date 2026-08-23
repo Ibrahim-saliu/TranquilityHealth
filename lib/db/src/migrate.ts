@@ -1,18 +1,15 @@
 /**
- * Migration runner — applies any pending SQL migrations in ../migrations to the
- * database at DATABASE_URL, tracked in the drizzle __drizzle_migrations table.
- * Idempotent: already-applied migrations are skipped. Run in deploy via
- * `pnpm --filter @workspace/db run migrate`.
+ * CLI migration runner — applies pending migrations in ../migrations to the
+ * database at DATABASE_URL. Idempotent and safe to run against a fresh, an
+ * existing push-created, or an already-migrated database (see runMigrations).
  *
- * NOTE for an existing database first adopting migrations: if the schema was
- * previously created with `drizzle-kit push`, baseline it before the first run
- * so migrate doesn't try to re-create existing tables — see replit.md.
+ * Used manually via `pnpm --filter @workspace/db run migrate`. The API server
+ * also runs the same runMigrations() automatically at startup.
  */
-import { drizzle } from "drizzle-orm/node-postgres";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
 import pg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
+import { runMigrations } from "./migrator";
 
 const { Pool } = pg;
 
@@ -22,12 +19,10 @@ async function main() {
   }
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const db = drizzle(pool);
-
   const migrationsFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "../migrations");
 
   console.log(`[migrate] applying migrations from ${migrationsFolder}`);
-  await migrate(db, { migrationsFolder });
+  await runMigrations(pool, migrationsFolder);
   console.log("[migrate] done — database is up to date");
 
   await pool.end();
