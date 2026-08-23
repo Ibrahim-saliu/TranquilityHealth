@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { eq, and, gte, lt, asc, desc } from "drizzle-orm";
+import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   db,
   patientsTable,
@@ -135,12 +135,20 @@ router.post("/me/onboarding", async (req, res) => {
         .where(eq(patientsTable.id, patient.id))
         .returning();
 
-      // Record any consent not already on file. Consent records are immutable,
-      // so we never rewrite an existing signature — a re-submit just skips it.
+      // Record any consent not already on file *for the current document
+      // version*. Consent records are immutable and version-scoped, so if the
+      // document text changes (version bumps) the new version is captured as a
+      // fresh signature rather than silently skipped. A re-submit of the same
+      // version inserts nothing.
       const existing = await tx
         .select({ consentType: consentRecordsTable.consentType })
         .from(consentRecordsTable)
-        .where(eq(consentRecordsTable.patientId, patient.id));
+        .where(
+          and(
+            eq(consentRecordsTable.patientId, patient.id),
+            eq(consentRecordsTable.documentVersion, CONSENT_DOCUMENT_VERSION),
+          ),
+        );
       const already = new Set(existing.map((c) => c.consentType));
 
       const toInsert = Object.values(CONSENT_TYPES)
@@ -154,7 +162,10 @@ router.post("/me/onboarding", async (req, res) => {
         }));
 
       if (toInsert.length > 0) {
-        await tx.insert(consentRecordsTable).values(toInsert);
+        // onConflictDoNothing guards the unique (patient, type, version)
+        // constraint against a concurrent submit racing between the select
+        // above and this insert.
+        await tx.insert(consentRecordsTable).values(toInsert).onConflictDoNothing();
       }
 
       return { updated: row, consentsRecorded: toInsert.length };
@@ -205,11 +216,16 @@ router.get("/me/appointments", async (req, res) => {
     }
 
     const now = new Date();
+    // "Upcoming" means not yet ended — an in-progress visit stays here until its
+    // end time so the join window (and Join button) remains reachable. "Past"
+    // means fully ended.
+    const notEnded = sql`${appointmentsTable.scheduledAt} + (${appointmentsTable.durationMinutes} * interval '1 minute') > ${now}`;
+    const ended = sql`${appointmentsTable.scheduledAt} + (${appointmentsTable.durationMinutes} * interval '1 minute') <= ${now}`;
     const scope =
       view === "upcoming"
-        ? and(eq(appointmentsTable.patientId, patient.id), gte(appointmentsTable.scheduledAt, now))
+        ? and(eq(appointmentsTable.patientId, patient.id), notEnded)
         : view === "past"
-          ? and(eq(appointmentsTable.patientId, patient.id), lt(appointmentsTable.scheduledAt, now))
+          ? and(eq(appointmentsTable.patientId, patient.id), ended)
           : eq(appointmentsTable.patientId, patient.id);
 
     const orderBy =
