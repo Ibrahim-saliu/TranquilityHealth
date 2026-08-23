@@ -1,7 +1,7 @@
 import { Switch, Route, Router as WouterRouter } from "wouter";
 
 import { AuthProvider } from "@/lib/auth/context";
-import { RequirePatient, RequireAdmin } from "@/lib/auth/guards";
+import { RequirePatient, RequirePatientOnboarded, RequireAdmin } from "@/lib/auth/guards";
 
 import { PublicLayout } from "@/layouts/PublicLayout";
 import { AppLayout } from "@/layouts/AppLayout";
@@ -84,9 +84,9 @@ function Router() {
       {/* Patient app routes — require authenticated patient session          */}
       {/* ------------------------------------------------------------------ */}
       <Route path="/app/dashboard">
-        <RequirePatient>
+        <RequirePatientOnboarded>
           <AppLayout><AppDashboardPage /></AppLayout>
-        </RequirePatient>
+        </RequirePatientOnboarded>
       </Route>
       <Route path="/app/onboarding">
         <RequirePatient>
@@ -94,14 +94,14 @@ function Router() {
         </RequirePatient>
       </Route>
       <Route path="/app/appointments">
-        <RequirePatient>
+        <RequirePatientOnboarded>
           <AppLayout><AppointmentsPage /></AppLayout>
-        </RequirePatient>
+        </RequirePatientOnboarded>
       </Route>
       <Route path="/app/session">
-        <RequirePatient>
+        <RequirePatientOnboarded>
           <AppLayout><SessionPage /></AppLayout>
-        </RequirePatient>
+        </RequirePatientOnboarded>
       </Route>
 
       {/* ------------------------------------------------------------------ */}

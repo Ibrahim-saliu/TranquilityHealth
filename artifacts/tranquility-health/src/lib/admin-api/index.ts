@@ -264,6 +264,7 @@ export interface Appointment {
   createdAt: string;
   patientId: string;
   patientName: string | null;
+  patientEmail: string | null;
   providerId: string;
   providerName: string | null;
   providerCredentials: string | null;

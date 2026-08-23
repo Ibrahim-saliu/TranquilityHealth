@@ -8,6 +8,7 @@ export type AuditAction =
   | "PROVIDER_UPDATED"
   | "PROVIDER_SELF_UPDATED"
   | "APPOINTMENT_SCHEDULED"
+  | "ONBOARDING_COMPLETED"
   // Phase 3: auth + invite events
   | "INVITE_CREATED"
   | "INVITE_USED"

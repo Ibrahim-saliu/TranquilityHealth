@@ -9,12 +9,12 @@ vi.mock("wouter", () => ({
   Redirect: ({ to }: { to: string }) => <div data-testid="redirect" data-to={to} />,
 }));
 
-import { RequireAdmin, RequirePatient } from "./guards";
+import { RequireAdmin, RequirePatient, RequirePatientOnboarded } from "./guards";
 import { useAuth } from "./context";
 
 const mockUseAuth = vi.mocked(useAuth);
 
-type Session = { user: { role: string } | null; loading: boolean };
+type Session = { user: { role: string; onboardingStatus?: string } | null; loading: boolean };
 function setSession(session: Session) {
   mockUseAuth.mockReturnValue(session as unknown as ReturnType<typeof useAuth>);
 }
@@ -76,6 +76,33 @@ describe("RequirePatient", () => {
   it("redirects an unauthenticated visitor to /login", () => {
     setSession({ user: null, loading: false });
     render(<RequirePatient>{child}</RequirePatient>);
+    expect(redirectedTo()).toBe("/login");
+  });
+});
+
+describe("RequirePatientOnboarded", () => {
+  it("renders children for a patient who has completed onboarding", () => {
+    setSession({ user: { role: "patient", onboardingStatus: "complete" }, loading: false });
+    render(<RequirePatientOnboarded>{child}</RequirePatientOnboarded>);
+    expect(screen.getByTestId("protected")).toBeInTheDocument();
+  });
+
+  it("sends a pending patient to the onboarding flow", () => {
+    setSession({ user: { role: "patient", onboardingStatus: "pending" }, loading: false });
+    render(<RequirePatientOnboarded>{child}</RequirePatientOnboarded>);
+    expect(redirectedTo()).toBe("/app/onboarding");
+    expect(screen.queryByTestId("protected")).not.toBeInTheDocument();
+  });
+
+  it("sends staff away from the patient area", () => {
+    setSession({ user: { role: "admin" }, loading: false });
+    render(<RequirePatientOnboarded>{child}</RequirePatientOnboarded>);
+    expect(redirectedTo()).toBe("/");
+  });
+
+  it("redirects an unauthenticated visitor to /login", () => {
+    setSession({ user: null, loading: false });
+    render(<RequirePatientOnboarded>{child}</RequirePatientOnboarded>);
     expect(redirectedTo()).toBe("/login");
   });
 });

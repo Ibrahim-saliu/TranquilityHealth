@@ -1,9 +1,9 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { eq, desc, asc, gte, lt, sql, count, or } from "drizzle-orm";
+import { eq, desc, asc, gte, lt, sql, count, or, and } from "drizzle-orm";
 import { db, appointmentRequestsTable, appointmentsTable, patientsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
-import { requireAuth } from "../lib/session";
+import { requireAuth, getCurrentUser } from "../lib/session";
 import { generateInvite } from "../lib/invite";
 
 const router: IRouter = Router();
@@ -682,12 +682,14 @@ router.get("/admin/appointments", requireAuth(["admin", "collaborator"]), async 
         createdAt: appointmentsTable.createdAt,
         patientId: appointmentsTable.patientId,
         patientName: patientsTable.fullName,
+        patientEmail: usersTable.email,
         providerId: appointmentsTable.providerId,
         providerName: providersTable.fullName,
         providerCredentials: providersTable.credentials,
       })
       .from(appointmentsTable)
       .leftJoin(patientsTable, eq(appointmentsTable.patientId, patientsTable.id))
+      .leftJoin(usersTable, eq(patientsTable.userId, usersTable.id))
       .leftJoin(providersTable, eq(appointmentsTable.providerId, providersTable.id));
 
     const countQ = db
@@ -762,6 +764,16 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
 
   const { patientId, providerId, scheduledAt, appointmentType, durationMinutes, notes } = parsed.data;
 
+  const duration = durationMinutes ?? 50;
+  const startAt = new Date(scheduledAt);
+  const endAt = new Date(startAt.getTime() + duration * 60_000);
+
+  // Reject appointments scheduled in the past — a clinic only books forward.
+  if (startAt.getTime() <= Date.now()) {
+    res.status(400).json({ error: "Appointment time must be in the future." });
+    return;
+  }
+
   try {
     // Confirm both sides exist so we can return clear errors instead of an FK failure.
     const [patient] = await db
@@ -774,11 +786,37 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
     }
 
     const [provider] = await db
-      .select({ id: providersTable.id })
+      .select({ id: providersTable.id, isActive: providersTable.isActive })
       .from(providersTable)
       .where(eq(providersTable.id, providerId));
     if (!provider) {
       res.status(404).json({ error: "Provider not found" });
+      return;
+    }
+    // A deactivated provider is off the roster and cannot take bookings, even
+    // if a stale client somehow submits their id.
+    if (!provider.isActive) {
+      res.status(409).json({ error: "This provider is inactive and cannot be scheduled." });
+      return;
+    }
+
+    // Double-booking guard: reject if this provider already has a non-cancelled
+    // appointment whose time window overlaps the requested one. Two intervals
+    // [s1,e1) and [s2,e2) overlap iff s1 < e2 AND s2 < e1.
+    const [conflict] = await db
+      .select({ id: appointmentsTable.id })
+      .from(appointmentsTable)
+      .where(
+        and(
+          eq(appointmentsTable.providerId, providerId),
+          sql`${appointmentsTable.status} <> 'cancelled'`,
+          lt(appointmentsTable.scheduledAt, endAt),
+          sql`${appointmentsTable.scheduledAt} + (${appointmentsTable.durationMinutes} * interval '1 minute') > ${startAt}`,
+        ),
+      )
+      .limit(1);
+    if (conflict) {
+      res.status(409).json({ error: "This provider already has an appointment during that time." });
       return;
     }
 
@@ -787,9 +825,9 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
       .values({
         patientId,
         providerId,
-        scheduledAt: new Date(scheduledAt),
+        scheduledAt: startAt,
         appointmentType,
-        durationMinutes: durationMinutes ?? 50,
+        durationMinutes: duration,
         notes: notes ?? null,
         status: "scheduled",
       })
@@ -799,6 +837,7 @@ router.post("/admin/appointments", requireAuth(["admin", "collaborator"]), async
       action: "APPOINTMENT_SCHEDULED",
       entityType: "appointment",
       entityId: appointment.id,
+      actorId: getCurrentUser(req)?.userId,
       metadata: { patientId, providerId, appointmentType },
     });
 

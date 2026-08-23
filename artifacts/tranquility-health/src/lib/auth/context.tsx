@@ -17,6 +17,8 @@ export interface AuthUser {
   role: string;
   /** Patient's full name from the patients table; null until onboarding completes. */
   name: string | null;
+  /** "pending" | "complete" for patients; null for staff accounts. */
+  onboardingStatus?: string | null;
 }
 
 interface AuthState {

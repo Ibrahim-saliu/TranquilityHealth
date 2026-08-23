@@ -67,6 +67,18 @@ router.post("/auth/login", async (req, res) => {
       actorId: user.id,
     });
 
+    // Patient accounts carry a display name + onboarding status; staff do not.
+    let name: string | null = null;
+    let onboardingStatus: string | null = null;
+    if (user.role === "patient") {
+      const [patient] = await db
+        .select({ fullName: patientsTable.fullName, onboardingStatus: patientsTable.onboardingStatus })
+        .from(patientsTable)
+        .where(eq(patientsTable.userId, user.id));
+      name = patient?.fullName ?? null;
+      onboardingStatus = patient?.onboardingStatus ?? null;
+    }
+
     // Persist the session to the store before responding, so the client's very
     // next request is guaranteed to find it. express-session normally saves on
     // response end, but making it explicit removes any doubt with an async store.
@@ -75,9 +87,8 @@ router.post("/auth/login", async (req, res) => {
         res.status(500).json({ error: "Login failed" });
         return;
       }
-      // Admin accounts have no patients record — name stays null
       res.json({
-        user: { id: user.id, email: user.email, role: user.role, name: null },
+        user: { id: user.id, email: user.email, role: user.role, name, onboardingStatus },
       });
     });
   } catch (_err) {
@@ -123,17 +134,20 @@ router.get("/auth/me", async (req, res) => {
       return;
     }
 
-    // For patient accounts, also return their display name from the patients table
+    // For patient accounts, also return their display name and onboarding
+    // status from the patients table so the client can gate the app.
     let name: string | null = null;
+    let onboardingStatus: string | null = null;
     if (user.role === "patient") {
       const [patient] = await db
-        .select({ fullName: patientsTable.fullName })
+        .select({ fullName: patientsTable.fullName, onboardingStatus: patientsTable.onboardingStatus })
         .from(patientsTable)
         .where(eq(patientsTable.userId, user.id));
       name = patient?.fullName ?? null;
+      onboardingStatus = patient?.onboardingStatus ?? null;
     }
 
-    res.json({ user: { ...user, name } });
+    res.json({ user: { ...user, name, onboardingStatus } });
   } catch (_err) {
     res.status(500).json({ error: "Failed to load user" });
   }
