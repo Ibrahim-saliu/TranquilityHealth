@@ -118,48 +118,55 @@ router.post("/me/onboarding", async (req, res) => {
       return;
     }
 
-    // Save demographics and mark onboarding complete.
-    const [updated] = await db
-      .update(patientsTable)
-      .set({
-        fullName,
-        dateOfBirth,
-        phone,
-        address: address ? address : null,
-        onboardingStatus: "complete",
-        updatedAt: new Date(),
-      })
-      .where(eq(patientsTable.id, patient.id))
-      .returning();
+    // Demographics and consent records must land together or not at all — a
+    // patient marked "complete" without their consent records on file would be
+    // a compliance gap. Run both writes in one transaction.
+    const { updated, consentsRecorded } = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .update(patientsTable)
+        .set({
+          fullName,
+          dateOfBirth,
+          phone,
+          address: address ? address : null,
+          onboardingStatus: "complete",
+          updatedAt: new Date(),
+        })
+        .where(eq(patientsTable.id, patient.id))
+        .returning();
 
-    // Record any consent not already on file. Consent records are immutable, so
-    // we never rewrite an existing signature — a re-submit just skips it.
-    const existing = await db
-      .select({ consentType: consentRecordsTable.consentType })
-      .from(consentRecordsTable)
-      .where(eq(consentRecordsTable.patientId, patient.id));
-    const already = new Set(existing.map((c) => c.consentType));
+      // Record any consent not already on file. Consent records are immutable,
+      // so we never rewrite an existing signature — a re-submit just skips it.
+      const existing = await tx
+        .select({ consentType: consentRecordsTable.consentType })
+        .from(consentRecordsTable)
+        .where(eq(consentRecordsTable.patientId, patient.id));
+      const already = new Set(existing.map((c) => c.consentType));
 
-    const toInsert = Object.values(CONSENT_TYPES)
-      .filter((type) => !already.has(type))
-      .map((type) => ({
-        patientId: patient.id,
-        consentType: type,
-        documentVersion: CONSENT_DOCUMENT_VERSION,
-        signatureMethod: "electronic_checkbox",
-        ipAddress: req.ip ?? null,
-      }));
+      const toInsert = Object.values(CONSENT_TYPES)
+        .filter((type) => !already.has(type))
+        .map((type) => ({
+          patientId: patient.id,
+          consentType: type,
+          documentVersion: CONSENT_DOCUMENT_VERSION,
+          signatureMethod: "electronic_checkbox",
+          ipAddress: req.ip ?? null,
+        }));
 
-    if (toInsert.length > 0) {
-      await db.insert(consentRecordsTable).values(toInsert);
-    }
+      if (toInsert.length > 0) {
+        await tx.insert(consentRecordsTable).values(toInsert);
+      }
 
+      return { updated: row, consentsRecorded: toInsert.length };
+    });
+
+    // Best-effort audit after the transaction has committed.
     await writeAuditLog({
       action: "ONBOARDING_COMPLETED",
       entityType: "patient",
       entityId: patient.id,
       actorId: userId,
-      metadata: { consentsRecorded: toInsert.length },
+      metadata: { consentsRecorded },
     });
 
     res.json({

@@ -318,6 +318,15 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
   return data.appointment;
 }
 
+/** Cancel a scheduled appointment (admin + collaborator only). */
+export async function cancelAppointment(id: string, reason?: string): Promise<Appointment> {
+  const data = await apiFetch<{ appointment: Appointment }>(`/admin/appointments/${id}/cancel`, {
+    method: "POST",
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+  return data.appointment;
+}
+
 // ---------------------------------------------------------------------------
 // Providers
 // ---------------------------------------------------------------------------
