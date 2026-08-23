@@ -10,6 +10,7 @@ import {
 } from "@workspace/db";
 import { requireAuth, getCurrentUser } from "../lib/session";
 import { writeAuditLog } from "../lib/audit";
+import { CONSENT_TYPES, CONSENT_DOCUMENT_VERSION, consentTypesToInsert } from "../lib/consent";
 
 const router: IRouter = Router();
 
@@ -17,15 +18,6 @@ const router: IRouter = Router();
 // All /me/* routes are the patient's own resources — patient role only.
 // ---------------------------------------------------------------------------
 router.use("/me", requireAuth("patient"));
-
-// The two consents a patient must accept before their first visit. The current
-// document version is bumped whenever the underlying policy text changes so the
-// signed record always points at what the patient actually saw.
-const CONSENT_TYPES = {
-  hipaa: "HIPAA_NOTICE",
-  telehealth: "TELEHEALTH_CONSENT",
-} as const;
-const CONSENT_DOCUMENT_VERSION = "2025-01";
 
 // ---------------------------------------------------------------------------
 // Resolve the patients row for the signed-in user. Every patient account has
@@ -149,17 +141,14 @@ router.post("/me/onboarding", async (req, res) => {
             eq(consentRecordsTable.documentVersion, CONSENT_DOCUMENT_VERSION),
           ),
         );
-      const already = new Set(existing.map((c) => c.consentType));
 
-      const toInsert = Object.values(CONSENT_TYPES)
-        .filter((type) => !already.has(type))
-        .map((type) => ({
-          patientId: patient.id,
-          consentType: type,
-          documentVersion: CONSENT_DOCUMENT_VERSION,
-          signatureMethod: "electronic_checkbox",
-          ipAddress: req.ip ?? null,
-        }));
+      const toInsert = consentTypesToInsert(existing.map((c) => c.consentType)).map((type) => ({
+        patientId: patient.id,
+        consentType: type,
+        documentVersion: CONSENT_DOCUMENT_VERSION,
+        signatureMethod: "electronic_checkbox",
+        ipAddress: req.ip ?? null,
+      }));
 
       if (toInsert.length > 0) {
         // onConflictDoNothing guards the unique (patient, type, version)

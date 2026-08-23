@@ -93,12 +93,32 @@ Local dev can still use `pnpm --filter @workspace/db run push` / `push-force` fo
 (`lib/db/src/migrator.ts`) self-baselines:
 
 - **Fresh/empty DB** → applies `0000_baseline` and everything after.
-- **Existing DB created with `push`** (our current case) → detects that the app
-  tables already exist but nothing is recorded, marks `0000_baseline` as applied
-  so it doesn't try to re-create them, then applies only newer migrations.
+- **Existing DB created with `push`** (our current case) → detects that *all* the
+  app tables already exist but nothing is recorded, marks `0000_baseline` as
+  applied so it doesn't try to re-create them, then applies only newer migrations.
 - **Already-migrated DB** → no-op.
+- **Partially initialized DB** (some but not all baseline tables) → the runner
+  **throws** rather than guessing, so an inconsistent database is surfaced up
+  front instead of failing cryptically on a later migration.
 
 No manual baseline step is required.
+
+**Migration failure = no startup.** If migrations fail, the server logs a
+`fatal` "DATABASE MIGRATION FAILED" line and exits non-zero without serving —
+serving against an incompatible schema is worse. Investigate the fatal log and
+fix the database/migration state before redeploying rather than letting the
+platform loop on restarts.
+
+**Consent records are append-only at the DB level.** Migration
+`0002_consent_append_only` installs a trigger that blocks `UPDATE`/`DELETE` on
+`consent_records` (on top of the `RESTRICT` FK), so signed consent is immutable
+regardless of the API route or database user.
+
+Backend unit tests cover the critical pure logic — the self-baseline decision
+(`lib/db`, `pnpm --filter @workspace/db run test:run`) and consent
+version/dedup rules (`api-server`, `pnpm --filter @workspace/api-server run test:run`).
+Behaviors that need a live Postgres (concurrent cancellation/onboarding, actual
+migration application) are not yet covered by an integration harness.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 
