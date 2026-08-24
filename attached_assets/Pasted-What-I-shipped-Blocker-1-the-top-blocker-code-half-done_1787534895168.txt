@@ -1,0 +1,19 @@
+What I shipped: Blocker #1 (the top blocker) — code half done
+PR #12 — a safe, deliberate DB repair path for the partial database. The migrator was correctly refusing the 7/8 state but there was no safe way to fix it. Now:
+
+pnpm --filter @workspace/db run repair (gated behind CONFIRM_DB_REPAIR=1) creates only the missing consent_records — CREATE TABLE IF NOT EXISTS, so existing tables and data are never touched — then applies 0001–0003.
+Proven against a reproduction of your exact state: startup refuses it; repair creates consent_records fully upgraded (NOT NULL version, unique constraint, append-only triggers); a pre-existing row survives. 15 integration tests green on Postgres 16.
+Normal startup still refuses partial DBs — repair is opt-in only.
+What's still yours on #1: run it (after a backup) against the actual dev database — I can't reach it from here. Runbook is in replit.md.
+
+The rest — not code, and I won't pretend otherwise
+#2 Prod DB provisioning + seed data + backups — needs the live Replit environment. Note: the app has a seed-admin script; provider profiles/config are created through the admin UI once it's up.
+#4 Published-domain routing / session / CORS — must be tested against the real URL, which I can't reach. I can review the CORS/cookie config if you paste the deployed setup, but I can't verify live behavior.
+#5 Secrets/storage — operational. Confirmed in code: the API already fails closed without SESSION_SECRET.
+#3 Telehealth video — still blocked on your BAA vendor decision. This is the one remaining feature blocker for patient care.
+My recommended next action
+Two things gate everything else, and both are decisions only you can make:
+
+Run the repair (backup first) so the API comes healthy — then you can run the integration tests and smoke-test login/onboarding/scheduling on staging.
+Name a telehealth vendor (Daily/Twilio/Zoom) so I can build the real session flow — the last patient-care blocker.
+Want me to draft the CORS/cookie production config (env matrix + the exact CORS_ORIGINS/cookie settings for a same-domain vs cross-origin deploy) as a concrete next code step while you handle the repair and vendor pick? That's something I can do from here.
