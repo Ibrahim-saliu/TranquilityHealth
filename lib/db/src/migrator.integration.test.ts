@@ -15,7 +15,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
-import { runMigrations } from "./migrator";
+import { runMigrations, BASELINE_TABLES } from "./migrator";
 
 const { Pool } = pg;
 const url = process.env.TEST_DATABASE_URL;
@@ -41,6 +41,18 @@ async function resetDatabase() {
   await pool.query("drop schema if exists drizzle cascade");
   await pool.query("drop schema if exists public cascade");
   await pool.query("create schema public");
+}
+
+// Count how many of the 8 baseline tables exist. Assertions use this instead of
+// counting all public tables so they stay correct as later migrations add
+// non-baseline tables (e.g. the notification tables).
+async function countBaselineTables(): Promise<number> {
+  const { rows } = await pool.query<{ n: number }>(
+    `select count(*)::int as n from information_schema.tables
+      where table_schema='public' and table_name = any($1::text[])`,
+    [[...BASELINE_TABLES]],
+  );
+  return rows[0].n;
 }
 
 // Insert a patient (and its user) and return the patient id, for consent tests.
@@ -71,10 +83,7 @@ suite("migrations + consent enforcement (integration)", () => {
 
   it("applies all migrations to a fresh database", async () => {
     await runMigrations(pool, migrationsFolder);
-    const { rows } = await pool.query(
-      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
-    );
-    expect(rows[0].n).toBe(8);
+    expect(await countBaselineTables()).toBe(8);
 
     const { rows: trig } = await pool.query(
       `select tgname from pg_trigger where tgrelid='consent_records'::regclass and not tgisinternal order by tgname`,
@@ -120,10 +129,7 @@ suite("migrations + consent enforcement (integration)", () => {
     await pool.query("drop table if exists consent_records cascade");
     await pool.query("drop schema if exists drizzle cascade");
 
-    const { rows: before } = await pool.query(
-      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
-    );
-    expect(before[0].n).toBe(7);
+    expect(await countBaselineTables()).toBe(7);
 
     // Normal startup must refuse (no allowRepair) rather than guess.
     await expect(runMigrations(pool, migrationsFolder)).rejects.toThrow(/partially initialized/i);
@@ -152,11 +158,8 @@ suite("migrations + consent enforcement (integration)", () => {
       "consent_records_no_update_delete",
     ]);
 
-    // The other 7 tables were never dropped or recreated.
-    const { rows: after } = await pool.query(
-      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
-    );
-    expect(after[0].n).toBe(8);
+    // The other baseline tables were never dropped or recreated.
+    expect(await countBaselineTables()).toBe(8);
   });
 
   it("repairs consent_records while preserving existing migration history", async () => {
@@ -171,7 +174,9 @@ suite("migrations + consent enforcement (integration)", () => {
          from drizzle.__drizzle_migrations
         order by id`,
     );
-    expect(historyBefore).toHaveLength(4);
+    // One record per migration; don't hard-code the total so new migrations
+    // don't break this — the meaningful check is that repair leaves it unchanged.
+    expect(historyBefore.length).toBeGreaterThanOrEqual(4);
 
     // Reproduce a table loss after migrations have already been recorded.
     await pool.query("drop table consent_records");
@@ -311,10 +316,7 @@ suite("migrations + consent enforcement (integration)", () => {
       runMigrations(pool, migrationsFolder),
       runMigrations(pool, migrationsFolder),
     ]);
-    const { rows } = await pool.query(
-      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
-    );
-    expect(rows[0].n).toBe(8);
+    expect(await countBaselineTables()).toBe(8);
   });
 
   describe("consent_records is append-only + unique", () => {

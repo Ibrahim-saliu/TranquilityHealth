@@ -1,2 +1,2 @@
-ALTER TABLE "notification_deliveries" DROP CONSTRAINT "notification_deliveries_status_check";--> statement-breakpoint
+ALTER TABLE "notification_deliveries" DROP CONSTRAINT IF EXISTS "notification_deliveries_status_check";--> statement-breakpoint
 ALTER TABLE "notification_deliveries" ADD CONSTRAINT "notification_deliveries_status_check" CHECK ("notification_deliveries"."status" IN ('pending', 'sending', 'sent', 'failed', 'unknown', 'cancelled'));
