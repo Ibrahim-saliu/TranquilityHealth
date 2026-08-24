@@ -1,0 +1,45 @@
+You're right to push back on this, and I want to be straight with you about how we got here.
+
+The honest picture: **the workflow you actually care about is simple and already built.** A prospective patient submits a request → it lands in the admin queue → an admin reviews it and sends an invite → the patient onboards (details + consent) → an admin schedules them → the patient sees the appointment. That core loop is done and working.
+
+What's made it *feel* complicated isn't the workflow — it's the **infrastructure underneath it**, and most of that got added reactively as we chased successive "is it production-ready for healthcare?" review rounds: append-only consent triggers, a self-baselining migrator + repair tool, advisory locks, a lease-based notification outbox with retries. Each was a reasonable answer to a specific review finding, but stacked together they've pushed the app well past "simple," and a lot of it is machinery a small clinic may not need on day one.
+
+A key thing to separate: some complexity is genuinely healthcare-driven (consent has to be captured and kept — you can't hand-wave that), but a fair amount is **gold-plating** for your current scale.
+
+One nuance before you decide: almost all that complexity is **already built and tested**. It's a cost you've mostly already paid. Ripping it out now is *new* work and *new* risk, and it won't make the app any simpler for your users (it's invisible to them). So "simplify" can mean two very different things — simplify the **roadmap** (stop adding, ship the core) or simplify the **codebase** (actively remove machinery). Those lead to very different next steps.
+
+Good — a map it is. No code changes; here's the honest breakdown. I've sorted everything into three buckets: **Essential** (the app can't work / is legally required without it), **Reasonable** (standard, low burden — keep), and **Gold-plating** (built heavier than your scale needs).
+
+## The core workflow — Essential, and already simple
+This is what you asked for, and it's built and working:
+- Public request form → request queue
+- Admin reviews a request → sends an invite
+- Patient accepts → onboards (their details + consent)
+- Admin schedules the appointment → patient sees it
+- Login/roles, provider list, team management
+
+**None of this is the complexity you're feeling.** It's a clean, linear workflow.
+
+## Where the complexity actually lives
+
+| Piece | Verdict | Why |
+|---|---|---|
+| **Versioned migrations + tests** | **Reasonable — keep** | Standard for any real deploy. Invisible to users, low burden. |
+| **Consent capture + "can't be deleted" FK** | **Essential (healthcare)** | You legally must record and retain consent. This part stays. |
+| **Consent append-only *triggers* (block UPDATE/DELETE/TRUNCATE), privilege separation** | **Gold-plating** | Belt-and-suspenders on top of the FK. Nice, not needed at your scale. Already built, so harmless to leave. |
+| **Self-baselining migrator + repair tool + advisory lock** | **Gold-plating (situational)** | This machinery exists *only* because the current dev DB is in a messy partial state. On a clean production DB you'd run migrations once and never touch any of it. |
+| **Scheduling advisory-lock / overlap concurrency** | **Mild gold-plating** | Overlap prevention is decent UX; the race-condition locking matters only if two staff double-book the same provider in the same second. Unlikely for a small clinic. |
+| **Notification delivery subsystem** (outbox table, lease tokens, retry/backoff, background worker) | **The biggest gold-plating** | You asked "email + text me on a new request." That's ~20 lines. This is a full delivery engine built for high volume. Overkill for a low-volume clinic — but it works and is tested. |
+| **Telehealth video, Messages** | **Correctly deferred** | Not built. Good — don't until you need them. |
+
+## The honest bottom line
+Two things drove the bloat: (1) the review loop kept asking "is this production-hardened for healthcare?" and we kept saying yes, and (2) the notification feature came in enterprise-grade. **But almost all of it is invisible to your users and already paid for.** Tearing it out now is *new* work and *new* risk for zero user benefit.
+
+So my recommendation, even in "map" mode: **simplify the roadmap, not the codebase.** Concretely —
+- **Keep** the core workflow, migrations, tests, and consent capture.
+- **Leave** the DB hardening and notification engine as-is (built, tested, invisible). Mentally file them under "already done, don't extend."
+- **Stop** adding infrastructure. The next steps to launch are *not* more code — they're the DB repair + smoke test, and eventually the telehealth vendor call.
+
+The one place a real trim would buy you a simpler *mental model* (not a simpler product) is the notification subsystem — I could replace it with a plain "send email + SMS on new request, log on failure" if carrying the outbox engine bothers you. But I'd only do that if it's actively nagging you; otherwise it's working and it's done.
+
+Want me to save this map as a doc in the repo for reference, and/or draft the "simple notification" replacement so you can compare — or leave everything as-is and just point at the launch steps?
