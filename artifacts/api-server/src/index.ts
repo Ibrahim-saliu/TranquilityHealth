@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { pool, runMigrations } from "@workspace/db";
 import app, { ensureSessionTable } from "./app";
 import { logger } from "./lib/logger";
+import { startNotificationDeliveryWorker } from "./lib/notifications";
 
 const rawPort = process.env["PORT"];
 
@@ -38,6 +39,7 @@ async function start(): Promise<void> {
   // Make sure the session table exists before we accept any requests —
   // otherwise every session write fails and authenticated calls 401.
   await ensureSessionTable();
+  startNotificationDeliveryWorker();
 
   app.listen(port, (err) => {
     if (err) {

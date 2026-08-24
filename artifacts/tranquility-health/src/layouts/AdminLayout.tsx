@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Eye,
+  BellRing,
   type LucideIcon,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth/context";
@@ -24,6 +25,25 @@ type NavItem = { href: string; label: string; icon: LucideIcon };
 type NavGroup = { group: string | null; items: NavItem[] };
 
 const ADMIN_NAV: NavGroup[] = [
+  { group: null, items: [{ href: "/admin/dashboard", label: "Overview", icon: LayoutGrid }] },
+  {
+    group: "Patients",
+    items: [
+      { href: "/admin/requests", label: "Requests", icon: Inbox },
+      { href: "/admin/appointments", label: "Appointments", icon: CalendarDays },
+    ],
+  },
+  {
+    group: "Clinic",
+    items: [
+      { href: "/admin/providers", label: "Providers", icon: Stethoscope },
+      { href: "/admin/team", label: "Team", icon: Users },
+      { href: "/admin/notifications", label: "Request alerts", icon: BellRing },
+    ],
+  },
+];
+
+const COLLABORATOR_NAV: NavGroup[] = [
   { group: null, items: [{ href: "/admin/dashboard", label: "Overview", icon: LayoutGrid }] },
   {
     group: "Patients",
@@ -70,7 +90,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isProvider = user?.role === "provider";
-  const nav = isProvider ? PROVIDER_NAV : ADMIN_NAV;
+  const nav = isProvider
+    ? PROVIDER_NAV
+    : user?.role === "admin"
+      ? ADMIN_NAV
+      : COLLABORATOR_NAV;
   const roleLabel = user ? (ROLE_LABELS[user.role] ?? "Staff") : "";
   const initial = (user?.email ?? "?").charAt(0).toUpperCase();
 

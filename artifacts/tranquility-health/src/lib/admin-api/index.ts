@@ -147,6 +147,74 @@ export async function updateRequestStatus(
 }
 
 // ---------------------------------------------------------------------------
+// Appointment-request notifications
+// ---------------------------------------------------------------------------
+
+export interface NotificationRecipient {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  label: string;
+  email: string | null;
+  phone: string | null;
+  isActive: boolean;
+}
+
+export interface NotificationRecipientInput {
+  label: string;
+  email: string;
+  phone: string;
+  isActive: boolean;
+}
+
+export interface NotificationDeliveryConfig {
+  emailConfigured: boolean;
+  smsConfigured: boolean;
+  adminPortalUrlConfigured: boolean;
+}
+
+export interface NotificationSettings {
+  recipients: NotificationRecipient[];
+  deliveryConfig: NotificationDeliveryConfig;
+}
+
+export async function getNotificationSettings(): Promise<NotificationSettings> {
+  return apiFetch<NotificationSettings>("/admin/notification-settings");
+}
+
+export async function createNotificationRecipient(
+  input: NotificationRecipientInput,
+): Promise<NotificationRecipient> {
+  const data = await apiFetch<{ recipient: NotificationRecipient }>("/admin/notification-recipients", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return data.recipient;
+}
+
+export async function updateNotificationRecipient(
+  id: string,
+  input: NotificationRecipientInput,
+): Promise<NotificationRecipient> {
+  const data = await apiFetch<{ recipient: NotificationRecipient }>(`/admin/notification-recipients/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+  });
+  return data.recipient;
+}
+
+export async function deleteNotificationRecipient(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/admin/notification-recipients/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Team management
 // ---------------------------------------------------------------------------
 

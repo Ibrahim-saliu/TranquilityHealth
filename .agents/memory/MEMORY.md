@@ -1,1 +1,2 @@
 - [Isolated PostgreSQL testing](isolated-postgres-testing.md) — Local PostgreSQL needs a temp Unix socket; use `id -un` rather than `USER` for throwaway integration tests.
+- [Notification delivery safety](notification-delivery-safety.md) — Persist alerts atomically and treat unabortable provider timeouts as manual-review outcomes.

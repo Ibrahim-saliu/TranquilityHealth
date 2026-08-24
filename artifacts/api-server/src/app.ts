@@ -1,5 +1,5 @@
 import express, { type Express } from "express";
-import cors from "cors";
+import cors, { type CorsOptionsDelegate } from "cors";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import pinoHttp from "pino-http";
@@ -29,21 +29,33 @@ app.use(
   }),
 );
 
-// CORS — when the SPA is served from a different origin than the API (e.g. two
-// separate Replit URLs), the browser needs credentialed CORS. Lock to an
-// allowlist when CORS_ORIGINS is set (comma-separated); otherwise reflect the
-// request origin. An allowlist is strongly recommended once cross-site cookies
-// are enabled (see SESSION_COOKIE_SAMESITE below).
-const corsOrigins = process.env["CORS_ORIGINS"]
+// CORS — credentialed requests are permitted only from this API's own host or
+// from a deliberate comma-separated allowlist. Reflecting arbitrary origins
+// with cookies would expose authenticated API responses to another site.
+const corsOrigins = new Set(
+  (process.env["CORS_ORIGINS"] ?? "")
   ?.split(",")
   .map((o) => o.trim())
-  .filter(Boolean);
-app.use(
-  cors({
-    credentials: true,
-    origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
-  }),
+  .filter(Boolean),
 );
+const corsOptions: CorsOptionsDelegate = (req, callback) => {
+  const origin = req.headers.origin;
+  if (!origin) {
+    callback(null, { origin: false });
+    return;
+  }
+
+  try {
+    const isSameHost = new URL(origin).host === req.headers.host;
+    callback(null, {
+      origin: isSameHost || corsOrigins.has(origin) ? origin : false,
+      credentials: true,
+    });
+  } catch {
+    callback(null, { origin: false });
+  }
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

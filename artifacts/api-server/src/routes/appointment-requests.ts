@@ -1,6 +1,16 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
-import { db, appointmentRequestsTable } from "@workspace/db";
+import {
+  adminNotificationRecipientsTable,
+  db,
+  appointmentRequestsTable,
+  notificationDeliveriesTable,
+} from "@workspace/db";
+import {
+  buildNotificationDeliveryRows,
+  processPendingNotificationDeliveries,
+} from "../lib/notifications";
+import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -30,13 +40,38 @@ router.post("/appointment-requests", async (req, res) => {
   }
 
   try {
-    const [row] = await db
-      .insert(appointmentRequestsTable)
-      .values({
-        ...parsed.data,
-        status: "new",
-      })
-      .returning({ id: appointmentRequestsTable.id, status: appointmentRequestsTable.status });
+    const row = await db.transaction(async (tx) => {
+      const [request] = await tx
+        .insert(appointmentRequestsTable)
+        .values({
+          ...parsed.data,
+          status: "new",
+        })
+        .returning({ id: appointmentRequestsTable.id, status: appointmentRequestsTable.status });
+
+      const recipients = await tx
+        .select({
+          id: adminNotificationRecipientsTable.id,
+          email: adminNotificationRecipientsTable.email,
+          phone: adminNotificationRecipientsTable.phone,
+        })
+        .from(adminNotificationRecipientsTable)
+        .where(eq(adminNotificationRecipientsTable.isActive, true));
+      const deliveries = buildNotificationDeliveryRows(request.id, recipients);
+      if (deliveries.length > 0) {
+        await tx.insert(notificationDeliveriesTable).values(deliveries);
+      }
+      return request;
+    });
+
+    // Never wait for a provider call in the public intake request. The
+    // transaction above has already persisted all required delivery work.
+    void processPendingNotificationDeliveries().catch((notificationError) => {
+      req.log.warn(
+        { err: notificationError, appointmentRequestId: row.id },
+        "Unable to start appointment request notification delivery",
+      );
+    });
 
     res.status(201).json({ id: row.id, status: row.status });
   } catch (_err) {

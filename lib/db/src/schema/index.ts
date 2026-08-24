@@ -6,3 +6,5 @@ export * from "./users";
 export * from "./patients";
 export * from "./consent-records";
 export * from "./invite-tokens";
+export * from "./admin-notification-recipients";
+export * from "./notification-deliveries";

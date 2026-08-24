@@ -7,6 +7,7 @@ import meRouter from "./me";
 import inviteRouter from "./invite";
 import staffInviteRouter from "./staff-invite";
 import storageRouter from "./storage";
+import notificationSettingsRouter from "./notification-settings";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(meRouter);
 router.use(inviteRouter);
 router.use(staffInviteRouter);
 router.use(adminRouter);
+router.use(notificationSettingsRouter);
 
 export default router;

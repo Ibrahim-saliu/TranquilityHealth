@@ -15,7 +15,10 @@ export type AuditAction =
   | "INVITE_USED"
   | "USER_CREATED"
   | "LOGIN_SUCCESS"
-  | "LOGIN_FAILURE";
+  | "LOGIN_FAILURE"
+  | "NOTIFICATION_RECIPIENT_CREATED"
+  | "NOTIFICATION_RECIPIENT_UPDATED"
+  | "NOTIFICATION_RECIPIENT_DEACTIVATED";
 
 interface AuditParams {
   action: AuditAction;
