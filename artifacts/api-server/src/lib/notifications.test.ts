@@ -121,8 +121,8 @@ describe("durable delivery behavior", () => {
       new URL("../../../../lib/db/migrations/0004_milky_pride.sql", import.meta.url),
     );
     const migration = readFileSync(migrationPath, "utf8");
-    expect(migration).toContain(
-      'CREATE UNIQUE INDEX "notification_delivery_request_recipient_channel_uq"',
+    expect(migration).toMatch(
+      /CREATE UNIQUE INDEX (IF NOT EXISTS )?"notification_delivery_request_recipient_channel_uq"/,
     );
   });
 

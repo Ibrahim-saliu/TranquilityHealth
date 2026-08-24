@@ -1,4 +1,7 @@
-CREATE TABLE "admin_notification_recipients" (
+-- Idempotent (IF NOT EXISTS / guarded constraints) so it is safe to apply
+-- against a database that already carries these objects, e.g. one created with
+-- `drizzle-kit push` that then self-baselines and replays later migrations.
+CREATE TABLE IF NOT EXISTS "admin_notification_recipients" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -9,7 +12,7 @@ CREATE TABLE "admin_notification_recipients" (
 	CONSTRAINT "admin_notification_recipient_contact_check" CHECK ("admin_notification_recipients"."email" IS NOT NULL OR "admin_notification_recipients"."phone" IS NOT NULL)
 );
 --> statement-breakpoint
-CREATE TABLE "notification_deliveries" (
+CREATE TABLE IF NOT EXISTS "notification_deliveries" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -26,6 +29,6 @@ CREATE TABLE "notification_deliveries" (
 	CONSTRAINT "notification_deliveries_status_check" CHECK ("notification_deliveries"."status" IN ('pending', 'sending', 'sent', 'failed', 'cancelled'))
 );
 --> statement-breakpoint
-ALTER TABLE "notification_deliveries" ADD CONSTRAINT "notification_deliveries_appointment_request_id_appointment_requests_id_fk" FOREIGN KEY ("appointment_request_id") REFERENCES "public"."appointment_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notification_deliveries" ADD CONSTRAINT "notification_deliveries_recipient_id_admin_notification_recipients_id_fk" FOREIGN KEY ("recipient_id") REFERENCES "public"."admin_notification_recipients"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "notification_delivery_request_recipient_channel_uq" ON "notification_deliveries" USING btree ("appointment_request_id","recipient_id","channel");
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'notification_deliveries_appointment_request_id_appointment_requests_id_fk') THEN ALTER TABLE "notification_deliveries" ADD CONSTRAINT "notification_deliveries_appointment_request_id_appointment_requests_id_fk" FOREIGN KEY ("appointment_request_id") REFERENCES "public"."appointment_requests"("id") ON DELETE cascade ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'notification_deliveries_recipient_id_admin_notification_recipients_id_fk') THEN ALTER TABLE "notification_deliveries" ADD CONSTRAINT "notification_deliveries_recipient_id_admin_notification_recipients_id_fk" FOREIGN KEY ("recipient_id") REFERENCES "public"."admin_notification_recipients"("id") ON DELETE restrict ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "notification_delivery_request_recipient_channel_uq" ON "notification_deliveries" USING btree ("appointment_request_id","recipient_id","channel");
