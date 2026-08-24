@@ -1,0 +1,1 @@
+- [Isolated PostgreSQL testing](isolated-postgres-testing.md) — Local PostgreSQL needs a temp Unix socket; use `id -un` rather than `USER` for throwaway integration tests.

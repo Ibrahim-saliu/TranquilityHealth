@@ -159,6 +159,101 @@ suite("migrations + consent enforcement (integration)", () => {
     expect(after[0].n).toBe(8);
   });
 
+  it("repairs consent_records while preserving existing migration history", async () => {
+    await runMigrations(pool, migrationsFolder);
+    await pool.query(
+      `insert into users (id, email, password_hash, role)
+       values ('history-user', 'history@example.com', 'x', 'admin')`,
+    );
+
+    const { rows: historyBefore } = await pool.query(
+      `select id, hash, created_at
+         from drizzle.__drizzle_migrations
+        order by id`,
+    );
+    expect(historyBefore).toHaveLength(4);
+
+    // Reproduce a table loss after migrations have already been recorded.
+    await pool.query("drop table consent_records");
+    await expect(runMigrations(pool, migrationsFolder)).rejects.toThrow(/partially initialized/i);
+
+    await expect(runMigrations(pool, migrationsFolder, { allowRepair: true })).resolves.toBeUndefined();
+
+    const { rows: historyAfter } = await pool.query(
+      `select id, hash, created_at
+         from drizzle.__drizzle_migrations
+        order by id`,
+    );
+    expect(historyAfter).toEqual(historyBefore);
+
+    const { rows: preserved } = await pool.query(
+      `select email from users where id='history-user'`,
+    );
+    expect(preserved).toEqual([{ email: "history@example.com" }]);
+
+    const { rows: schema } = await pool.query(
+      `select c.conname, c.contype, nullif(btrim(c.confdeltype), '') as confdeltype,
+              pg_get_constraintdef(c.oid) as definition
+         from pg_constraint c
+         join pg_class r on r.oid = c.conrelid
+         join pg_namespace n on n.oid = r.relnamespace
+        where n.nspname='public' and r.relname='consent_records'
+        order by c.conname`,
+    );
+    const constraints = Object.fromEntries(schema.map((constraint) => [constraint.conname, constraint]));
+    expect(constraints.consent_records_patient_id_patients_id_fk).toMatchObject({
+      contype: "f",
+      confdeltype: "r",
+    });
+    expect(constraints.consent_records_patient_id_patients_id_fk.definition).toContain(
+      "FOREIGN KEY (patient_id)",
+    );
+    expect(constraints.consent_records_patient_id_patients_id_fk.definition).toContain(
+      "REFERENCES patients(id)",
+    );
+    expect(constraints.consent_records_patient_id_patients_id_fk.definition).toContain(
+      "ON DELETE RESTRICT",
+    );
+    expect(constraints.consent_records_patient_type_version_uq).toMatchObject({ contype: "u" });
+    expect(constraints.consent_records_patient_type_version_uq.definition).toContain(
+      "UNIQUE (patient_id, consent_type, document_version)",
+    );
+
+    const { rows: version } = await pool.query(
+      `select is_nullable
+         from information_schema.columns
+        where table_schema='public'
+          and table_name='consent_records'
+          and column_name='document_version'`,
+    );
+    expect(version).toEqual([{ is_nullable: "NO" }]);
+
+    const { rows: trig } = await pool.query(
+      `select tgname
+         from pg_trigger
+        where tgrelid='consent_records'::regclass
+          and not tgisinternal
+        order by tgname`,
+    );
+    expect(trig.map((t) => t.tgname)).toEqual([
+      "consent_records_no_truncate",
+      "consent_records_no_update_delete",
+    ]);
+
+    await pool.query(`insert into patients (id, user_id) values ('history-patient', 'history-user')`);
+    await pool.query(
+      `insert into consent_records (id, patient_id, consent_type, document_version)
+       values ('history-consent', 'history-patient', 'HIPAA_NOTICE', '2025-01')`,
+    );
+    await expect(
+      pool.query(`update consent_records set consent_type='CHANGED' where id='history-consent'`),
+    ).rejects.toThrow(/append-only/i);
+    await expect(
+      pool.query(`delete from consent_records where id='history-consent'`),
+    ).rejects.toThrow(/append-only/i);
+    await expect(pool.query(`truncate consent_records`)).rejects.toThrow(/append-only/i);
+  });
+
   it("repair preserves existing data in the surviving tables", async () => {
     await runMigrations(pool, migrationsFolder);
     // Put a row in a table that will survive the partial state.
