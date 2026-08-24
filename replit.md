@@ -109,16 +109,42 @@ serving against an incompatible schema is worse. Investigate the fatal log and
 fix the database/migration state before redeploying rather than letting the
 platform loop on restarts.
 
-**Consent records are append-only at the DB level.** Migration
-`0002_consent_append_only` installs a trigger that blocks `UPDATE`/`DELETE` on
-`consent_records` (on top of the `RESTRICT` FK), so signed consent is immutable
-regardless of the API route or database user.
+**Concurrent startup is safe.** `runMigrations()` takes a session-level
+`pg_advisory_lock` around the whole baseline+migrate, so if several instances
+boot at once only one migrates; the others block and then find nothing to do.
 
-Backend unit tests cover the critical pure logic — the self-baseline decision
-(`lib/db`, `pnpm --filter @workspace/db run test:run`) and consent
-version/dedup rules (`api-server`, `pnpm --filter @workspace/api-server run test:run`).
-Behaviors that need a live Postgres (concurrent cancellation/onboarding, actual
-migration application) are not yet covered by an integration harness.
+**Consent records are append-only at the DB level.** Migrations
+`0002`/`0003` install triggers that block `UPDATE`, `DELETE`, and `TRUNCATE` on
+`consent_records`, and `document_version` is `NOT NULL` so the unique
+`(patient, type, version)` constraint can't be bypassed with NULLs.
+
+> Limit: a Postgres **superuser or the table owner** can still disable/drop the
+> trigger or drop the table — a trigger can't prevent that. For true
+> tamper-resistance the API/runtime should connect as a **dedicated role without
+> DDL/TRUNCATE privileges** on `consent_records` (privilege separation). That's
+> an ops/role configuration, not something the migration can enforce on its own.
+
+#### Tests
+
+- Unit (no database, always run): self-baseline decision (`lib/db`) and consent
+  version/dedup rules (`api-server`). `pnpm --filter @workspace/db run test:run`,
+  `pnpm --filter @workspace/api-server run test:run`.
+- Integration (real Postgres, opt-in): `lib/db/src/migrator.integration.test.ts`
+  covers the append-only trigger (insert allowed; update/delete/truncate
+  blocked), consent uniqueness + version change, the `RESTRICT` FK, self-baseline
+  on an existing push-created DB, partial-DB refusal, and concurrent-startup
+  locking. They **skip** unless `TEST_DATABASE_URL` points at a throwaway
+  Postgres:
+
+  ```
+  TEST_DATABASE_URL=postgres://postgres@127.0.0.1:5432/thtest \
+    pnpm --filter @workspace/db run test:run
+  ```
+
+Not yet covered: full HTTP-level concurrent-request tests (e.g. two cancel or
+onboarding requests racing through the Express routes) — the underlying DB
+guarantees they rely on (atomic conditional update, unique constraint, advisory
+lock) are proven above.
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 

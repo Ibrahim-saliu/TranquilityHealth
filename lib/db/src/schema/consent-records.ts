@@ -21,7 +21,10 @@ export const consentRecordsTable = pgTable("consent_records", {
 
   // e.g. HIPAA_NOTICE | TELEHEALTH_CONSENT
   consentType: text("consent_type").notNull(),
-  documentVersion: text("document_version"),
+  // Required (not null): the unique constraint below only guarantees one
+  // signature per patient/type/version if the version can't be null — Postgres
+  // treats NULLs as distinct in a unique constraint.
+  documentVersion: text("document_version").notNull(),
 
   signatureMethod: text("signature_method").notNull().default("electronic_checkbox"),
   ipAddress: text("ip_address"), // PHI — retained for legal purposes
