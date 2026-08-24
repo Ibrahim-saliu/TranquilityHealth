@@ -11,6 +11,8 @@
  */
 import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import pg from "pg";
+import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import { runMigrations } from "./migrator";
@@ -21,6 +23,19 @@ const suite = url ? describe : describe.skip;
 
 const migrationsFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "../migrations");
 const pool = url ? new Pool({ connectionString: url }) : (undefined as unknown as pg.Pool);
+
+// Build a temp migrations folder trimmed to entries up to and including
+// `upToTag`, so a test can materialize an older schema state (e.g. before the
+// NOT NULL migration) and then apply the remaining migrations against it.
+function subsetMigrations(upToTag: string): string {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mig-"));
+  fs.cpSync(migrationsFolder, tmp, { recursive: true });
+  const journalPath = path.join(tmp, "meta/_journal.json");
+  const journal = JSON.parse(fs.readFileSync(journalPath, "utf8"));
+  journal.entries = journal.entries.filter((e: { tag: string }) => e.tag <= upToTag);
+  fs.writeFileSync(journalPath, JSON.stringify(journal));
+  return tmp;
+}
 
 async function resetDatabase() {
   await pool.query("drop schema if exists drizzle cascade");
@@ -96,6 +111,43 @@ suite("migrations + consent enforcement (integration)", () => {
     // Only one baseline table present → inconsistent state.
     await pool.query(`create table users (id text primary key)`);
     await expect(runMigrations(pool, migrationsFolder)).rejects.toThrow(/partially initialized/i);
+  });
+
+  it("upgrades legacy duplicate NULL-version consents without a collision", async () => {
+    // Materialize the schema as it was *before* 0003 (document_version still
+    // nullable, no version backfill yet).
+    const pre = subsetMigrations("0002_consent_append_only");
+    await runMigrations(pool, pre);
+
+    // Seed the exact hazardous legacy state: two consent rows for the same
+    // (patient, consent_type) with NULL version — previously allowed because
+    // the unique constraint treats NULLs as distinct.
+    await seedPatient();
+    await pool.query(
+      `insert into consent_records (id, patient_id, consent_type, document_version, signed_at)
+       values ('c-old', 'pt1', 'HIPAA_NOTICE', null, now() - interval '2 days'),
+              ('c-new', 'pt1', 'HIPAA_NOTICE', null, now() - interval '1 day')`,
+    );
+
+    // Applying 0003 must NOT collapse both to 'unversioned' (that would violate
+    // the unique constraint and abort). It must relabel deterministically and
+    // keep both signatures.
+    await expect(runMigrations(pool, migrationsFolder)).resolves.toBeUndefined();
+
+    const { rows } = await pool.query(
+      `select id, document_version from consent_records order by signed_at`,
+    );
+    expect(rows).toEqual([
+      { id: "c-old", document_version: "unversioned" },
+      { id: "c-new", document_version: "unversioned-2" },
+    ]);
+
+    // Column is now NOT NULL and both rows are preserved (append-only).
+    const { rows: nn } = await pool.query(
+      `select is_nullable from information_schema.columns
+        where table_name='consent_records' and column_name='document_version'`,
+    );
+    expect(nn[0].is_nullable).toBe("NO");
   });
 
   it("serializes concurrent startups without error", async () => {
