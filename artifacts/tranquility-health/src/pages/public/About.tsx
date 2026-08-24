@@ -31,38 +31,47 @@ export default function AboutPage() {
       <PageHeader
         title="About Tranquility Health"
         subtitle="We believe everyone deserves access to compassionate, high-quality mental health care, free from the barriers that have kept so many from getting the help they need."
-        badge="Our Story"
       />
 
       {/* Provider Profile */}
       <SectionWrapper variant="white">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Our Founder</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Dr. Oluwole Oke</h2>
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
               <div className="w-40 h-48 rounded-xl overflow-hidden shadow-lg ring-4 ring-white">
-                <img src="/dr-oke.png" alt="Oluwole Oke, MSN, CRNA — Founder of Tranquility Health" className="w-full h-full object-cover object-top" />
+                <img src="/dr-oke.png" alt="Dr. Oluwole Oke, Founder of Tranquility Health" className="w-full h-full object-cover object-top" />
               </div>
             </div>
             {/* Bio */}
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-slate-900">Oluwole Oke, MSN, CRNA</h3>
-              <p className="text-sm text-teal-700 font-medium mt-1 mb-4">
-                Founder, Tranquility Health
+              <h3 className="text-xl font-bold text-slate-900">Dr. Oluwole Oke</h3>
+              <p className="text-sm text-teal-700 font-semibold mt-1">
+                DNAP, CRNA, PMHNP-BC
               </p>
-              <p className="text-slate-600 leading-relaxed text-sm mb-3">
-                Oluwole Mojeed Oke is the founder of Tranquility Health and CEO of Woseglobal Anesthesia Services LLC. A graduate of Prince George's Community College who launched his nursing career at MedStar Washington Hospital, he is an active mentor and community health advocate. He founded Tranquility Health to make compassionate mental health care easier to reach, delivered by a team of licensed mental health clinicians.
+              <p className="text-xs text-slate-500 italic mt-0.5 mb-4">
+                Psychiatric Mental Health Nurse Practitioner | Doctor of Nurse Anesthesia Practice
               </p>
-              <p className="text-slate-600 leading-relaxed text-sm">
-                "Everyone deserves access to a clinician who truly listens. I built this practice to remove the friction: no long commutes, no waiting-room anxiety — just honest, evidence-based care on a schedule that actually works for you, with insurance welcome."
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {["Founder & CEO", "MSN, CRNA", "Community Health Advocate", "Mentorship"].map((tag) => (
-                  <span key={tag} className="inline-block bg-white border border-slate-200 text-slate-600 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
-                    {tag}
-                  </span>
-                ))}
+              <div className="space-y-3 text-slate-600 leading-relaxed text-sm">
+                <p>
+                  Dr. Oluwole Oke is a board-certified Psychiatric Mental Health Nurse Practitioner (PMHNP-BC), Certified Registered Nurse Anesthetist (CRNA), and Doctor of Nurse Anesthesia Practice (DNAP) with more than a decade of experience caring for individuals across diverse clinical settings.
+                </p>
+                <p>
+                  As the founder of <strong className="font-semibold text-slate-800">Tranquility Comprehensive Health LLC</strong>, Dr. Oke is committed to providing compassionate, evidence-based mental health care in an environment where patients feel heard, respected, and actively involved in their treatment.
+                </p>
+                <p>
+                  Dr. Oke provides psychiatric evaluation, diagnosis, medication management, and ongoing mental health care for adolescents and adults experiencing concerns such as anxiety, depression, stress and burnout, attention difficulties, mood disorders, and sleep-related challenges. His approach is individualized, recognizing that effective mental health care should consider each patient's health, lifestyle, circumstances, and personal goals.
+                </p>
+                <p>
+                  His extensive background in anesthesia provides an additional depth of experience in pharmacology, physiology, patient safety, clinical assessment, and medication management. Combined with his psychiatric training, this allows him to consider both the mental and physical aspects of a patient's health when developing an appropriate treatment plan.
+                </p>
+                <p>
+                  At the heart of Dr. Oke's practice is a simple philosophy: <strong className="font-semibold text-slate-800">every patient deserves to be treated with dignity, compassion, respect, and without judgment.</strong> He believes meaningful progress begins by listening carefully, understanding each patient's concerns, and working collaboratively toward greater stability, resilience, and overall well-being.
+                </p>
+                <p>
+                  Beyond his clinical practice, Dr. Oke is committed to healthcare leadership, education, and mentorship. He is a co-founder of the Nigerian American Nurse Anesthetists Association (NANAA), supporting professional development and advancement within the healthcare profession.
+                </p>
               </div>
             </div>
           </div>

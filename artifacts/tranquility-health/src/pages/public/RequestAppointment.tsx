@@ -123,7 +123,7 @@ export default function RequestAppointmentPage() {
           </p>
         </div>
         <p className="mt-8 text-sm text-slate-400">
-          If you have an urgent need, call us at (555) 000-0000 during office hours.
+          If you have an urgent need, call us at 301 237 5395 during office hours.
         </p>
       </div>
     );

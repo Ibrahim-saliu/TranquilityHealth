@@ -166,12 +166,12 @@ export default function HomePage() {
               Getting care shouldn't feel like a second job.
             </h2>
             <p className="mt-5 text-lg text-slate-500 leading-relaxed">
-              Between work, family, and everything else, carving out time for mental health support is hard. We built Tranquility Health around your schedule — not a clinic's.
+              Between work, family, and everything else, carving out time for mental health support is hard. We built Tranquility Health around your schedule, not a clinic's.
             </p>
             <ul className="mt-8 space-y-4">
               {[
-                "Evening and weekend slots — see a provider after hours",
-                "No commute, no waiting room — just you and your clinician",
+                "Evening and weekend slots, so you can see a provider after hours",
+                "No commute, no waiting room, just you and your clinician",
                 "Same-week availability for new patients",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700">

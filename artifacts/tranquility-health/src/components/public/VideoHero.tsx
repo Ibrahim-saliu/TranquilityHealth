@@ -90,7 +90,7 @@ export function VideoHero() {
       nextClipIdx.current = (ni + 1) % CLIPS.length;
 
       // Load the queued clip into the now-hidden slot.
-      // Because the slot has no autoPlay, changing src only preloads — it does not play.
+      // Because the slot has no autoPlay, changing src only preloads; it does not play.
       if (slot === "a") setASrc(CLIPS[ni]);
       else setBSrc(CLIPS[ni]);
 
