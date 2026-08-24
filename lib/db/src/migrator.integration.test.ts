@@ -113,6 +113,67 @@ suite("migrations + consent enforcement (integration)", () => {
     await expect(runMigrations(pool, migrationsFolder)).rejects.toThrow(/partially initialized/i);
   });
 
+  it("startup refuses a 7/8 database missing consent_records; repair fixes it", async () => {
+    // Reproduce the reported production-blocker state: all baseline tables
+    // except consent_records, and no migration tracking.
+    await runMigrations(pool, migrationsFolder);
+    await pool.query("drop table if exists consent_records cascade");
+    await pool.query("drop schema if exists drizzle cascade");
+
+    const { rows: before } = await pool.query(
+      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
+    );
+    expect(before[0].n).toBe(7);
+
+    // Normal startup must refuse (no allowRepair) rather than guess.
+    await expect(runMigrations(pool, migrationsFolder)).rejects.toThrow(/partially initialized/i);
+
+    // Explicit repair creates the missing table and applies migrations.
+    await expect(runMigrations(pool, migrationsFolder, { allowRepair: true })).resolves.toBeUndefined();
+
+    // consent_records now exists, fully upgraded: NOT NULL version, unique
+    // constraint, and the append-only triggers.
+    const { rows: nn } = await pool.query(
+      `select is_nullable from information_schema.columns
+        where table_name='consent_records' and column_name='document_version'`,
+    );
+    expect(nn[0].is_nullable).toBe("NO");
+
+    const { rows: uq } = await pool.query(
+      `select 1 from pg_constraint where conname='consent_records_patient_type_version_uq'`,
+    );
+    expect(uq.length).toBe(1);
+
+    const { rows: trig } = await pool.query(
+      `select tgname from pg_trigger where tgrelid='consent_records'::regclass and not tgisinternal order by tgname`,
+    );
+    expect(trig.map((t) => t.tgname)).toEqual([
+      "consent_records_no_truncate",
+      "consent_records_no_update_delete",
+    ]);
+
+    // The other 7 tables were never dropped or recreated.
+    const { rows: after } = await pool.query(
+      `select count(*)::int as n from information_schema.tables where table_schema='public'`,
+    );
+    expect(after[0].n).toBe(8);
+  });
+
+  it("repair preserves existing data in the surviving tables", async () => {
+    await runMigrations(pool, migrationsFolder);
+    // Put a row in a table that will survive the partial state.
+    await pool.query(
+      `insert into users (id, email, password_hash, role) values ('keep', 'keep@example.com', 'x', 'admin')`,
+    );
+    await pool.query("drop table if exists consent_records cascade");
+    await pool.query("drop schema if exists drizzle cascade");
+
+    await runMigrations(pool, migrationsFolder, { allowRepair: true });
+
+    const { rows } = await pool.query(`select email from users where id='keep'`);
+    expect(rows[0].email).toBe("keep@example.com");
+  });
+
   it("upgrades legacy duplicate NULL-version consents without a collision", async () => {
     // Materialize the schema as it was *before* 0003 (document_version still
     // nullable, no version backfill yet).

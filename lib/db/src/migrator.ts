@@ -1,4 +1,6 @@
 import type { Pool } from "pg";
+import fs from "fs";
+import path from "path";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 
@@ -66,11 +68,25 @@ export function decideBaseline(existingTables: Iterable<string>): BaselineDecisi
  * held on a dedicated connection, so if several instances start at once only
  * one migrates at a time; the others block, then find nothing left to do.
  */
-export async function runMigrations(pool: Pool, migrationsFolder: string): Promise<void> {
+export interface RunMigrationsOptions {
+  /**
+   * Allow repairing a partially initialized database by (idempotently) creating
+   * the missing baseline table(s) before migrating. OFF by default: normal
+   * startup must still refuse a partial database rather than guess. Only the
+   * explicit `repair` command turns this on, and only after a backup.
+   */
+  allowRepair?: boolean;
+}
+
+export async function runMigrations(
+  pool: Pool,
+  migrationsFolder: string,
+  opts: RunMigrationsOptions = {},
+): Promise<void> {
   const lockClient = await pool.connect();
   try {
     await lockClient.query("SELECT pg_advisory_lock($1)", [MIGRATION_LOCK_KEY]);
-    await selfBaselineIfNeeded(pool);
+    await selfBaselineIfNeeded(pool, migrationsFolder, opts.allowRepair ?? false);
     const db = drizzle(pool);
     await migrate(db, { migrationsFolder });
   } finally {
@@ -81,23 +97,50 @@ export async function runMigrations(pool: Pool, migrationsFolder: string): Promi
   }
 }
 
-async function selfBaselineIfNeeded(pool: Pool): Promise<void> {
-  // Which of the expected baseline tables currently exist?
+async function listBaselineTables(pool: Pool): Promise<string[]> {
   const { rows } = await pool.query<{ table_name: string }>(
     `select table_name from information_schema.tables
       where table_schema = 'public' and table_name = any($1::text[])`,
     [[...BASELINE_TABLES]],
   );
-  const decision = decideBaseline(rows.map((r) => r.table_name));
+  return rows.map((r) => r.table_name);
+}
+
+// Apply the idempotent baseline SQL (CREATE TABLE IF NOT EXISTS + guarded FKs),
+// which creates only the tables/constraints that are missing.
+async function applyBaselineSql(pool: Pool, migrationsFolder: string): Promise<void> {
+  const sql = fs.readFileSync(path.join(migrationsFolder, `${BASELINE_TAG}.sql`), "utf8");
+  for (const stmt of sql.split("--> statement-breakpoint")) {
+    const trimmed = stmt.trim();
+    if (trimmed) await pool.query(trimmed);
+  }
+}
+
+async function selfBaselineIfNeeded(
+  pool: Pool,
+  migrationsFolder: string,
+  allowRepair: boolean,
+): Promise<void> {
+  let decision = decideBaseline(await listBaselineTables(pool));
 
   if (decision.action === "fresh") return; // migrator builds everything from 0000
 
   if (decision.action === "partial") {
-    throw new Error(
-      `Database is partially initialized: found ${decision.present.length}/${BASELINE_TABLES.length} ` +
-        `baseline tables (missing: ${decision.missing.join(", ")}). Refusing to auto-baseline. ` +
-        `Resolve the database state manually before deploying.`,
-    );
+    if (!allowRepair) {
+      throw new Error(
+        `Database is partially initialized: found ${decision.present.length}/${BASELINE_TABLES.length} ` +
+          `baseline tables (missing: ${decision.missing.join(", ")}). Refusing to auto-baseline. ` +
+          `Back up, then run the repair command (see replit.md) to create the missing table(s).`,
+      );
+    }
+    // Repair (explicit, backup-first): create the missing baseline tables
+    // idempotently, then require a now-complete baseline before continuing.
+    await applyBaselineSql(pool, migrationsFolder);
+    decision = decideBaseline(await listBaselineTables(pool));
+    if (decision.action !== "baseline") {
+      const missing = decision.action === "partial" ? decision.missing.join(", ") : "unknown";
+      throw new Error(`Repair did not produce a complete baseline (still missing: ${missing}).`);
+    }
   }
 
   // decision.action === "baseline": all app tables exist. Ensure the drizzle
@@ -114,8 +157,9 @@ async function selfBaselineIfNeeded(pool: Pool): Promise<void> {
   if (Number(cnt[0]?.n ?? 0) > 0) return; // already tracked — leave it alone
 
   // Tables exist but nothing is recorded: this database predates migrations
-  // (created with `drizzle-kit push`). Mark the baseline as applied so the
-  // migrator skips re-creating existing tables and applies only what's new.
+  // (created with `drizzle-kit push`, or just repaired). Mark the baseline as
+  // applied so the migrator skips re-creating existing tables and applies only
+  // what's new.
   await pool.query(
     'insert into "drizzle"."__drizzle_migrations" (hash, created_at) values ($1, $2)',
     [BASELINE_TAG, BASELINE_WHEN],
