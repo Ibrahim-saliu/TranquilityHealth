@@ -1,4 +1,7 @@
-CREATE TABLE "appointment_requests" (
+-- Idempotent baseline. Uses IF NOT EXISTS / constraint-existence guards so it
+-- can run against a fresh database (creates everything) or fill a missing table
+-- in a partially initialized one (repair) without failing on existing objects.
+CREATE TABLE IF NOT EXISTS "appointment_requests" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -18,7 +21,7 @@ CREATE TABLE "appointment_requests" (
 	CONSTRAINT "appointment_requests_status_check" CHECK ("appointment_requests"."status" IN ('new', 'under_review', 'approved', 'rejected', 'invited'))
 );
 --> statement-breakpoint
-CREATE TABLE "appointments" (
+CREATE TABLE IF NOT EXISTS "appointments" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -33,7 +36,7 @@ CREATE TABLE "appointments" (
 	CONSTRAINT "appointments_type_check" CHECK ("appointments"."appointment_type" IN ('medication_management', 'psychotherapy', 'initial_evaluation'))
 );
 --> statement-breakpoint
-CREATE TABLE "providers" (
+CREATE TABLE IF NOT EXISTS "providers" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -46,7 +49,7 @@ CREATE TABLE "providers" (
 	"is_active" boolean DEFAULT true NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "audit_logs" (
+CREATE TABLE IF NOT EXISTS "audit_logs" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"actor_id" text DEFAULT 'system' NOT NULL,
@@ -56,7 +59,7 @@ CREATE TABLE "audit_logs" (
 	"metadata" text
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -66,7 +69,7 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE "patients" (
+CREATE TABLE IF NOT EXISTS "patients" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -78,7 +81,7 @@ CREATE TABLE "patients" (
 	"onboarding_status" text DEFAULT 'pending' NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "consent_records" (
+CREATE TABLE IF NOT EXISTS "consent_records" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"patient_id" text NOT NULL,
@@ -89,7 +92,7 @@ CREATE TABLE "consent_records" (
 	"signed_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "invite_tokens" (
+CREATE TABLE IF NOT EXISTS "invite_tokens" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"email" text NOT NULL,
@@ -102,10 +105,10 @@ CREATE TABLE "invite_tokens" (
 	CONSTRAINT "invite_tokens_token_hash_unique" UNIQUE("token_hash")
 );
 --> statement-breakpoint
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "appointments" ADD CONSTRAINT "appointments_provider_id_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."providers"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "providers" ADD CONSTRAINT "providers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "patients" ADD CONSTRAINT "patients_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "consent_records" ADD CONSTRAINT "consent_records_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "invite_tokens" ADD CONSTRAINT "invite_tokens_appointment_request_id_appointment_requests_id_fk" FOREIGN KEY ("appointment_request_id") REFERENCES "public"."appointment_requests"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "providers_user_id_unique" ON "providers" USING btree ("user_id") WHERE "providers"."user_id" IS NOT NULL;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_patient_id_patients_id_fk') THEN ALTER TABLE "appointments" ADD CONSTRAINT "appointments_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE restrict ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'appointments_provider_id_providers_id_fk') THEN ALTER TABLE "appointments" ADD CONSTRAINT "appointments_provider_id_providers_id_fk" FOREIGN KEY ("provider_id") REFERENCES "public"."providers"("id") ON DELETE restrict ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'providers_user_id_users_id_fk') THEN ALTER TABLE "providers" ADD CONSTRAINT "providers_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'patients_user_id_users_id_fk') THEN ALTER TABLE "patients" ADD CONSTRAINT "patients_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'consent_records_patient_id_patients_id_fk') THEN ALTER TABLE "consent_records" ADD CONSTRAINT "consent_records_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE cascade ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'invite_tokens_appointment_request_id_appointment_requests_id_fk') THEN ALTER TABLE "invite_tokens" ADD CONSTRAINT "invite_tokens_appointment_request_id_appointment_requests_id_fk" FOREIGN KEY ("appointment_request_id") REFERENCES "public"."appointment_requests"("id") ON DELETE set null ON UPDATE no action; END IF; END $$;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "providers_user_id_unique" ON "providers" USING btree ("user_id") WHERE "providers"."user_id" IS NOT NULL;

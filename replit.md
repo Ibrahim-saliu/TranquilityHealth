@@ -103,6 +103,25 @@ Local dev can still use `pnpm --filter @workspace/db run push` / `push-force` fo
 
 No manual baseline step is required.
 
+**Repairing a partially initialized database.** If a database is missing one or
+more baseline tables (e.g. `consent_records`), the runner refuses to start and
+reports which tables are missing — it will not guess. To fix it:
+
+1. **Back up the database first.**
+2. Run the repair, which creates ONLY the missing baseline table(s) — idempotent
+   `CREATE TABLE IF NOT EXISTS`, so existing tables and their data are never
+   dropped or overwritten — then applies all pending migrations:
+
+   ```
+   CONFIRM_DB_REPAIR=1 DATABASE_URL=... pnpm --filter @workspace/db run repair
+   ```
+
+   It refuses to run without `CONFIRM_DB_REPAIR=1`.
+3. Restart the API and confirm `/api/healthz` responds and login works.
+
+Repair is opt-in and never runs automatically — normal startup still refuses a
+partial database.
+
 **Migration failure = no startup.** If migrations fail, the server logs a
 `fatal` "DATABASE MIGRATION FAILED" line and exits non-zero without serving —
 serving against an incompatible schema is worse. Investigate the fatal log and
