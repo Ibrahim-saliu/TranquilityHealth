@@ -1,0 +1,20 @@
+Review of the merged notification-service work (bf5bc4e). The feature itself is well-built — a lease-based outbox with retry/backoff, PHI-free alert content, provider timeouts, a Resend idempotency key, and a genuinely careful SMS design (ambiguous outcomes marked unknown and held rather than risking a double-text). No PHI in the outbox rows or logs. This PR fixes issues found during review; it doesn't change the feature's behavior.
+
+1. Migrations 0004–0006 weren't idempotent → broke self-baseline (real bug)
+The migrator's self-baseline path stamps 0000 and replays 0001+. A database created via drizzle-kit push (all tables present, no history) then failed on CREATE TABLE "admin_notification_recipients" already exists. Made 0004–0006 idempotent (CREATE TABLE/ADD COLUMN IF NOT EXISTS, constraint-guarded FKs, DROP CONSTRAINT IF EXISTS) — consistent with 0000–0003.
+
+The actual prod repair path (missing consent_records, notification tables not yet present) was unaffected either way; this restores the documented "push-created DB self-baselines cleanly" contract and is caught by the self-baselines an existing push-created database integration test.
+2. api-server test suite couldn't load without DATABASE_URL
+notifications.ts imports @workspace/db, whose client throws at import time if DATABASE_URL is unset — so notifications.test.ts (pure-logic) failed to even load in a no-DB run. Added a vitest setup providing a placeholder connection string (the pool is lazy and never queried in these tests). No-DB test runs are green again.
+
+3. Integration assertions made schema-growth-robust
+My earlier migrator integration tests hard-coded total public-table counts (8/7) and a migration-history length (4). The schema grew to 10 tables / 7 migrations. Switched to counting baseline tables and a dynamic history check, so they survive future migrations.
+
+Validation
+pnpm run typecheck clean
+api-server 14 unit tests (incl. no-DB run) + db 5 unit + 21 integration (real Postgres 16) + web 40 — all pass
+Both apps build (api-server bundles @replit/connectors-sdk)
+Notes for you (not blockers)
+Design divergence worth knowing: recipients live in a standalone admin_notification_recipients table, not read from your login/admin profile. This is arguably better (supports multiple recipients, decouples alert routing from accounts) — you'll manage the list under Admin → Notifications — but it's not literally "my admin profile," so flagging it.
+Runtime coupling: sending goes through Replit's connector proxy (resend, twilio), so it depends on those connectors being authorized in the environment; email/SMS stay dormant until NOTIFICATION_EMAIL_FROM / Twilio env + ADMIN_PORTAL_URL are set (pending rows just wait — safe).
+Follow-up test coverage: the trickiest parts (lease/claim transitions, retry state machine) are only exercised by pure-logic unit tests; a real-Postgres integration test for the delivery worker would be a good addition, but isn't a launch blocker.
