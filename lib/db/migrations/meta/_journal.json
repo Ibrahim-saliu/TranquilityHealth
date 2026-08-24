@@ -22,6 +22,13 @@
       "when": 1787529205952,
       "tag": "0002_consent_append_only",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787530209481,
+      "tag": "0003_consent_version_required",
+      "breakpoints": true
     }
   ]
 }

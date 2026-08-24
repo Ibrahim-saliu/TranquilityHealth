@@ -7,6 +7,10 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 const BASELINE_TAG = "0000_baseline";
 const BASELINE_WHEN = 1787527281351;
 
+// Fixed key for the session-level advisory lock that serializes migrations
+// across concurrently starting instances. Arbitrary but stable.
+const MIGRATION_LOCK_KEY = 4927710123456;
+
 // Every table the baseline migration creates. Used to tell a fresh database
 // (none present) from a fully push-created one (all present) from a partially
 // initialized one (some present) — which we refuse to auto-baseline.
@@ -57,11 +61,24 @@ export function decideBaseline(existingTables: Iterable<string>): BaselineDecisi
  *
  * A partially initialized database (some but not all baseline tables) throws,
  * rather than silently skipping the baseline and failing later.
+ *
+ * The whole baseline+migrate is serialized with a session-level advisory lock
+ * held on a dedicated connection, so if several instances start at once only
+ * one migrates at a time; the others block, then find nothing left to do.
  */
 export async function runMigrations(pool: Pool, migrationsFolder: string): Promise<void> {
-  await selfBaselineIfNeeded(pool);
-  const db = drizzle(pool);
-  await migrate(db, { migrationsFolder });
+  const lockClient = await pool.connect();
+  try {
+    await lockClient.query("SELECT pg_advisory_lock($1)", [MIGRATION_LOCK_KEY]);
+    await selfBaselineIfNeeded(pool);
+    const db = drizzle(pool);
+    await migrate(db, { migrationsFolder });
+  } finally {
+    // Release the lock and return the connection; ignore unlock errors so a
+    // failure here never masks a migration error from the try block.
+    await lockClient.query("SELECT pg_advisory_unlock($1)", [MIGRATION_LOCK_KEY]).catch(() => {});
+    lockClient.release();
+  }
 }
 
 async function selfBaselineIfNeeded(pool: Pool): Promise<void> {
