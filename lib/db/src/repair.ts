@@ -35,11 +35,13 @@ async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const migrationsFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "../migrations");
 
-  console.log("[repair] creating any missing baseline tables, then migrating…");
-  await runMigrations(pool, migrationsFolder, { allowRepair: true });
-  console.log("[repair] done — database is complete and up to date");
-
-  await pool.end();
+  try {
+    console.log("[repair] creating any missing baseline tables, then migrating…");
+    await runMigrations(pool, migrationsFolder, { allowRepair: true });
+    console.log("[repair] done — database is complete and up to date");
+  } finally {
+    await pool.end();
+  }
 }
 
 main().catch((err) => {
