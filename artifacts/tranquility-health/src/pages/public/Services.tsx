@@ -75,7 +75,7 @@ export default function ServicesPage() {
 
             <div className="rounded-xl overflow-hidden mb-6">
               <img
-                src="/services-medication.png?v=2"
+                src="/services-medication.png?v=3"
                 alt="Medication management telehealth"
                 className="w-full aspect-[16/9] object-cover"
               />
