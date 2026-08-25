@@ -4,7 +4,7 @@ import { eq, desc, asc, gte, lt, sql, count, or, and } from "drizzle-orm";
 import { db, appointmentRequestsTable, appointmentsTable, patientsTable, providersTable, usersTable, inviteTokensTable } from "@workspace/db";
 import { writeAuditLog } from "../lib/audit";
 import { requireAuth, getCurrentUser } from "../lib/session";
-import { generateInvite } from "../lib/invite";
+import { generateInvite, invitePathForRole } from "../lib/invite";
 
 const router: IRouter = Router();
 
@@ -161,8 +161,15 @@ router.patch("/admin/requests/:id/status", requireAuth(["admin", "collaborator"]
     // When transitioning to "invited", generate the invite token FIRST.
     // If invite creation fails, we abort before updating status — preventing
     // a request stuck in "invited" without a usable token/link.
+    let inviteUrl: string | undefined;
     if (status === "invited") {
-      await generateInvite(existing.email, "patient", id);
+      const rawToken = await generateInvite(existing.email, "patient", id);
+      // Prefer the configured public base URL; fall back to the request's own
+      // host so the copyable link still works before APP_BASE_URL is set.
+      const base =
+        process.env["APP_BASE_URL"]?.replace(/\/+$/, "") ||
+        `${req.protocol}://${req.get("host")}`;
+      inviteUrl = `${base}${invitePathForRole("patient", rawToken)}`;
     }
 
     const [updated] = await db
@@ -182,7 +189,9 @@ router.patch("/admin/requests/:id/status", requireAuth(["admin", "collaborator"]
       metadata: { previousStatus: existing.status, newStatus: status },
     });
 
-    res.json({ request: updated });
+    // inviteUrl is only present on the "invited" transition; the admin UI
+    // surfaces it as a copyable link so staff never need to read server logs.
+    res.json({ request: updated, ...(inviteUrl ? { inviteUrl } : {}) });
   } catch (_err) {
     res.status(500).json({ error: "Failed to update request status" });
   }

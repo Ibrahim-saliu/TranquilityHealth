@@ -91,8 +91,8 @@ time. Move it through the statuses as you work it:
 
 ### Step 3 — Invite the patient
 Setting a request to **Invited** generates a secure, one-time invite link for
-that person (valid for 72 hours). See **Section 6** for exactly how to get that
-link to the patient today, and an important note about it.
+that person (valid for 72 hours) and shows it right in the request panel to
+copy and send. See **Section 6** for details.
 
 ### Step 4 — Schedule the appointment
 Once the patient has accepted their invite and finished onboarding, go to
@@ -125,30 +125,28 @@ is kept).
 
 ---
 
-## 6. Inviting a patient — how to get the link (read this)
+## 6. Inviting a patient — how to get the link
 
-> **Heads-up / current limitation.** The patient invite link is **not yet shown
-> in the admin screen**, and it is written to the server logs with the wrong
-> path. Until that's improved (a small fix is recommended — see the end), use
-> the procedure below carefully.
-
-When you mark a request **Invited**, the app records a `[INVITE]` line in the
-**server logs** (in Replit: open the app's Console / Logs). It looks like:
+When you mark a request **Invited**, a **Patient invite link** box appears at
+the bottom of the request panel with the ready-to-send link and a **Copy**
+button:
 
 ```
-[INVITE] patient invite for jane@example.com: https://YOUR-SITE/admin/accept-invite/ab12cd...
+https://YOUR-SITE/invite/ab12cd...
 ```
 
-**Two things to correct before you send it to a patient:**
+Click **Copy** and send that link to the patient however you normally reach
+them (email or text). The patient opens it, sets a password, and is taken
+straight into onboarding.
 
-1. **Change the path** from `/admin/accept-invite/` to **`/invite/`**. Patients
-   accept at `/invite/<token>`. The `/admin/accept-invite/` page is for staff
-   only and will reject a patient link.
-2. So the link you actually send the patient is:
-   `https://YOUR-SITE/invite/ab12cd...`
+**A few things to know:**
 
-The patient opens that link, sets a password, and is taken straight into
-onboarding.
+- The link is **shown once**, at the moment you invite. It can't be looked up
+  again afterward (for security, only a hashed form is stored). If you lose it
+  or it expires, just click **Invited** again to generate a fresh one.
+- It's **valid for 72 hours** and can be used **once**.
+- It's a **patient** link (`/invite/...`). Don't confuse it with the staff
+  invite links under **Team**, which use a different address.
 
 ---
 
@@ -160,10 +158,10 @@ for the patient steps so it doesn't clash with your admin session.
 
 1. **Submit a request.** In a normal window, go to `/request-appointment` and
    submit as a test patient (e.g. name "Test Patient", your own email).
-2. **Invite the patient.** In the admin portal, open `/admin/requests`, find the
+2. **Invite the patient.** In the admin portal, open `/admin/requests`, click the
    new request, and set it to **Invited**.
-3. **Get the invite link** using **Section 6** (from the server logs, with the
-   path changed to `/invite/<token>`).
+3. **Copy the invite link** from the **Patient invite link** box that appears in
+   the request panel (see **Section 6**).
 4. **Accept the invite.** Open that `/invite/<token>` link in an
    **incognito window**, choose a password. You're now signed in as the test
    patient and land on **`/app/onboarding`**.
@@ -201,13 +199,3 @@ is healthy.
   Clinical details belong in the secure video visit.
 - **Invite links expire in 72 hours** and are single-use. If one expires, set
   the request back through **Invited** to generate a fresh link.
-
----
-
-## Recommended small fix (makes this much easier)
-
-The invite step above is clunky because the link only lives in server logs and
-uses the wrong path. A recommended follow-up is to **show a copyable patient
-invite link right on the Requests screen** when you mark a request "Invited"
-(and correct the link path). Ask your developer to make that change — it removes
-the log-reading and path-editing entirely.

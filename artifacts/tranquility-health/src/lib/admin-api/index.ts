@@ -138,12 +138,16 @@ export async function getRequest(id: string): Promise<AppointmentRequest> {
 export async function updateRequestStatus(
   id: string,
   status: RequestStatus,
-): Promise<{ id: string; status: RequestStatus }> {
-  const data = await apiFetch<{ request: { id: string; status: RequestStatus } }>(
+): Promise<{ id: string; status: RequestStatus; inviteUrl?: string }> {
+  const data = await apiFetch<{
+    request: { id: string; status: RequestStatus };
+    inviteUrl?: string;
+  }>(
     `/admin/requests/${id}/status`,
     { method: "PATCH", body: JSON.stringify({ status }) },
   );
-  return data.request;
+  // inviteUrl is only present when the status was moved to "invited".
+  return { ...data.request, ...(data.inviteUrl ? { inviteUrl: data.inviteUrl } : {}) };
 }
 
 // ---------------------------------------------------------------------------
