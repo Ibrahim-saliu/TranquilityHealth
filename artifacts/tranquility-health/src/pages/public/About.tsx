@@ -36,7 +36,7 @@ export default function AboutPage() {
       {/* Provider Profile */}
       <SectionWrapper variant="white">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Dr. Oluwole Oke</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Meet Our Founder</h2>
           <div className="bg-gradient-to-br from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-8 flex flex-col sm:flex-row gap-8 items-start">
             {/* Avatar */}
             <div className="flex-shrink-0 flex flex-col items-center gap-3">
@@ -102,28 +102,6 @@ export default function AboutPage() {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-      </SectionWrapper>
-
-      <SectionWrapper variant="brand">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Your care, led by Dr. Oke</h2>
-          <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
-            At Tranquility Health, your care is provided directly by Dr. Oluwole Oke, a board-certified Psychiatric Mental Health Nurse Practitioner (PMHNP-BC) licensed in Texas and Maryland. From your initial evaluation through ongoing follow-up, you work with the same provider, so your treatment stays consistent, personal, and informed by your history.
-          </p>
-          <div className="grid sm:grid-cols-3 gap-5">
-            {[
-              { role: "Psychiatric evaluation", detail: "Comprehensive assessment and diagnosis", gradient: "from-teal-500 to-teal-600" },
-              { role: "Medication management", detail: "Ongoing treatment, monitoring, and adjustments", gradient: "from-indigo-500 to-indigo-600" },
-              { role: "Ongoing mental health care", detail: "Regular follow-up focused on your goals", gradient: "from-violet-500 to-violet-600" },
-            ].map((r) => (
-              <div key={r.role} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                <div className={`w-2 h-8 bg-gradient-to-b ${r.gradient} rounded-full mb-4`} />
-                <p className="text-sm font-semibold text-slate-900">{r.role}</p>
-                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{r.detail}</p>
-              </div>
-            ))}
           </div>
         </div>
       </SectionWrapper>
