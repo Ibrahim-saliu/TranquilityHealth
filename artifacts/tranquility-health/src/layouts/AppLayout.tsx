@@ -8,7 +8,7 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
-// A calm, few-destination top bar. No standing "Session" tab — joining a visit
+// A calm, few-destination top bar. No standing "Session" tab; joining a visit
 // is a contextual action on the appointment itself.
 const NAV_LINKS = [
   { href: "/app/dashboard", label: "Home" },

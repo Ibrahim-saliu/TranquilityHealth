@@ -23,7 +23,7 @@ export default function HipaaNoticePage() {
 
         <Section title="What Is Protected Health Information (PHI)?">
           <p>
-            PHI is any information we create or receive in the course of providing your care that relates to your past, present, or future physical or mental health, the healthcare services provided to you, or the payment for those services — and that can reasonably be used to identify you. This includes your name, date of birth, diagnosis, treatment records, prescriptions, appointment history, and billing information.
+            PHI is any information we create or receive in the course of providing your care that relates to your past, present, or future physical or mental health, the healthcare services provided to you, or the payment for those services, and that can reasonably be used to identify you. This includes your name, date of birth, diagnosis, treatment records, prescriptions, appointment history, and billing information.
           </p>
         </Section>
 
@@ -56,7 +56,7 @@ export default function HipaaNoticePage() {
         </Section>
 
         <Section title="Uses and Disclosures Requiring Your Authorization">
-          <p>For uses and disclosures beyond those listed above — including most disclosures of psychotherapy notes, marketing uses, and sale of PHI — we will obtain your written authorization. You have the right to revoke an authorization at any time by contacting us in writing. Revocation does not apply to actions already taken in reliance on your authorization.</p>
+          <p>For uses and disclosures beyond those listed above (including most disclosures of psychotherapy notes, marketing uses, and sale of PHI), we will obtain your written authorization. You have the right to revoke an authorization at any time by contacting us in writing. Revocation does not apply to actions already taken in reliance on your authorization.</p>
         </Section>
 
         <Section title="Your Rights Regarding Your PHI">
@@ -95,12 +95,12 @@ export default function HipaaNoticePage() {
           </p>
           <div className="mt-3 space-y-3">
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
-              <p className="font-semibold mb-1">Tranquility Health — Privacy Officer</p>
+              <p className="font-semibold mb-1">Tranquility Health, Privacy Officer</p>
               <p>Email: privacy@tranquilityhealth.com</p>
               <p>Licensed in Texas and Maryland</p>
             </div>
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
-              <p className="font-semibold mb-1">U.S. Department of Health & Human Services — Office for Civil Rights</p>
+              <p className="font-semibold mb-1">U.S. Department of Health & Human Services, Office for Civil Rights</p>
               <p>Website: <a href="https://www.hhs.gov/hipaa/filing-a-complaint" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-800 underline">hhs.gov/hipaa/filing-a-complaint</a></p>
               <p>Phone: 1-800-368-1019 (TTY: 1-800-537-7697)</p>
             </div>
@@ -110,7 +110,7 @@ export default function HipaaNoticePage() {
         <Section title="Contact Us">
           <p>For questions about this Notice or to exercise your privacy rights:</p>
           <div className="mt-3 p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700">
-            <p className="font-semibold">Tranquility Health — Privacy Officer</p>
+            <p className="font-semibold">Tranquility Health, Privacy Officer</p>
             <p>Email: privacy@tranquilityhealth.com</p>
             <p>Licensed in Texas and Maryland</p>
           </div>

@@ -9,7 +9,7 @@ interface SectionWrapperProps {
   variant?: SectionVariant;
 }
 
-// Section backgrounds are kept to a single brand family — white and slate for
+// Section backgrounds are kept to a single brand family: white and slate for
 // the neutral rhythm, a dark band for contrast, and two faint teal/indigo washes
 // for the occasional accent. No competing warm hues.
 const variantClasses: Record<SectionVariant, string> = {

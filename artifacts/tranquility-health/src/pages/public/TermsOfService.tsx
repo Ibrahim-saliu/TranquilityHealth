@@ -26,7 +26,7 @@ export default function TermsOfServicePage() {
 
         <Section title="2. Not an Emergency Service">
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="font-semibold text-red-800 mb-1">Important — Emergency situations</p>
+            <p className="font-semibold text-red-800 mb-1">Important: Emergency situations</p>
             <p className="text-red-700">
               Tranquility Health is <strong>not</strong> an emergency service. If you are experiencing a psychiatric emergency, are at risk of harming yourself or others, or require immediate medical attention, call <strong>911</strong> or go to your nearest emergency room immediately. You may also call or text <strong>988</strong> (Suicide and Crisis Lifeline), available 24/7.
             </p>
@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
 
         <Section title="7. Intellectual Property">
           <p>
-            All content on this website — including text, graphics, logos, and images — is the property of Tranquility Health and is protected by applicable intellectual property laws. You may not reproduce, distribute, or modify any content without our written permission.
+            All content on this website, including text, graphics, logos, and images, is the property of Tranquility Health and is protected by applicable intellectual property laws. You may not reproduce, distribute, or modify any content without our written permission.
           </p>
         </Section>
 

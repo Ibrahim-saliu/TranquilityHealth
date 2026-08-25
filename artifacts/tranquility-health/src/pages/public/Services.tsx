@@ -49,7 +49,6 @@ export default function ServicesPage() {
       <PageHeader
         title="Our Services"
         subtitle="Comprehensive mental health care delivered via telehealth, from initial evaluation through ongoing therapy and medication management."
-        badge="Telehealth · Licensed in TX &amp; MD"
       />
 
       {/* Medication Management */}
@@ -109,7 +108,7 @@ export default function ServicesPage() {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-slate-900">Psychotherapy</h2>
                 <p className="mt-3 text-slate-600 leading-relaxed text-sm">
-                  Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.
+                  Individual counseling sessions with your provider via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.
                 </p>
                 <div className="mt-5 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                   <p className="text-xs text-indigo-700">
@@ -127,19 +126,26 @@ export default function ServicesPage() {
 
       <SectionWrapper variant="brand" tight>
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="grid sm:grid-cols-2 items-stretch">
+              <div className="p-7 flex items-start gap-4 order-2 sm:order-1">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900 mb-2">All services delivered via telehealth</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    All Tranquility Health services are conducted over secure, HIPAA-conscious video calls. You'll receive a link before your appointment. No downloads required for most devices. You just need a private space and a reliable internet connection.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-slate-900 mb-2">All services delivered via telehealth</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  All Tranquility Health services are conducted over secure, HIPAA-conscious video calls. You'll receive a link before your appointment. No downloads required for most devices. You just need a private space and a reliable internet connection.
-                </p>
-              </div>
+              <img
+                src="/services-telehealth.png"
+                alt="A patient meeting with a clinician during a secure video visit from home"
+                className="w-full h-full object-cover min-h-[200px] order-1 sm:order-2"
+              />
             </div>
           </div>
         </div>
@@ -164,7 +170,7 @@ export default function ServicesPage() {
         <div className="max-w-4xl mx-auto px-4">
           <CtaBlock
             heading="Ready to get started?"
-            subtext="Request an appointment and our team will reach out within one business day."
+            subtext="Request an appointment and we will reach out within one business day."
           />
         </div>
       </SectionWrapper>

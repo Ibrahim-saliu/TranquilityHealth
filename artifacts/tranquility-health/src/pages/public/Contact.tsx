@@ -10,8 +10,8 @@ const contactItems = [
     iconSrc: "/icons/icon-mail.png",
     label: "Email",
     content: (
-      <a href="mailto:hello@tranquilityhealth.com" className="text-teal-600 hover:text-teal-700 hover:underline text-sm">
-        hello@tranquilityhealth.com
+      <a href="mailto:admin@tranquilitycomprehensivehealth.com" className="text-teal-600 hover:text-teal-700 hover:underline text-sm break-all">
+        admin@tranquilitycomprehensivehealth.com
       </a>
     ),
   },
@@ -20,7 +20,7 @@ const contactItems = [
     label: "Phone",
     content: (
       <>
-        <p className="text-slate-700 text-sm font-medium">(555) 000-0000</p>
+        <a href="tel:+13012375395" className="text-slate-700 text-sm font-medium hover:text-teal-700">301 237 5395</a>
         <p className="text-xs text-slate-400 mt-0.5">{PHONE_HOURS_SUMMARY}</p>
       </>
     ),
@@ -94,15 +94,15 @@ export default function ContactPage() {
               <ul className="space-y-2 text-sm text-red-800">
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>988</strong> — Suicide &amp; Crisis Lifeline (call or text)</span>
+                  <span><strong>988</strong>: Suicide &amp; Crisis Lifeline (call or text)</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>911</strong> — Life-threatening emergencies</span>
+                  <span><strong>911</strong>: Life-threatening emergencies</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                  <span><strong>Crisis Text Line</strong> — Text HOME to 741741</span>
+                  <span><strong>Crisis Text Line</strong>: Text HOME to 741741</span>
                 </li>
               </ul>
               <p className="mt-4 text-xs text-red-600 font-semibold">

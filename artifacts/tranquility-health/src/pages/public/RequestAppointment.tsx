@@ -14,7 +14,7 @@ interface FieldError {
 }
 
 const serviceOptions: { value: ServiceInterest; label: string; description: string }[] = [
-  { value: "therapy", label: "Psychotherapy", description: "Individual counseling sessions with a licensed therapist" },
+  { value: "therapy", label: "Psychotherapy", description: "Individual counseling sessions with your provider" },
   { value: "medication", label: "Medication Management", description: "Psychiatric evaluation and medication management for depression, anxiety, mood disorders, and more" },
   { value: "not_sure", label: "Not sure yet", description: "Talk to our care coordinator to figure out the best fit" },
 ];
@@ -123,7 +123,7 @@ export default function RequestAppointmentPage() {
           </p>
         </div>
         <p className="mt-8 text-sm text-slate-400">
-          If you have an urgent need, call us at (555) 000-0000 during office hours.
+          If you have an urgent need, call us at 301 237 5395 during office hours.
         </p>
       </div>
     );
