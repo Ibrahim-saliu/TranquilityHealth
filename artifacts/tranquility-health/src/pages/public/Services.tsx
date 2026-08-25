@@ -146,7 +146,7 @@ export default function ServicesPage() {
                 </div>
               </div>
               <img
-                src="/services-telehealth.png"
+                src="/services-telehealth.png?v=2"
                 alt="A patient meeting with a clinician during a secure video visit from home"
                 className="w-full aspect-[16/9] object-cover min-h-[200px] order-1 sm:order-2"
               />
