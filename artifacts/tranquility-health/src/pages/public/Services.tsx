@@ -75,7 +75,7 @@ export default function ServicesPage() {
 
             <div className="rounded-xl overflow-hidden mb-6">
               <img
-                src="/services-medication.png?v=4"
+                src="/services-medication.png?v=5"
                 alt="Prescription medication bottles on pharmacy shelving"
                 className="w-full aspect-[16/9] object-cover"
               />
