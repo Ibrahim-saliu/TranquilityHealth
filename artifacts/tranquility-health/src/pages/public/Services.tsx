@@ -77,7 +77,7 @@ export default function ServicesPage() {
               <img
                 src="/services-medication.png?v=2"
                 alt="Medication management telehealth"
-                className="w-full h-52 object-cover object-[center_35%]"
+                className="w-full aspect-[16/9] object-cover"
               />
             </div>
 
@@ -120,7 +120,7 @@ export default function ServicesPage() {
                   </p>
                 </div>
                 <div className="mt-5 rounded-xl overflow-hidden">
-                  <img src="/services-therapy.png" alt="Psychotherapy session" className="w-full h-48 object-cover" />
+                  <img src="/services-therapy.png" alt="Psychotherapy session" className="w-full aspect-[16/9] object-cover" />
                 </div>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function ServicesPage() {
               <img
                 src="/services-telehealth.png"
                 alt="A patient meeting with a clinician during a secure video visit from home"
-                className="w-full h-full object-cover min-h-[200px] order-1 sm:order-2"
+                className="w-full aspect-[16/9] object-cover min-h-[200px] order-1 sm:order-2"
               />
             </div>
           </div>
