@@ -74,7 +74,11 @@ export default function ServicesPage() {
             </div>
 
             <div className="rounded-xl overflow-hidden mb-6">
-              <img src="/services-medication.png" alt="Medication management telehealth" className="w-full h-52 object-cover" />
+              <img
+                src="/services-medication.png?v=2"
+                alt="Medication management telehealth"
+                className="w-full h-52 object-cover object-[center_35%]"
+              />
             </div>
 
             {/* Conditions grid */}
