@@ -35,6 +35,7 @@ import AdminAcceptInvitePage from "@/pages/admin/AcceptInvite";
 import ProviderDashboardPage from "@/pages/admin/ProviderDashboard";
 
 import NotFoundPage from "@/pages/NotFound";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 function Router() {
   return (
@@ -159,6 +160,7 @@ function App() {
   return (
     <AuthProvider>
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <ScrollToTop />
         <Router />
       </WouterRouter>
     </AuthProvider>
