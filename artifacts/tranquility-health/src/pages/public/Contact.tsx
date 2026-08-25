@@ -20,7 +20,7 @@ const contactItems = [
     label: "Phone",
     content: (
       <>
-        <a href="tel:+13012375395" className="text-slate-700 text-sm font-medium hover:text-teal-700">301 237 5395</a>
+        <a href="tel:+13012375395" className="text-slate-700 text-sm font-medium hover:text-teal-700">(301) 237-5395</a>
         <p className="text-xs text-slate-400 mt-0.5">{PHONE_HOURS_SUMMARY}</p>
       </>
     ),
