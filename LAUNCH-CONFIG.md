@@ -31,6 +31,7 @@ for the older dev database that was left in a partial state.
 | `SESSION_SECRET` | a long random string (32+ chars) | **The API refuses to start in production without it.** Generate once, keep stable (rotating it logs everyone out). |
 | `NODE_ENV` | `production` | Turns on the **Secure** flag for the session cookie and the fail-closed `SESSION_SECRET` check. |
 | `PORT` | *(Replit provides)* | Set automatically. |
+| `APP_BASE_URL` | prod base URL, e.g. `https://app.yourclinic.com` | Base for the **patient and staff invite links**. Set it to the published domain once you have it. If it's missing, the app falls back to the host of the admin's current request, which works in most cases but can produce a wrong link behind a proxy — so set it explicitly before go-live. No trailing slash needed. |
 
 Trust-proxy is enabled automatically in the Replit environment (it detects
 `REPL_ID`), so secure cookies work behind Replit's HTTPS proxy with no extra
@@ -51,12 +52,6 @@ default (`lax`). The frontend already calls the API at same-origin `/api`.
 | `SESSION_COOKIE_SAMESITE` | `none` (required for cross-site cookies; it also forces the Secure flag) |
 
 </details>
-
-### Recommended
-
-| Name | Value | Notes |
-|---|---|---|
-| `APP_BASE_URL` | prod base URL, e.g. `https://app.yourclinic.com` | Makes staff/patient **invite links absolute**. Without it, invite links are relative paths. |
 
 ### Object storage — only if provider photo uploads are used
 
@@ -87,6 +82,20 @@ To enable email/SMS alerts on a new request:
 
 > SMS additionally needs Twilio A2P **10DLC** registration (carrier approval,
 > can take days). Email works immediately once the sender domain is verified.
+
+---
+
+## 1a. Deployment settings (Replit)
+
+| Setting | Choice | Why |
+|---|---|---|
+| **Visibility** | **Public** | This is a public-facing clinic website. Prospective patients must be able to reach `/`, `/services`, `/request-appointment`, and open their `/invite/<token>` links **without** a Replit login. A private/authenticated deployment would block intake and invite acceptance. App-level auth still protects `/admin/*` and `/app/*`. |
+| **Region** | Closest to patients — **US** (patients are in TX & MD, so a US region such as us-east) | Lowest latency for users and keeps data in-region. Pick this once; changing it later can mean re-provisioning. |
+| **Deployment type** | Autoscale / Reserved VM per Replit's recommendation for a persistent web service | Needs to stay reachable and hold the Postgres session store. |
+
+> After publishing, note the assigned domain and set `APP_BASE_URL` to it (and
+> `ADMIN_PORTAL_URL` if notifications are enabled), then redeploy so invite links
+> are correct.
 
 ---
 
@@ -135,7 +144,7 @@ Run against the **published URL**, not the preview:
 - [ ] Admin login succeeds; session persists across requests; logout works
 - [ ] `/admin/*` rejects unauthenticated users; `/app/*` rejects non-patients
 - [ ] Submit a request on `/request-appointment` → it appears in **Admin → Requests**
-- [ ] Invite that request → accept the invite → complete onboarding (details + both consents) → lands on the patient dashboard
+- [ ] Invite that request → a **Patient invite link** box appears with a `/invite/<token>` URL on the correct (published) domain → copy it, open in a private window, accept the invite → complete onboarding (details + both consents) → lands on the patient dashboard
 - [ ] Admin schedules an appointment → it shows for the patient
 - [ ] Admin cancels a scheduled appointment
 - [ ] (If enabled) a new request produces an email/SMS alert to the configured recipient

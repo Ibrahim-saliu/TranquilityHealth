@@ -9,6 +9,22 @@ function hashToken(raw: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// invitePathForRole — the correct accept path for an invite, per role.
+// Patients accept at /invite/<token> (creates their patient account + onboarding).
+// Staff (admin/collaborator/provider) accept at /admin/accept-invite/<token>,
+// which explicitly rejects patient tokens. Using the wrong path sends the
+// recipient to a page that will refuse their token.
+// ---------------------------------------------------------------------------
+export function invitePathForRole(
+  role: "admin" | "collaborator" | "patient" | "provider",
+  rawToken: string,
+): string {
+  return role === "patient"
+    ? `/invite/${rawToken}`
+    : `/admin/accept-invite/${rawToken}`;
+}
+
+// ---------------------------------------------------------------------------
 // generateInvite — creates a new invite token record and returns the raw token.
 // role defaults to "admin" — the only active invite flow is staff onboarding.
 // ---------------------------------------------------------------------------
@@ -40,7 +56,7 @@ export async function generateInvite(
   });
 
   const baseUrl = process.env["APP_BASE_URL"] ?? "http://localhost:3000";
-  console.log(`[INVITE] ${role} invite for ${email}: ${baseUrl}/admin/accept-invite/${rawToken}`);
+  console.log(`[INVITE] ${role} invite for ${email}: ${baseUrl}${invitePathForRole(role, rawToken)}`);
 
   return rawToken;
 }

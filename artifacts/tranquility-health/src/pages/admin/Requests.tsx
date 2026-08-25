@@ -5,7 +5,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearch, Redirect } from "wouter";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Copy, Check } from "lucide-react";
 import {
   listRequests,
   updateRequestStatus,
@@ -46,19 +46,41 @@ interface DetailPanelProps {
 function DetailPanel({ request, onClose, onStatusUpdated }: DetailPanelProps) {
   const [updating, setUpdating] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  // The one-time patient invite link, returned only at the moment of inviting.
+  // It cannot be recovered later (the token is hashed), so it is surfaced here
+  // for the admin to copy and send. Re-inviting generates a fresh link.
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function handleStatusChange(newStatus: RequestStatus) {
     if (newStatus === request.status) return;
     setUpdating(true);
     setFeedback(null);
     try {
-      await updateRequestStatus(request.id, newStatus);
+      const result = await updateRequestStatus(request.id, newStatus);
       onStatusUpdated(request.id, newStatus);
       setFeedback({ type: "success", msg: `Status updated to "${REQUEST_STATUS_LABELS[newStatus]}"` });
+      if (result.inviteUrl) {
+        setInviteUrl(result.inviteUrl);
+        setCopied(false);
+      }
     } catch (err) {
       setFeedback({ type: "error", msg: err instanceof Error ? err.message : "Failed to update status" });
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function handleCopyInvite() {
+    if (!inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. non-HTTPS context) — the link text is
+      // still selectable on screen, so the admin can copy it manually.
+      setFeedback({ type: "error", msg: "Couldn't copy automatically — select the link and copy it manually." });
     }
   }
 
@@ -140,6 +162,29 @@ function DetailPanel({ request, onClose, onStatusUpdated }: DetailPanelProps) {
           <p className={`text-xs mb-2 font-medium ${feedback.type === "success" ? "text-emerald-700" : "text-red-700"}`}>
             {feedback.msg}
           </p>
+        )}
+        {inviteUrl && (
+          <div className="mb-3 p-3 rounded-lg border border-teal-200 bg-teal-50/70">
+            <p className="text-xs font-semibold text-teal-800 mb-1.5">Patient invite link (send to the patient)</p>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={inviteUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                className="flex-1 min-w-0 text-xs font-mono bg-white border border-teal-200 rounded-md px-2 py-1.5 text-slate-700"
+              />
+              <button
+                onClick={handleCopyInvite}
+                className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-colors"
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="text-[11px] text-teal-700/80 mt-1.5 leading-snug">
+              Shown once and expires in 72 hours. If it's lost or expires, click "Invited" again to generate a new link.
+            </p>
+          </div>
         )}
         <div className="flex flex-wrap gap-2">
           {ALL_STATUSES.map((s) => (
