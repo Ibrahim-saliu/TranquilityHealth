@@ -25,7 +25,7 @@ const faqCategories = [
       {
         question: "Can I use Tranquility Health if I've never been to therapy before?",
         answer:
-          "Absolutely. Many of our patients are seeking mental health care for the first time. Our care coordinators are trained to make the intake process welcoming and clear, and your clinician will help you understand what to expect at every step.",
+          "Absolutely. Many of our patients are seeking mental health care for the first time. Our intake process is designed to be welcoming and clear, and your provider will help you understand what to expect at every step.",
       },
     ],
   },

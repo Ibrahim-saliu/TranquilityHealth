@@ -14,7 +14,7 @@ interface FieldError {
 }
 
 const serviceOptions: { value: ServiceInterest; label: string; description: string }[] = [
-  { value: "therapy", label: "Psychotherapy", description: "Individual counseling sessions with a licensed therapist" },
+  { value: "therapy", label: "Psychotherapy", description: "Individual counseling sessions with your provider" },
   { value: "medication", label: "Medication Management", description: "Psychiatric evaluation and medication management for depression, anxiety, mood disorders, and more" },
   { value: "not_sure", label: "Not sure yet", description: "Talk to our care coordinator to figure out the best fit" },
 ];

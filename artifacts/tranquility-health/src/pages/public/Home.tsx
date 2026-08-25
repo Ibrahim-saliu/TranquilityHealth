@@ -11,7 +11,7 @@ const features = [
   {
     iconSrc: "/icons/icon-video-call.png",
     title: "Video Appointments",
-    description: "Secure, HIPAA-conscious video sessions with licensed clinicians from the comfort of your home.",
+    description: "Secure, HIPAA-conscious video sessions with your licensed provider from the comfort of your home.",
   },
   {
     iconSrc: "/icons/icon-medication.png",

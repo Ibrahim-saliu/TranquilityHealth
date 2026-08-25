@@ -108,7 +108,7 @@ export default function ServicesPage() {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-slate-900">Psychotherapy</h2>
                 <p className="mt-3 text-slate-600 leading-relaxed text-sm">
-                  Individual counseling sessions with a licensed therapist via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.
+                  Individual counseling sessions with your provider via secure video call. We use evidence-based approaches tailored to your specific needs and goals, helping you build lasting coping skills and emotional resilience.
                 </p>
                 <div className="mt-5 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
                   <p className="text-xs text-indigo-700">
@@ -170,7 +170,7 @@ export default function ServicesPage() {
         <div className="max-w-4xl mx-auto px-4">
           <CtaBlock
             heading="Ready to get started?"
-            subtext="Request an appointment and our team will reach out within one business day."
+            subtext="Request an appointment and we will reach out within one business day."
           />
         </div>
       </SectionWrapper>

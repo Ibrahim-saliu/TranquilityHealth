@@ -11,7 +11,7 @@ const values = [
   {
     iconSrc: "/icons/icon-evidence.png",
     title: "Evidence-Based Practice",
-    description: "Our clinicians use therapies with strong research backing, including CBT, DBT, and motivational interviewing, tailored to each patient's needs.",
+    description: "We use evidence-based approaches with strong research backing, tailored to each patient's health, circumstances, and goals.",
   },
   {
     iconSrc: "/icons/icon-compassion.png",
@@ -108,15 +108,15 @@ export default function AboutPage() {
 
       <SectionWrapper variant="brand">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Our Clinical Team</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Your care, led by Dr. Oke</h2>
           <p className="text-slate-600 leading-relaxed max-w-2xl mb-8">
-            Our network of licensed mental health professionals includes therapists, counselors, and psychiatric nurse practitioners, all rigorously vetted and committed to evidence-based care. Every clinician on our platform holds an active state license and maintains continuing education in their area of specialty.
+            At Tranquility Health, your care is provided directly by Dr. Oluwole Oke, a board-certified Psychiatric Mental Health Nurse Practitioner (PMHNP-BC) licensed in Texas and Maryland. From your initial evaluation through ongoing follow-up, you work with the same provider, so your treatment stays consistent, personal, and informed by your history.
           </p>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
-              { role: "Licensed Therapists (LCSW, LPC)", detail: "Individual therapy, CBT, DBT, and more", gradient: "from-teal-500 to-teal-600" },
-              { role: "Psychiatric NPs", detail: "Evaluation, diagnosis, and medication management", gradient: "from-indigo-500 to-indigo-600" },
-              { role: "Care Coordinators", detail: "Scheduling, follow-up, and patient support", gradient: "from-violet-500 to-violet-600" },
+              { role: "Psychiatric evaluation", detail: "Comprehensive assessment and diagnosis", gradient: "from-teal-500 to-teal-600" },
+              { role: "Medication management", detail: "Ongoing treatment, monitoring, and adjustments", gradient: "from-indigo-500 to-indigo-600" },
+              { role: "Ongoing mental health care", detail: "Regular follow-up focused on your goals", gradient: "from-violet-500 to-violet-600" },
             ].map((r) => (
               <div key={r.role} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div className={`w-2 h-8 bg-gradient-to-b ${r.gradient} rounded-full mb-4`} />
